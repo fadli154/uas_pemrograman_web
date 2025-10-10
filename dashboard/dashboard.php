@@ -3,6 +3,9 @@
 require '../function.php';
 require '../check.php';
 
+$name = htmlspecialchars($_SESSION['user']['name']);
+$role = htmlspecialchars($_SESSION['user']['role']);
+
 ?>
 
 <!DOCTYPE html>
@@ -66,8 +69,8 @@ require '../check.php';
                     <ul class="menu">
                         <li class="sidebar-title">Menu</li>
 
-                        <li class="sidebar-item">
-                            <a href="index.html" class="sidebar-link">
+                        <li class="sidebar-item active">
+                            <a href="#" class="sidebar-link">
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -75,71 +78,30 @@ require '../check.php';
 
                         <li class="sidebar-title">Aplication</li>
 
-
-                        <li class="sidebar-item has-sub">
-                            <a href="#" class="sidebar-link">
-                                <i class="bi bi-person-fill-check"></i>
-                                <span>Users</span>
+                        <li class="sidebar-item">
+                            <a href="../dashboard/roles/roles-index.php" class="sidebar-link">
+                                <i class="bi bi-person-exclamation"></i>
+                                <span>Roles</span>
                             </a>
-
-                            <ul class="submenu">
-                                <li class="submenu-item has-sub">
-                                    <a href="#" class="submenu-link">First Level</a>
-
-                                    <ul class="submenu submenu-level-2">
-                                        <li class="submenu-item">
-                                            <a href="ui-multi-level-menu.html" class="submenu-link">Second Level</a>
-                                        </li>
-
-                                        <li class="submenu-item">
-                                            <a href="#" class="submenu-link">Second Level Menu</a>
-                                        </li>
-                                    </ul>
-                                </li>
-
-                                <li class="submenu-item has-sub">
-                                    <a href="#" class="submenu-link">Another Menu</a>
-
-                                    <ul class="submenu submenu-level-2">
-                                        <li class="submenu-item">
-                                            <a href="#" class="submenu-link">Second Level Menu</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
                         </li>
 
-                        <li class="sidebar-item has-sub">
-                            <a href="#" class="sidebar-link">
+                        <li class="sidebar-item">
+                            <a href="../dashboard/users/users-index.php" class="sidebar-link">
+                                <i class="bi bi-person-badge"></i>
+                                <span>Users</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="../dashboard/categories/categories-index.php" class="sidebar-link">
+                                <i class="bi bi-book"></i>
+                                <span>Categories</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="../dashboard/books/books-index.php" class="sidebar-link">
                                 <i class="bi bi-book-half"></i>
                                 <span>Books</span>
                             </a>
-
-                            <ul class="submenu">
-                                <li class="submenu-item has-sub">
-                                    <a href="#" class="submenu-link">First Level</a>
-
-                                    <ul class="submenu submenu-level-2">
-                                        <li class="submenu-item">
-                                            <a href="ui-multi-level-menu.html" class="submenu-link">Second Level</a>
-                                        </li>
-
-                                        <li class="submenu-item">
-                                            <a href="#" class="submenu-link">Second Level Menu</a>
-                                        </li>
-                                    </ul>
-                                </li>
-
-                                <li class="submenu-item has-sub">
-                                    <a href="#" class="submenu-link">Another Menu</a>
-
-                                    <ul class="submenu submenu-level-2">
-                                        <li class="submenu-item">
-                                            <a href="#" class="submenu-link">Second Level Menu</a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            </ul>
                         </li>
 
                         <li class="sidebar-title">Settings</li>
@@ -173,8 +135,9 @@ require '../check.php';
                                 <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="user-menu d-flex">
                                         <div class="user-name text-end me-3">
-                                            <h6 class="mb-0 text-gray-600">John Ducky</h6>
-                                            <p class="mb-0 text-sm text-gray-600">Administrator</p>
+                                            <h6 class="mb-0 text-gray-600">
+                                                <?= $name ?> </h6>
+                                            <p class="mb-0 text-sm text-gray-600"><?= $role ?></p>
                                         </div>
                                         <div class="user-img d-flex align-items-center">
                                             <div class="avatar avatar-md">
@@ -186,7 +149,7 @@ require '../check.php';
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton"
                                     style="min-width: 11rem">
                                     <li>
-                                        <h6 class="dropdown-header">Hello, John!</h6>
+                                        <h6 class="dropdown-header">Hello, <?= $name ?></h6>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="#"><i class="icon-mid bi bi-person me-2"></i> My
@@ -195,10 +158,6 @@ require '../check.php';
                                     <li>
                                         <a class="dropdown-item" href="#"><i class="icon-mid bi bi-gear me-2"></i>
                                             Settings</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="#"><i class="icon-mid bi bi-wallet me-2"></i>
-                                            Wallet</a>
                                     </li>
                                     <li>
                                         <hr class="dropdown-divider" />
@@ -228,7 +187,7 @@ require '../check.php';
                                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
                                     <ol class="breadcrumb">
                                         <li class="breadcrumb-item">
-                                            <a href="index.html">Dashboard</a>
+                                            <a href="#">Dashboard</a>
                                         </li>
                                     </ol>
                                 </nav>
@@ -278,21 +237,25 @@ require '../check.php';
             </footer>
         </div>
     </div>
+
+    <!-- script -->
     <script src="../assets/static/js/components/dark.js"></script>
     <script src="../assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
     <script src="../assets/compiled/js/app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
     <script>
-    <?php if (isset($_SESSION["log"])): ?>
+    <?php if (isset($_SESSION["sweetalert"])): ?>
     Swal.fire({
         icon: 'success',
         title: 'Login Success!',
         text: 'You have successfully logged in.',
         confirmButtonText: 'OK'
     });
-    <?php unset($_SESSION["welcome"]); endif; ?>
+    <?php unset($_SESSION["sweetalert"]); // hapus setelah ditampilkan ?>
+    <?php endif; ?>
     </script>
+
 
 
     <script>

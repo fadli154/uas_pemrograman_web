@@ -2,27 +2,45 @@
 require '../function.php';
 
 if (isset($_POST['submit_login'])) {
-    $email = $_POST['email'];
+    $user_id = $_POST['user_id'];
     $password = $_POST['password'];
 
-    $credentials = mysqli_query($connection, "SELECT * FROM users WHERE email = '$email' AND password = '$password'");
-    $result = mysqli_num_rows($credentials);
+    // Query dengan JOIN ke tabel roles
+    $query = "
+        SELECT * FROM users LEFT JOIN roles ON users.role_id = roles.role_id WHERE users.user_id = '$user_id' AND users.password = '$password' LIMIT 1
+    ";
 
-    if ($result > 0) {
+    $result = mysqli_query($connection, $query);
+    $user = mysqli_fetch_assoc($result);
+
+    if ($user) {
+        // Set session login
         $_SESSION["log"] = true;
+        $_SESSION["sweetalert"] = true;
+
+        $_SESSION['user'] = [
+            'id'    => $user['id'],
+            'name'  => $user['name'],
+            'email' => $user['email'],
+            'role'  => $user['role_name'] ?? 'User' // fallback jika role kosong
+        ];
+
         header("Location: ../dashboard/dashboard.php");
         exit;
     } else {
-        $_SESSION["error"] = true;
-        header("Location: login.php"); 
+        $_SESSION["error"] = "NIM/NIK/Password is incorect";
+        header("Location: login.php");
         exit;
     }
 }
 
+
+// cek kalau sudah login ke dashboard
 if (isset($_SESSION["log"])) {
     header("Location: ../dashboard/dashboard.php");
     exit;
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -52,18 +70,25 @@ if (isset($_SESSION["log"])) {
 
                     <form action="" method="post" id="login">
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="email" name="email" id="email" class="form-control form-control-xl"
-                                placeholder="Email" required>
-                            <label class="form-control-icon d-inline-block" for="email">
-                                <i class="bi bi-envelope"></i>
+                            <input type="text" name="user_id" id="user_id"
+                                class="form-control form-control-xl  <?= isset($_SESSION["error"]) ? 'is-invalid' : '' ?>"
+                                placeholder="NIM or NIK" required>
+                            <label class="form-control-icon d-inline-block" for="user_id">
+                                <i class="bi bi-person-lock"></i>
                             </label>
                         </div>
                         <div class="form-group position-relative has-icon-left mb-4">
-                            <input type="password" name="password" id="password" class="form-control form-control-xl"
+                            <input type="password" name="password" id="password"
+                                class="form-control form-control-xl <?= isset($_SESSION["error"]) ? 'is-invalid' : '' ?>"
                                 placeholder="Password" required>
                             <label class="form-control-icon" for="password">
                                 <i class="bi bi-shield-lock"></i>
                             </label>
+                            <?php if (isset($_SESSION["error"])): ?>
+                            <div class="invalid-feedback text-center mt-3">
+                                <?= $_SESSION["error"]; ?>
+                            </div>
+                            <?php endif; ?>
                         </div>
                         <button class="btn btn-primary btn-block btn-lg shadow-lg mt-3" type="submit"
                             name="submit_login">Log in</button>
