@@ -139,6 +139,16 @@ function insertUser($data, $file)
     return true;
 }
 
+// detail
+ function detailUser($id){
+    global $connection;
+    $query = "SELECT * FROM users WHERE user_id = $id";
+    $stmt = $connection->prepare($query);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $user = $result->fetch_assoc();
+    return $user;
+ }
 
 
 ?>

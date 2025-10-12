@@ -5,9 +5,20 @@ require '../../check.php';
 
 $name = htmlspecialchars($_SESSION['user']['name']);
 $role = htmlspecialchars($_SESSION['user']['role']);
-
-$users = select( 'SELECT * FROM users LEFT JOIN roles ON users.role_id = roles.role_id');
+$id = $_GET['id'];
+// mengambil data dari detail user yang di pencet
+$user = detailUser($id);
 $roles = select( 'SELECT * FROM roles');
+
+$photo = $_SESSION['user']['photo'] ?? null;
+$photoDetail = $user["photo"] ?? null;
+
+// path foto default
+$defaultPhoto = "../../assets/compiled/jpg/1.jpg";
+
+$photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $defaultPhoto;
+$photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars($photoDetail) : $defaultPhoto;
+
 ?>
 
 <!DOCTYPE html>
@@ -25,8 +36,6 @@ $roles = select( 'SELECT * FROM roles');
     <!-- datatables -->
     <link rel="stylesheet" href="../../assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" crossorigin="" href="../../assets/compiled/css/table-datatable-jquery.css">
-
-    <!-- izitoast -->
     <link rel="stylesheet" href="../../assets/extensions/iziToast/css/iziToast.min.css">
 </head>
 
@@ -89,34 +98,53 @@ $roles = select( 'SELECT * FROM roles');
 
                         <li class="sidebar-title">Aplication</li>
 
-
                         <li class="sidebar-item">
-                            <a href="../../dashboard/roles/roles-index.php" class="sidebar-link">
+                            <a href="../dashboard/roles/roles-index.php" class="sidebar-link">
                                 <i class="bi bi-person-exclamation"></i>
                                 <span>Roles</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item active">
-                            <a href="../../dashboard/users/users-index.php" class="sidebar-link">
+                            <a href="users-index.php" class="sidebar-link">
                                 <i class="bi bi-person-badge"></i>
                                 <span>Users</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../../dashboard/categories/categories-index.php" class="sidebar-link">
+                            <a href="../dashboard/categories/categories-index.php" class="sidebar-link">
                                 <i class="bi bi-book"></i>
                                 <span>Categories</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../../dashboard/books/books-index.php" class="sidebar-link">
+                            <a href="../dashboard/books/books-index.php" class="sidebar-link">
                                 <i class="bi bi-book-half"></i>
                                 <span>Books</span>
                             </a>
                         </li>
+                        <li class="sidebar-item">
+                            <a href="../dashboard/videos/videos-index.php" class="sidebar-link">
+                                <i class="bi bi-camera-video"></i>
+                                <span>Videos</span>
+                            </a>
+                        </li>
 
                         <li class="sidebar-title">Settings</li>
+
+                        <li class="sidebar-item">
+                            <a href="profile.php" class="sidebar-link">
+                                <i class="bi bi-person-gear"></i>
+                                <span>Profile</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="profile.php" class="sidebar-link">
+                                <i class="bi bi-person-lock"></i>
+                                <span>Change Password</span>
+                            </a>
+                        </li>
 
                         <li class="sidebar-item logout-btn">
                             <a href="#" class="sidebar-link logout-btn">
@@ -147,29 +175,40 @@ $roles = select( 'SELECT * FROM roles');
                                 <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="user-menu d-flex">
                                         <div class="user-name text-end me-3">
-                                            <h6 class="mb-0 text-gray-600">
-                                                <?= $name ?> </h6>
-                                            <p class="mb-0 text-sm text-gray-600"><?= $role ?></p>
+                                            <h6 class="mb-0 text-gray-600 text-capitalize">
+                                                <?= $name ?></h6>
+                                            <p class="mb-0 text-sm text-gray-600 text-capitalize">
+                                                <?= $role ?></p>
                                         </div>
                                         <div class="user-img d-flex align-items-center">
+                                            <?php if ($photo) { ?>
                                             <div class="avatar avatar-md">
-                                                <img src="../../assets/compiled/jpg/1.jpg" />
+                                                <img src="<?= $photoPath ?>" alt="User Photo" />
                                             </div>
+                                            <?php } else { ?>
+                                            <div class="avatar avatar-md">
+                                                <img src="../../assets/static/images/faces/
+                                                1.svg" alt="User Photo">
+                                            </div>
+                                            <?php } ?>
                                         </div>
                                     </div>
                                 </a>
+
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton"
                                     style="min-width: 11rem">
                                     <li>
-                                        <h6 class="dropdown-header">Hello, <?= $name ?></h6>
+                                        <h6 class="dropdown-header text-capitalize">Hello, <?= $name ?></h6>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#"><i class="icon-mid bi bi-person me-2"></i> My
+                                        <a class="dropdown-item" href="profile.php"><i
+                                                class="icon-mid bi bi-person me-2"></i> My
                                             Profile</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#"><i class="icon-mid bi bi-gear me-2"></i>
-                                            Settings</a>
+                                        <a class="dropdown-item" href="change-password.php"><i
+                                                class="icon-mid bi bi-person-lock me-2"></i>
+                                            Change Password</a>
                                     </li>
                                     <li>
                                         <hr class="dropdown-divider" />
@@ -190,9 +229,9 @@ $roles = select( 'SELECT * FROM roles');
                     <div class="page-title">
                         <div class="row">
                             <div class="col-12 col-md-6 order-md-1 order-last">
-                                <h3>Data Users</h3>
+                                <h3 class="text-capitalize">Detail data <?= $user["name"] ?></h3>
                                 <p class="text-subtitle text-muted">
-                                    Manage and view all registered users.
+                                    View detail data user
                                 </p>
                             </div>
                             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -214,44 +253,167 @@ $roles = select( 'SELECT * FROM roles');
                     </div>
                     <section class="section">
                         <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title"></h4>
-                            </div>
                             <div class="card-body">
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
-                                    mollis tincidunt tempus. Duis vitae facilisis enim, at
-                                    rutrum lacus. Nam at nisl ut ex egestas placerat sodales id
-                                    quam. Aenean sit amet nibh quis lacus pellentesque venenatis
-                                    vitae at justo. Orci varius natoque penatibus et magnis dis
-                                    parturient montes, nascetur ridiculus mus. Suspendisse
-                                    venenatis tincidunt odio ut rutrum. Maecenas ut urna
-                                    venenatis, dapibus tortor sed, ultrices justo. Phasellus
-                                    scelerisque, nibh quis gravida venenatis, nibh mi lacinia
-                                    est, et porta purus nisi eget nibh. Fusce pretium vestibulum
-                                    sagittis. Donec sodales velit cursus convallis sollicitudin.
-                                    Nunc vel scelerisque elit, eget facilisis tellus. Donec id
-                                    molestie ipsum. Nunc tincidunt tellus sed felis vulputate
-                                    euismod.
-                                </p>
+                                <form action="" method="" enctype="multipart/form-data">
+                                    <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+                                        <div class="row m-2">
+                                            <div class="col-12">
+                                                <div class="form-group mandatory position-relative has-icon-left">
+                                                    <label for="user_id" class="form-label">User ID</label>
+                                                    <input type="number" id="user_id" name="user_id"
+                                                        class="form-control form-control-lg <?= isset($_SESSION["errors"]["user_id"]) ? 'is-invalid' : '' ?>"
+                                                        placeholder="e.g 241730042" value="<?= $user["user_id"] ?>"
+                                                        readonly>
+                                                    <div class="form-control-icon" style="top: 38px">
+                                                        <i class="bi bi-person-exclamation"></i>
+                                                    </div>
+                                                    <?php if (isset($_SESSION["errors"]["user_id"])): ?>
+                                                    <div class="invalid-feedback">
+                                                        <?= $_SESSION["errors"]["user_id"]; ?>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-12">
+                                                <div class="form-group mandatory position-relative has-icon-left">
+                                                    <label for="name" class="form-label">Name</label>
+                                                    <input type="text" id="name" name="name"
+                                                        class="form-control form-control-lg <?= isset($_SESSION["errors"]["name"]) ? 'is-invalid' : '' ?>"
+                                                        placeholder="e.g Fadli Hifziansyah" value="<?= $user["name"] ?>"
+                                                        readonly>
+                                                    <div class="form-control-icon" style="top: 38px">
+                                                        <i class="bi bi-person"></i>
+                                                    </div>
+                                                    <?php if (isset($_SESSION["errors"]["name"])): ?>
+                                                    <div class="invalid-feedback">
+                                                        <?= $_SESSION["errors"]["name"]; ?>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-12">
+                                                <div class="form-group mandatory position-relative has-icon-left">
+                                                    <label for="email" class="form-label">Email</label>
+                                                    <input type="email" id="email" name="email"
+                                                        class="form-control form-control-lg <?= isset($_SESSION["errors"]["email"]) ? 'is-invalid' : '' ?>"
+                                                        placeholder="e.g fadlihifziansyah153@gmail.com"
+                                                        value="<?= $user["email"] ?>" readonly>
+                                                    <div class="form-control-icon" style="top: 38px">
+                                                        <i class="bi bi-envelope"></i>
+                                                    </div>
+                                                    <?php if (isset($_SESSION["errors"]["email"])): ?>
+                                                    <div class="invalid-feedback">
+                                                        <?= $_SESSION["errors"]["email"]; ?>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <div class=" col-12">
+                                                <div class="form-group mandatory position-relative has-icon-left">
+                                                    <label for="phone" class="form-label">Phone</label>
+                                                    <input type="text" id="phone" name="phone"
+                                                        class="form-control form-control-lg <?= isset($_SESSION["errors"]["phone"]) ? 'is-invalid' : '' ?>"
+                                                        placeholder="e.g 0878 2738 2281" value="<?= $user["phone"] ?>"
+                                                        readonly>
+                                                    <div class="form-control-icon" style="top: 38px">
+                                                        <i class="bi bi-telephone"></i>
+                                                    </div>
+                                                    <?php if (isset($_SESSION["errors"]["phone"])): ?>
+                                                    <div class="invalid-feedback">
+                                                        <?= $_SESSION["errors"]["phone"]; ?>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-12">
+                                                <div class="form-group mandatory position-relative has-icon-left">
+                                                    <label for="status" class="form-label">Status</label>
+                                                    <select id="status"
+                                                        class="choices form-control form-select <?= isset($_SESSION["errors"]["status"]) ? 'is-invalid' : '' ?>"
+                                                        name="status" disabled>
+                                                        <option value="">-- Select Status --</option>
+                                                        <option value="active"
+                                                            <?= (($user["status"] ?? '') === 'active') ? 'selected' : '' ?>>
+                                                            Active
+                                                        </option>
+                                                        <option value="inactive"
+                                                            <?= (($user['status'] ?? '') === 'inactive') ? 'selected' : '' ?>>
+                                                            Inactive</option>
+                                                    </select>
+                                                    <?php if (isset($_SESSION["errors"]["status"])): ?>
+                                                    <div class="invalid-feedback">
+                                                        <?= $_SESSION["errors"]["status"]; ?>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-12">
+                                                <div class="form-group mandatory position-relative has-icon-left">
+                                                    <label for="role" class="form-label">Role</label>
+                                                    <select id="role" name="role_id" disabled
+                                                        class="choices form-control form-select <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>">
+                                                        <option value="">-- Select Role --</option>
+                                                        <?php foreach ($roles as $role): ?>
+                                                        <option value="<?= $role["role_id"] ?>"
+                                                            <?= (($user['role_id'] ?? '') == $role["role_id"]) ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars($role["role_name"]) ?>
+                                                        </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                    <?php if (isset($_SESSION["errors"]["role_id"])): ?>
+                                                    <div class="invalid-feedback">
+                                                        <?= $_SESSION["errors"]["role_id"]; ?>
+                                                    </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 mb-1">
+
+                                                <fieldset>
+                                                    <label class="mb-1 d-block" for="photo">Photo</label>
+                                                    <!-- mengambil foto -->
+                                                    <img id="photoPreviewImg" src="<?= $photoPathDetail ?>"
+                                                        alt="Preview foto"
+                                                        style="max-height: 120px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                    </div>
                             </div>
+                            <div class="modal-footer mx-2 mt-2 pb-4 pe-2">
+                                <a href="users-index.php" type="button" name="add-user"
+                                    class="btn btn-secondary me-2 text-light" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-original-title="Back to List">
+                                    <i class="bx bx-check d-block d-sm-none"></i>
+                                    <span class="d-none d-sm-block"><i class="bi bi-arrow-90deg-left"></i>
+                                        back</span>
+                                </a>
+                                <button type="submit" name="add-user" class="btn btn-success" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-original-title="Edit">
+                                    <i class="bx bx-check d-block d-sm-none"></i>
+                                    <span class="d-none d-sm-block"><i class="bi bi-pencil-square"></i>
+                                        Edit</span>
+                                </button>
+                            </div>
+                            </form>
                         </div>
-                    </section>
                 </div>
+                </section>
             </div>
-            <footer <div class="footer clearfix mb-0 text-muted">
-                <div class="float-start">
-                    <p>2023 &copy; Mazer</p>
-                </div>
-                <div class="float-end">
-                    <p>
-                        Crafted with
-                        <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
-                        by <a href="https://saugi.me">Saugi</a>
-                    </p>
-                </div>
         </div>
-        </footer>
+        <footer <div class="footer clearfix mb-0 text-muted">
+            <div class="float-start">
+                <p>2023 &copy; Mazer</p>
+            </div>
+            <div class="float-end">
+                <p>
+                    Crafted with
+                    <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
+                    by <a href="https://saugi.me">Saugi</a>
+                </p>
+            </div>
+    </div>
+    </footer>
     </div>
     </div>
 
@@ -332,22 +494,6 @@ $roles = select( 'SELECT * FROM roles');
     const previewContainer = document.getElementById('photoPreviewContainer');
     const previewImg = document.getElementById('photoPreviewImg');
     const closeBtn = document.getElementById('closePreviewBtn');
-
-    // tampilkan preview saat file dipilih
-    photoInput.addEventListener('change', function(event) {
-        const file = event.target.files[0];
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImg.src = e.target.result;
-                previewContainer.style.display = 'inline-block';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            previewContainer.style.display = 'none';
-        }
-    });
 
     // tombol close preview
     closeBtn.addEventListener('click', function() {

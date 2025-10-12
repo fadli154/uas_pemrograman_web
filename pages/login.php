@@ -22,6 +22,14 @@ if (isset($_POST['submit_login'])) {
             $_SESSION["log"] = true;
             $_SESSION["sweetalert"] = true;
 
+            $_SESSION['user'] = [
+                'id'    => $user['id'],
+                'name'  => $user['name'],
+                'email' => $user['email'],
+                'photo' => $user['photo'],
+                'role'  => $user['role_name'] ?? 'User'
+            ];
+
             header("Location: ../dashboard/dashboard.php");
             exit;
         } 
