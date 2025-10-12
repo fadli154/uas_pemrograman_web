@@ -294,8 +294,7 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
     <?php endif; ?>
     </script>
 
-
-
+    <!-- logout -->
     <script>
     document.body.addEventListener('click', function(e) {
         const element = e.target.closest('.logout-btn'); // cari elemen logout-btn terdekat
@@ -304,17 +303,17 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
         e.preventDefault(); // cegah langsung berpindah halaman
 
         Swal.fire({
-            title: "Yakin ingin logout?",
-            text: "Kamu akan keluar dari akun ini.",
+            title: "Sure Wanna logout?",
+            text: "You will be logged out.",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             confirmButtonText: "Ya, logout",
-            cancelButtonText: "Batal"
+            cancelButtonText: "Reject"
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "../pages/logout.php";
+                window.location.href = "../../pages/logout.php";
             }
         });
     });

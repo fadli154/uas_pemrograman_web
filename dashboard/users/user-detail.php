@@ -252,272 +252,287 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                         </div>
                     </div>
                     <section class="section">
-                        <div class="card">
-                            <div class="card-body">
-                                <form action="" method="" enctype="multipart/form-data">
-                                    <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-                                        <div class="row m-2">
-                                            <div class="col-12">
-                                                <div class="form-group mandatory position-relative has-icon-left">
-                                                    <label for="user_id" class="form-label">User ID</label>
-                                                    <input type="number" id="user_id" name="user_id"
-                                                        class="form-control form-control-lg <?= isset($_SESSION["errors"]["user_id"]) ? 'is-invalid' : '' ?>"
-                                                        placeholder="e.g 241730042" value="<?= $user["user_id"] ?>"
-                                                        readonly>
-                                                    <div class="form-control-icon" style="top: 38px">
-                                                        <i class="bi bi-person-exclamation"></i>
-                                                    </div>
-                                                    <?php if (isset($_SESSION["errors"]["user_id"])): ?>
-                                                    <div class="invalid-feedback">
-                                                        <?= $_SESSION["errors"]["user_id"]; ?>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </div>
+                        <div class="row">
+                            <div class="col-12 col-lg-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-center align-items-center flex-column">
+                                            <div class="avatar">
+                                                <img src="<?= $photoPathDetail ?>"
+                                                    style="aspect-ratio: 1/1; width: 180px; height: 180px;"
+                                                    alt="Avatar">
                                             </div>
-                                            <div class="col-md-6 col-12">
-                                                <div class="form-group mandatory position-relative has-icon-left">
-                                                    <label for="name" class="form-label">Name</label>
-                                                    <input type="text" id="name" name="name"
-                                                        class="form-control form-control-lg <?= isset($_SESSION["errors"]["name"]) ? 'is-invalid' : '' ?>"
-                                                        placeholder="e.g Fadli Hifziansyah" value="<?= $user["name"] ?>"
-                                                        readonly>
-                                                    <div class="form-control-icon" style="top: 38px">
-                                                        <i class="bi bi-person"></i>
-                                                    </div>
-                                                    <?php if (isset($_SESSION["errors"]["name"])): ?>
-                                                    <div class="invalid-feedback">
-                                                        <?= $_SESSION["errors"]["name"]; ?>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 col-12">
-                                                <div class="form-group mandatory position-relative has-icon-left">
-                                                    <label for="email" class="form-label">Email</label>
-                                                    <input type="email" id="email" name="email"
-                                                        class="form-control form-control-lg <?= isset($_SESSION["errors"]["email"]) ? 'is-invalid' : '' ?>"
-                                                        placeholder="e.g fadlihifziansyah153@gmail.com"
-                                                        value="<?= $user["email"] ?>" readonly>
-                                                    <div class="form-control-icon" style="top: 38px">
-                                                        <i class="bi bi-envelope"></i>
-                                                    </div>
-                                                    <?php if (isset($_SESSION["errors"]["email"])): ?>
-                                                    <div class="invalid-feedback">
-                                                        <?= $_SESSION["errors"]["email"]; ?>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                            <div class=" col-12">
-                                                <div class="form-group mandatory position-relative has-icon-left">
-                                                    <label for="phone" class="form-label">Phone</label>
-                                                    <input type="text" id="phone" name="phone"
-                                                        class="form-control form-control-lg <?= isset($_SESSION["errors"]["phone"]) ? 'is-invalid' : '' ?>"
-                                                        placeholder="e.g 0878 2738 2281" value="<?= $user["phone"] ?>"
-                                                        readonly>
-                                                    <div class="form-control-icon" style="top: 38px">
-                                                        <i class="bi bi-telephone"></i>
-                                                    </div>
-                                                    <?php if (isset($_SESSION["errors"]["phone"])): ?>
-                                                    <div class="invalid-feedback">
-                                                        <?= $_SESSION["errors"]["phone"]; ?>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 col-12">
-                                                <div class="form-group mandatory position-relative has-icon-left">
-                                                    <label for="status" class="form-label">Status</label>
-                                                    <select id="status"
-                                                        class="choices form-control form-select <?= isset($_SESSION["errors"]["status"]) ? 'is-invalid' : '' ?>"
-                                                        name="status" disabled>
-                                                        <option value="">-- Select Status --</option>
-                                                        <option value="active"
-                                                            <?= (($user["status"] ?? '') === 'active') ? 'selected' : '' ?>>
-                                                            Active
-                                                        </option>
-                                                        <option value="inactive"
-                                                            <?= (($user['status'] ?? '') === 'inactive') ? 'selected' : '' ?>>
-                                                            Inactive</option>
-                                                    </select>
-                                                    <?php if (isset($_SESSION["errors"]["status"])): ?>
-                                                    <div class="invalid-feedback">
-                                                        <?= $_SESSION["errors"]["status"]; ?>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6 col-12">
-                                                <div class="form-group mandatory position-relative has-icon-left">
-                                                    <label for="role" class="form-label">Role</label>
-                                                    <select id="role" name="role_id" disabled
-                                                        class="choices form-control form-select <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>">
-                                                        <option value="">-- Select Role --</option>
-                                                        <?php foreach ($roles as $role): ?>
-                                                        <option value="<?= $role["role_id"] ?>"
-                                                            <?= (($user['role_id'] ?? '') == $role["role_id"]) ? 'selected' : '' ?>>
-                                                            <?= htmlspecialchars($role["role_name"]) ?>
-                                                        </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                    <?php if (isset($_SESSION["errors"]["role_id"])): ?>
-                                                    <div class="invalid-feedback">
-                                                        <?= $_SESSION["errors"]["role_id"]; ?>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                            <div class="col-12 mb-1">
 
-                                                <fieldset>
-                                                    <label class="mb-1 d-block" for="photo">Photo</label>
-                                                    <!-- mengambil foto -->
-                                                    <img id="photoPreviewImg" src="<?= $photoPathDetail ?>"
-                                                        alt="Preview foto"
-                                                        style="max-height: 120px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-                                                </fieldset>
-                                            </div>
+                                            <h3 class="mt-3"><?= $user["name"] ?></h3>
+                                            <p class="text-small text-capitalize"><?= $user["role_name"] ?></p>
                                         </div>
                                     </div>
+                                </div>
                             </div>
-                            <div class="modal-footer mx-2 mt-2 pb-4 pe-2">
-                                <a href="users-index.php" type="button" name="add-user"
-                                    class="btn btn-secondary me-2 text-light" data-bs-toggle="tooltip"
-                                    data-bs-placement="top" data-bs-original-title="Back to List">
-                                    <i class="bx bx-check d-block d-sm-none"></i>
-                                    <span class="d-none d-sm-block"><i class="bi bi-arrow-90deg-left"></i>
-                                        back</span>
-                                </a>
-                                <button type="submit" name="add-user" class="btn btn-success" data-bs-toggle="tooltip"
-                                    data-bs-placement="top" data-bs-original-title="Edit">
-                                    <i class="bx bx-check d-block d-sm-none"></i>
-                                    <span class="d-none d-sm-block"><i class="bi bi-pencil-square"></i>
-                                        Edit</span>
-                                </button>
+                            <div class="col-12 col-lg-8">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <form action="" method="" enctype="multipart/form-data">
+                                            <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+                                                <div class="row m-2">
+                                                    <div class="col-12">
+                                                        <div
+                                                            class="form-group mandatory position-relative has-icon-left">
+                                                            <label for="user_id" class="form-label">User ID</label>
+                                                            <input type="number" id="user_id" name="user_id"
+                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["user_id"]) ? 'is-invalid' : '' ?>"
+                                                                placeholder="e.g 241730042"
+                                                                value="<?= $user["user_id"] ?>" readonly>
+                                                            <div class="form-control-icon" style="top: 38px">
+                                                                <i class="bi bi-person-exclamation"></i>
+                                                            </div>
+                                                            <?php if (isset($_SESSION["errors"]["user_id"])): ?>
+                                                            <div class="invalid-feedback">
+                                                                <?= $_SESSION["errors"]["user_id"]; ?>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 col-12">
+                                                        <div
+                                                            class="form-group mandatory position-relative has-icon-left">
+                                                            <label for="name" class="form-label">Name</label>
+                                                            <input type="text" id="name" name="name"
+                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["name"]) ? 'is-invalid' : '' ?>"
+                                                                placeholder="e.g Fadli Hifziansyah"
+                                                                value="<?= $user["name"] ?>" readonly>
+                                                            <div class="form-control-icon" style="top: 38px">
+                                                                <i class="bi bi-person"></i>
+                                                            </div>
+                                                            <?php if (isset($_SESSION["errors"]["name"])): ?>
+                                                            <div class="invalid-feedback">
+                                                                <?= $_SESSION["errors"]["name"]; ?>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 col-12">
+                                                        <div
+                                                            class="form-group mandatory position-relative has-icon-left">
+                                                            <label for="email" class="form-label">Email</label>
+                                                            <input type="email" id="email" name="email"
+                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["email"]) ? 'is-invalid' : '' ?>"
+                                                                placeholder="e.g fadlihifziansyah153@gmail.com"
+                                                                value="<?= $user["email"] ?>" readonly>
+                                                            <div class="form-control-icon" style="top: 38px">
+                                                                <i class="bi bi-envelope"></i>
+                                                            </div>
+                                                            <?php if (isset($_SESSION["errors"]["email"])): ?>
+                                                            <div class="invalid-feedback">
+                                                                <?= $_SESSION["errors"]["email"]; ?>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" col-12">
+                                                        <div
+                                                            class="form-group mandatory position-relative has-icon-left">
+                                                            <label for="phone" class="form-label">Phone</label>
+                                                            <input type="text" id="phone" name="phone"
+                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["phone"]) ? 'is-invalid' : '' ?>"
+                                                                placeholder="e.g 0878 2738 2281"
+                                                                value="<?= $user["phone"] ?>" readonly>
+                                                            <div class="form-control-icon" style="top: 38px">
+                                                                <i class="bi bi-telephone"></i>
+                                                            </div>
+                                                            <?php if (isset($_SESSION["errors"]["phone"])): ?>
+                                                            <div class="invalid-feedback">
+                                                                <?= $_SESSION["errors"]["phone"]; ?>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 col-12">
+                                                        <div
+                                                            class="form-group mandatory position-relative has-icon-left">
+                                                            <label for="status" class="form-label">Status</label>
+                                                            <select id="status"
+                                                                class="choices form-control form-select <?= isset($_SESSION["errors"]["status"]) ? 'is-invalid' : '' ?>"
+                                                                name="status" disabled>
+                                                                <option value="">-- Select Status --</option>
+                                                                <option value="active"
+                                                                    <?= (($user["status"] ?? '') === 'active') ? 'selected' : '' ?>>
+                                                                    Active
+                                                                </option>
+                                                                <option value="inactive"
+                                                                    <?= (($user['status'] ?? '') === 'inactive') ? 'selected' : '' ?>>
+                                                                    Inactive</option>
+                                                            </select>
+                                                            <?php if (isset($_SESSION["errors"]["status"])): ?>
+                                                            <div class="invalid-feedback">
+                                                                <?= $_SESSION["errors"]["status"]; ?>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6 col-12">
+                                                        <div
+                                                            class="form-group mandatory position-relative has-icon-left">
+                                                            <label for="role" class="form-label">Role</label>
+                                                            <select id="role" name="role_id" disabled
+                                                                class="choices form-control form-select <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>">
+                                                                <option value="">-- Select Role --</option>
+                                                                <?php foreach ($roles as $role): ?>
+                                                                <option value="<?= $role["role_id"] ?>"
+                                                                    <?= (($user['role_id'] ?? '') == $role["role_id"]) ? 'selected' : '' ?>>
+                                                                    <?= htmlspecialchars($role["role_name"]) ?>
+                                                                </option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                            <?php if (isset($_SESSION["errors"]["role_id"])): ?>
+                                                            <div class="invalid-feedback">
+                                                                <?= $_SESSION["errors"]["role_id"]; ?>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer mx-2 mt-2">
+                                                <a href="users-index.php" type="button" name="add-user"
+                                                    class="btn btn-secondary me-2 text-light" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" data-bs-original-title="Back to List">
+                                                    <i class="bx bx-check d-block d-sm-none"></i>
+                                                    <span class="d-none d-sm-block"><i
+                                                            class="bi bi-arrow-90deg-left"></i>
+                                                        back</span>
+                                                </a>
+                                                <button type="submit" name="add-user" class="btn btn-success"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    data-bs-original-title="Edit">
+                                                    <i class="bx bx-check d-block d-sm-none"></i>
+                                                    <span class="d-none d-sm-block"><i class="bi bi-pencil-square"></i>
+                                                        Edit</span>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
-                            </form>
                         </div>
+                    </section>
                 </div>
-                </section>
             </div>
+            <footer <div class="footer clearfix mb-0 text-muted">
+                <div class="float-start">
+                    <p>2023 &copy; Mazer</p>
+                </div>
+                <div class="float-end">
+                    <p>
+                        Crafted with
+                        <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
+                        by <a href="https://saugi.me">Saugi</a>
+                    </p>
+                </div>
         </div>
-        <footer <div class="footer clearfix mb-0 text-muted">
-            <div class="float-start">
-                <p>2023 &copy; Mazer</p>
-            </div>
-            <div class="float-end">
-                <p>
-                    Crafted with
-                    <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
-                    by <a href="https://saugi.me">Saugi</a>
-                </p>
-            </div>
-    </div>
-    </footer>
-    </div>
-    </div>
+        </footer>
 
-    <!-- jquery -->
-    <script src="../../assets/extensions/jquery/jquery.min.js"></script>
+        <!-- jquery -->
+        <script src="../../assets/extensions/jquery/jquery.min.js"></script>
 
-    <!-- script -->
-    <script src="../../assets/static/js/components/dark.js"></script>
-    <script src="../../assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-    <script src="../../assets/compiled/js/app.js"></script>
+        <!-- script -->
+        <script src="../../assets/static/js/components/dark.js"></script>
+        <script src="../../assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+        <script src="../../assets/compiled/js/app.js"></script>
 
-    <!-- choices -->
-    <script src="../../assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
+        <!-- choices -->
+        <script src="../../assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
 
-    <!-- sweetalert -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        <!-- sweetalert -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-    <!-- format phone -->
-    <script src="../../assets/static/js/phoneFormat.js"></script>
+        <!-- format phone -->
+        <script src="../../assets/static/js/phoneFormat.js"></script>
 
-    <script>
-    <?php if (isset($_SESSION["error"])): ?>
-    $(document).ready(function() {
-        iziToast.error({
-            title: 'Error',
-            message: "<?= $_SESSION["error"]; ?>",
-            position: 'topRight'
-        })
-    });
-    <?php unset($_SESSION["error"]); // hapus setelah ditampilkan ?>
-    <?php endif; ?>
-    </script>
-
-    <!-- logout -->
-    <script>
-    document.body.addEventListener('click', function(e) {
-        const element = e.target.closest('.logout-btn'); // cari elemen logout-btn terdekat
-        if (!element) return;
-
-        e.preventDefault(); // cegah langsung berpindah halaman
-
-        Swal.fire({
-            title: "Yakin ingin logout?",
-            text: "Kamu akan keluar dari akun ini.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Ya, logout",
-            cancelButtonText: "Batal"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "../../pages/logout.php";
-            }
+        <script>
+        <?php if (isset($_SESSION["error"])): ?>
+        $(document).ready(function() {
+            iziToast.error({
+                title: 'Error',
+                message: "<?= $_SESSION["error"]; ?>",
+                position: 'topRight'
+            })
         });
-    });
-    </script>
+        <?php unset($_SESSION["error"]); // hapus setelah ditampilkan ?>
+        <?php endif; ?>
+        </script>
 
-    <!-- choice -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        new Choices('#role', {
-            searchEnabled: true,
-            itemSelectText: '',
+        <!-- logout -->
+        <script>
+        document.body.addEventListener('click', function(e) {
+            const element = e.target.closest('.logout-btn'); // cari elemen logout-btn terdekat
+            if (!element) return;
+
+            e.preventDefault(); // cegah langsung berpindah halaman
+
+            Swal.fire({
+                title: "Sure Wanna logout?",
+                text: "You will be logged out.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya, logout",
+                cancelButtonText: "Reject"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "../../pages/logout.php";
+                }
+            });
         });
-    });
-    document.addEventListener('DOMContentLoaded', function() {
-        new Choices('#status', {
-            searchEnabled: true,
-            itemSelectText: '',
+        </script>
+
+        <!-- choice -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new Choices('#role', {
+                searchEnabled: true,
+                itemSelectText: '',
+            });
         });
-    });
-    </script>
+        document.addEventListener('DOMContentLoaded', function() {
+            new Choices('#status', {
+                searchEnabled: true,
+                itemSelectText: '',
+            });
+        });
+        </script>
 
-    <!-- preview img -->
-    <script>
-    const photoInput = document.getElementById('photo');
-    const previewContainer = document.getElementById('photoPreviewContainer');
-    const previewImg = document.getElementById('photoPreviewImg');
-    const closeBtn = document.getElementById('closePreviewBtn');
+        <!-- preview img -->
+        <script>
+        const photoInput = document.getElementById('photo');
+        const previewContainer = document.getElementById('photoPreviewContainer');
+        const previewImg = document.getElementById('photoPreviewImg');
+        const closeBtn = document.getElementById('closePreviewBtn');
 
-    // tombol close preview
-    closeBtn.addEventListener('click', function() {
-        previewImg.src = '#';
-        previewContainer.style.display = 'none';
-        photoInput.value = ''; // kosongkan input file juga
-    });
+        // tombol close preview
+        closeBtn.addEventListener('click', function() {
+            previewImg.src = '#';
+            previewContainer.style.display = 'none';
+            photoInput.value = ''; // kosongkan input file juga
+        });
 
-    // tombol reset form (jika ada)
-    document.querySelector('button[type="reset"]')?.addEventListener('click', function() {
-        previewImg.src = '#';
-        previewContainer.style.display = 'none';
-        photoInput.value = '';
-    });
-    </script>
+        // tombol reset form (jika ada)
+        document.querySelector('button[type="reset"]')?.addEventListener('click', function() {
+            previewImg.src = '#';
+            previewContainer.style.display = 'none';
+            photoInput.value = '';
+        });
+        </script>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
-    }, false);
-    </script>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        }, false);
+        </script>
 
 </body>
 

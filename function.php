@@ -142,13 +142,62 @@ function insertUser($data, $file)
 // detail
  function detailUser($id){
     global $connection;
-    $query = "SELECT * FROM users WHERE user_id = $id";
+    $query = "SELECT * FROM users LEFT JOIN roles ON users.role_id = roles.role_id WHERE user_id = $id";
     $stmt = $connection->prepare($query);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
     return $user;
  }
+
+//  delete
+function deleteUser($id) {
+    global $connection;
+
+    // Make sure the user is logged in
+    if (!isset($_SESSION["user"])) {
+        $_SESSION["error"] = "You must be logged in to perform this action.";
+        return false;
+    }
+
+    $currentUser = $_SESSION["user"];
+
+    // Prevent a user from deleting their own account
+    if ($id == $currentUser["user_id"]) {
+        $_SESSION["error"] = "You cannot delete your own account.";
+        return false;
+    }
+
+    // Allow only admin users to delete other users
+    if ($currentUser["role_id"] != '1') {
+        $_SESSION["error"] = "You do not have permission to delete users.";
+        return false;
+    }
+
+    // Check if the target user exists before deleting
+    $check = $connection->prepare("SELECT 1 FROM users WHERE user_id = ?");
+    $check->bind_param("s", $id);
+    $check->execute();
+    $check->store_result();
+    if ($check->num_rows == 0) {
+        $_SESSION["error"] = "User not found.";
+        return false;
+    }
+    $check->close();
+
+    // Execute delete query
+    $stmt = $connection->prepare("DELETE FROM users WHERE user_id = ?");
+    $stmt->bind_param("s", $id);
+
+    if ($stmt->execute()) {
+        $_SESSION["success"] = "User has been successfully deleted!";
+        return true;
+    } else {
+        $_SESSION["error"] = "Failed to delete user: " . $stmt->error;
+        return false;
+    }
+}
+
 
 
 ?>

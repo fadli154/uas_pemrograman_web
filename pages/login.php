@@ -23,11 +23,12 @@ if (isset($_POST['submit_login'])) {
             $_SESSION["sweetalert"] = true;
 
             $_SESSION['user'] = [
-                'id'    => $user['id'],
+                'user_id'    => $user['user_id'],
                 'name'  => $user['name'],
                 'email' => $user['email'],
                 'photo' => $user['photo'],
-                'role'  => $user['role_name'] ?? 'User'
+                'role'  => $user['role_name'] ?? 'User',
+                'role_id' => $user['role_id'] ?? '3',
             ];
 
             header("Location: ../dashboard/dashboard.php");

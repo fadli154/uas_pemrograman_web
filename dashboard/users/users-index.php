@@ -18,6 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Jika ada parameter delete_id di URL
+if (isset($_GET['delete_id'])) {
+    $id = $_GET['delete_id'];
+    deleteUser($id); // panggil fungsi hapus
+    header("Location: users-index.php"); // redirect supaya URL bersih
+    exit;
+}
+
 $photo = $_SESSION['user']['photo'] ?? null;
 
 // path foto default
@@ -311,10 +319,12 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                                                     <span class="position-absolute" style="top: 9px">
                                                                         Detail</span>
                                                                 </a>
-                                                                <a class="dropdown-item position-relative" href="#">
-                                                                    <i class="bi bi-eye me-2"> </i>
-                                                                    <span class="position-absolute" style="top: 9px">
-                                                                        Detail</span>
+                                                                <a href="?delete_id=<?= $user['user_id']; ?>"
+                                                                    class="dropdown-item position-relative delete-btn">
+                                                                    <i
+                                                                        class="bi bi-door-open-fill text-danger me-2"></i>
+                                                                    <span class="position-absolute text-danger"
+                                                                        style="top: 9px">Delete</span>
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -525,8 +535,6 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                 <i class="bx bx-check d-block d-sm-none"></i>
                                 <span class="d-none d-sm-block"><i class="bi bi-check-circle"></i></span>
                             </button>
-
-
                         </div>
                     </form>
                 </div>
@@ -600,14 +608,14 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
         e.preventDefault(); // cegah langsung berpindah halaman
 
         Swal.fire({
-            title: "Yakin ingin logout?",
-            text: "Kamu akan keluar dari akun ini.",
+            title: "Sure Wanna logout?",
+            text: "You will be logged out.",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             confirmButtonText: "Ya, logout",
-            cancelButtonText: "Batal"
+            cancelButtonText: "Reject"
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = "../../pages/logout.php";
@@ -615,6 +623,33 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
         });
     });
     </script>
+
+    <!-- Delete -->
+    <script>
+    document.body.addEventListener('click', function(e) {
+        const element = e.target.closest('.delete-btn');
+        if (!element) return;
+        e.preventDefault();
+
+        const deleteUrl = element.getAttribute('href'); // ambil href dengan ?delete_id=...
+
+        Swal.fire({
+            title: "Sure Wanna delete?",
+            text: "Data user will be deleted permanently.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Delete",
+            cancelButtonText: "Batal"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = deleteUrl; // jalankan delete langsung di users-index.php
+            }
+        });
+    });
+    </script>
+
 
     <!-- datatables -->
     <script>
