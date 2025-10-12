@@ -1,18 +1,13 @@
 <?php
 
-require '../function.php';
-require '../check.php';
+require '../../function.php';
+require '../../check.php';
 
 $name = htmlspecialchars($_SESSION['user']['name']);
 $role = htmlspecialchars($_SESSION['user']['role']);
 
-$photo = $_SESSION['user']['photo'] ?? null;
-
-// path foto default
-$defaultPhoto = "../../assets/compiled/jpg/1.jpg";
-
-$photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defaultPhoto;
-
+$users = select( 'SELECT * FROM users LEFT JOIN roles ON users.role_id = roles.role_id');
+$roles = select( 'SELECT * FROM roles');
 ?>
 
 <!DOCTYPE html>
@@ -22,20 +17,29 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard</title>
-    <link rel="shortcut icon" href="../assets/compiled/svg/favicon.svg" type="image/x-icon" />
-    <link rel="stylesheet" href="../assets/compiled/css/app.css" />
-    <link rel="stylesheet" href="../assets/compiled/css/app-dark.css" />
+    <link rel="stylesheet" href="../../assets/extensions/choices.js/public/assets/styles/choices.css">
+    <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon" />
+    <link rel="stylesheet" href="../../assets/compiled/css/app.css" />
+    <link rel="stylesheet" href="../../assets/compiled/css/app-dark.css" />
+
+    <!-- datatables -->
+    <link rel="stylesheet" href="../../assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" crossorigin="" href="../../assets/compiled/css/table-datatable-jquery.css">
+
+    <!-- izitoast -->
+    <link rel="stylesheet" href="../../assets/extensions/iziToast/css/iziToast.min.css">
 </head>
 
 <body>
-    <script src="../assets/static/js/initTheme.js"></script>
+    <script src="../../assets/static/js/initTheme.js"></script>
     <div id="app">
         <div id="sidebar">
             <div class="sidebar-wrapper active">
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="index.html"><img src="../assets/compiled/svg/logo.svg" alt="Logo" srcset="" /></a>
+                            <a href="index.html"><img src="../../assets/compiled/svg/logo.svg" alt="Logo"
+                                    srcset="" /></a>
                         </div>
                         <div class="theme-toggle d-flex gap-2 align-items-center justify-content-center mt-2">
                             <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -76,8 +80,8 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
                     <ul class="menu">
                         <li class="sidebar-title">Menu</li>
 
-                        <li class="sidebar-item active">
-                            <a href="#" class="sidebar-link">
+                        <li class="sidebar-item">
+                            <a href="../dashboard.php" class="sidebar-link">
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -85,53 +89,34 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
 
                         <li class="sidebar-title">Aplication</li>
 
+
                         <li class="sidebar-item">
-                            <a href="../dashboard/roles/roles-index.php" class="sidebar-link">
+                            <a href="../../dashboard/roles/roles-index.php" class="sidebar-link">
                                 <i class="bi bi-person-exclamation"></i>
                                 <span>Roles</span>
                             </a>
                         </li>
 
-                        <li class="sidebar-item">
-                            <a href="../dashboard/users/users-index.php" class="sidebar-link">
+                        <li class="sidebar-item active">
+                            <a href="../../dashboard/users/users-index.php" class="sidebar-link">
                                 <i class="bi bi-person-badge"></i>
                                 <span>Users</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../dashboard/categories/categories-index.php" class="sidebar-link">
+                            <a href="../../dashboard/categories/categories-index.php" class="sidebar-link">
                                 <i class="bi bi-book"></i>
                                 <span>Categories</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../dashboard/books/books-index.php" class="sidebar-link">
+                            <a href="../../dashboard/books/books-index.php" class="sidebar-link">
                                 <i class="bi bi-book-half"></i>
                                 <span>Books</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
-                            <a href="../dashboard/videos/videos-index.php" class="sidebar-link">
-                                <i class="bi bi-camera-video"></i>
-                                <span>Videos</span>
-                            </a>
-                        </li>
 
                         <li class="sidebar-title">Settings</li>
-
-                        <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
-                                <i class="bi bi-person-gear"></i>
-                                <span>Profile</span>
-                            </a>
-                        </li>
-
-                        <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
-                                <i class="bi bi-person-lock"></i>
-                                <span>Change Password</span>
-                            </a>
-                        </li>
 
                         <li class="sidebar-item logout-btn">
                             <a href="#" class="sidebar-link logout-btn">
@@ -162,40 +147,29 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
                                 <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="user-menu d-flex">
                                         <div class="user-name text-end me-3">
-                                            <h6 class="mb-0 text-gray-600 text-capitalize">
-                                                <?= $name ?></h6>
-                                            <p class="mb-0 text-sm text-gray-600 text-capitalize">
-                                                <?= $role ?></p>
+                                            <h6 class="mb-0 text-gray-600">
+                                                <?= $name ?> </h6>
+                                            <p class="mb-0 text-sm text-gray-600"><?= $role ?></p>
                                         </div>
                                         <div class="user-img d-flex align-items-center">
-                                            <?php if ($photo) { ?>
                                             <div class="avatar avatar-md">
-                                                <img src="<?= $photoPath ?>" alt="User Photo" />
+                                                <img src="../../assets/compiled/jpg/1.jpg" />
                                             </div>
-                                            <?php } else { ?>
-                                            <div class="avatar avatar-md">
-                                                <img src="../../assets/static/images/faces/
-                                                1.svg" alt="User Photo">
-                                            </div>
-                                            <?php } ?>
                                         </div>
                                     </div>
                                 </a>
-
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton"
                                     style="min-width: 11rem">
                                     <li>
-                                        <h6 class="dropdown-header text-capitalize">Hello, <?= $name ?></h6>
+                                        <h6 class="dropdown-header">Hello, <?= $name ?></h6>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="profile.php"><i
-                                                class="icon-mid bi bi-person me-2"></i> My
+                                        <a class="dropdown-item" href="#"><i class="icon-mid bi bi-person me-2"></i> My
                                             Profile</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="change-password.php"><i
-                                                class="icon-mid bi bi-person-lock me-2"></i>
-                                            Change Password</a>
+                                        <a class="dropdown-item" href="#"><i class="icon-mid bi bi-gear me-2"></i>
+                                            Settings</a>
                                     </li>
                                     <li>
                                         <hr class="dropdown-divider" />
@@ -216,16 +190,22 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
                     <div class="page-title">
                         <div class="row">
                             <div class="col-12 col-md-6 order-md-1 order-last">
-                                <h3>Dashboard</h3>
+                                <h3>Data Users</h3>
                                 <p class="text-subtitle text-muted">
-                                    All Statistic Aplication.
+                                    Manage and view all registered users.
                                 </p>
                             </div>
                             <div class="col-12 col-md-6 order-md-2 order-first">
                                 <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-                                    <ol class="breadcrumb">
+                                    <ol class="breadcrumb mb-2">
                                         <li class="breadcrumb-item">
-                                            <a href="#">Dashboard</a>
+                                            <a href="../dashboard.php">Dashboard</a>
+                                        </li>
+                                        <li class="breadcrumb-item">
+                                            <a href="users-index.php">Users</a>
+                                        </li>
+                                        <li class="breadcrumb-item">
+                                            <a href="#">Users Detail</a>
                                         </li>
                                     </ol>
                                 </nav>
@@ -259,43 +239,53 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
                     </section>
                 </div>
             </div>
-            <footer>
-                <div class="footer clearfix mb-0 text-muted">
-                    <div class="float-start">
-                        <p>2023 &copy; Mazer</p>
-                    </div>
-                    <div class="float-end">
-                        <p>
-                            Crafted with
-                            <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
-                            by <a href="https://saugi.me">Saugi</a>
-                        </p>
-                    </div>
+            <footer <div class="footer clearfix mb-0 text-muted">
+                <div class="float-start">
+                    <p>2023 &copy; Mazer</p>
                 </div>
-            </footer>
+                <div class="float-end">
+                    <p>
+                        Crafted with
+                        <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
+                        by <a href="https://saugi.me">Saugi</a>
+                    </p>
+                </div>
         </div>
+        </footer>
+    </div>
     </div>
 
+    <!-- jquery -->
+    <script src="../../assets/extensions/jquery/jquery.min.js"></script>
+
     <!-- script -->
-    <script src="../assets/static/js/components/dark.js"></script>
-    <script src="../assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-    <script src="../assets/compiled/js/app.js"></script>
+    <script src="../../assets/static/js/components/dark.js"></script>
+    <script src="../../assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="../../assets/compiled/js/app.js"></script>
+
+    <!-- choices -->
+    <script src="../../assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
+
+    <!-- sweetalert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
+    <!-- format phone -->
+    <script src="../../assets/static/js/phoneFormat.js"></script>
+
     <script>
-    <?php if (isset($_SESSION["sweetalert"])): ?>
-    Swal.fire({
-        icon: 'success',
-        title: 'Login Success!',
-        text: 'You have successfully logged in.',
-        confirmButtonText: 'OK'
+    <?php if (isset($_SESSION["error"])): ?>
+    $(document).ready(function() {
+        iziToast.error({
+            title: 'Error',
+            message: "<?= $_SESSION["error"]; ?>",
+            position: 'topRight'
+        })
     });
-    <?php unset($_SESSION["sweetalert"]); // hapus setelah ditampilkan ?>
+    <?php unset($_SESSION["error"]); // hapus setelah ditampilkan ?>
     <?php endif; ?>
     </script>
 
-
-
+    <!-- logout -->
     <script>
     document.body.addEventListener('click', function(e) {
         const element = e.target.closest('.logout-btn'); // cari elemen logout-btn terdekat
@@ -314,11 +304,75 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
             cancelButtonText: "Batal"
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "../pages/logout.php";
+                window.location.href = "../../pages/logout.php";
             }
         });
     });
     </script>
+
+    <!-- choice -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new Choices('#role', {
+            searchEnabled: true,
+            itemSelectText: '',
+        });
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        new Choices('#status', {
+            searchEnabled: true,
+            itemSelectText: '',
+        });
+    });
+    </script>
+
+    <!-- preview img -->
+    <script>
+    const photoInput = document.getElementById('photo');
+    const previewContainer = document.getElementById('photoPreviewContainer');
+    const previewImg = document.getElementById('photoPreviewImg');
+    const closeBtn = document.getElementById('closePreviewBtn');
+
+    // tampilkan preview saat file dipilih
+    photoInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewContainer.style.display = 'none';
+        }
+    });
+
+    // tombol close preview
+    closeBtn.addEventListener('click', function() {
+        previewImg.src = '#';
+        previewContainer.style.display = 'none';
+        photoInput.value = ''; // kosongkan input file juga
+    });
+
+    // tombol reset form (jika ada)
+    document.querySelector('button[type="reset"]')?.addEventListener('click', function() {
+        previewImg.src = '#';
+        previewContainer.style.display = 'none';
+        photoInput.value = '';
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    }, false);
+    </script>
+
 </body>
 
 </html>

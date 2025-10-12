@@ -8,6 +8,23 @@ $role = htmlspecialchars($_SESSION['user']['role']);
 
 $users = select( 'SELECT * FROM users LEFT JOIN roles ON users.role_id = roles.role_id');
 $roles = select( 'SELECT * FROM roles');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (insertUser($_POST, $_FILES)) {
+        unset($_SESSION["errors"]);
+        $_SESSION["success"] = "Successfully added new user"; 
+        header("Location: users-index.php");
+        exit;
+    }
+}
+
+$photo = $_SESSION['user']['photo'] ?? null;
+
+// path foto default
+$defaultPhoto = "../../assets/compiled/jpg/1.jpg";
+
+$photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $defaultPhoto;
+
 ?>
 
 <!DOCTYPE html>
@@ -78,7 +95,7 @@ $roles = select( 'SELECT * FROM roles');
                         <li class="sidebar-title">Menu</li>
 
                         <li class="sidebar-item">
-                            <a href="../dashboard.php" class="sidebar-link">
+                            <a href="#" class="sidebar-link">
                                 <i class="bi bi-grid-fill"></i>
                                 <span>Dashboard</span>
                             </a>
@@ -86,34 +103,53 @@ $roles = select( 'SELECT * FROM roles');
 
                         <li class="sidebar-title">Aplication</li>
 
-
                         <li class="sidebar-item">
-                            <a href="../../dashboard/roles/roles-index.php" class="sidebar-link">
+                            <a href="../dashboard/roles/roles-index.php" class="sidebar-link">
                                 <i class="bi bi-person-exclamation"></i>
                                 <span>Roles</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item active">
-                            <a href="../../dashboard/users/users-index.php" class="sidebar-link">
+                            <a href="../dashboard/users/users-index.php" class="sidebar-link">
                                 <i class="bi bi-person-badge"></i>
                                 <span>Users</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../../dashboard/categories/categories-index.php" class="sidebar-link">
+                            <a href="../dashboard/categories/categories-index.php" class="sidebar-link">
                                 <i class="bi bi-book"></i>
                                 <span>Categories</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../../dashboard/books/books-index.php" class="sidebar-link">
+                            <a href="../dashboard/books/books-index.php" class="sidebar-link">
                                 <i class="bi bi-book-half"></i>
                                 <span>Books</span>
                             </a>
                         </li>
+                        <li class="sidebar-item">
+                            <a href="../dashboard/videos/videos-index.php" class="sidebar-link">
+                                <i class="bi bi-camera-video"></i>
+                                <span>Videos</span>
+                            </a>
+                        </li>
 
                         <li class="sidebar-title">Settings</li>
+
+                        <li class="sidebar-item">
+                            <a href="profile.php" class="sidebar-link">
+                                <i class="bi bi-person-gear"></i>
+                                <span>Profile</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="profile.php" class="sidebar-link">
+                                <i class="bi bi-person-lock"></i>
+                                <span>Change Password</span>
+                            </a>
+                        </li>
 
                         <li class="sidebar-item logout-btn">
                             <a href="#" class="sidebar-link logout-btn">
@@ -144,29 +180,40 @@ $roles = select( 'SELECT * FROM roles');
                                 <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="user-menu d-flex">
                                         <div class="user-name text-end me-3">
-                                            <h6 class="mb-0 text-gray-600">
-                                                <?= $name ?> </h6>
-                                            <p class="mb-0 text-sm text-gray-600"><?= $role ?></p>
+                                            <h6 class="mb-0 text-gray-600 text-capitalize">
+                                                <?= $name ?></h6>
+                                            <p class="mb-0 text-sm text-gray-600 text-capitalize">
+                                                <?= $role ?></p>
                                         </div>
                                         <div class="user-img d-flex align-items-center">
+                                            <?php if ($photo) { ?>
                                             <div class="avatar avatar-md">
-                                                <img src="../../assets/compiled/jpg/1.jpg" />
+                                                <img src="<?= $photoPath ?>" alt="User Photo" />
                                             </div>
+                                            <?php } else { ?>
+                                            <div class="avatar avatar-md">
+                                                <img src="../../assets/static/images/faces/
+                                                1.svg" alt="User Photo">
+                                            </div>
+                                            <?php } ?>
                                         </div>
                                     </div>
                                 </a>
+
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton"
                                     style="min-width: 11rem">
                                     <li>
-                                        <h6 class="dropdown-header">Hello, <?= $name ?></h6>
+                                        <h6 class="dropdown-header text-capitalize">Hello, <?= $name ?></h6>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#"><i class="icon-mid bi bi-person me-2"></i> My
+                                        <a class="dropdown-item" href="profile.php"><i
+                                                class="icon-mid bi bi-person me-2"></i> My
                                             Profile</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="#"><i class="icon-mid bi bi-gear me-2"></i>
-                                            Settings</a>
+                                        <a class="dropdown-item" href="change-password.php"><i
+                                                class="icon-mid bi bi-person-lock me-2"></i>
+                                            Change Password</a>
                                     </li>
                                     <li>
                                         <hr class="dropdown-divider" />
@@ -208,7 +255,9 @@ $roles = select( 'SELECT * FROM roles');
                     </div>
                     <section class="section position-relative">
                         <button type="button" class="btn btn-success rounded-top-pill position-absolute"
-                            data-bs-toggle="modal" data-bs-target="#modalAddUser" style="top:-31px; right: 0px;">
+                            data-bs-toggle="modal" data-bs-target="#modalAddUser" data-bs-toggle="tooltip"
+                            data-bs-placement="top" data-bs-original-title="Add User"
+                            style="top:-32px; right: 0px; height: 40px;">
                             <i class="bi bi-plus-circle-dotted"></i>
                         </button>
                         <div class="card">
@@ -249,11 +298,13 @@ $roles = select( 'SELECT * FROM roles');
                                                                 aria-labelledby="dropdownMenuButton"
                                                                 style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(0px, 40px, 0px);"
                                                                 data-popper-placement="bottom-start">
-                                                                <a class="dropdown-item position-relative" href="#">
-                                                                    <i class="bi bi-eye me-2"> </i>
-                                                                    <span class="position-absolute" style="top: 9px">
-                                                                        Detail</span>
+                                                                <a href="user-detail.php?id=<?= $user['user_id'] ?>"
+                                                                    class="dropdown-item position-relative btn-detail-user">
+                                                                    <i class="bi bi-eye me-2 text-primary"></i>
+                                                                    <span class="position-absolute text-primary"
+                                                                        style="top: 9px">Detail</span>
                                                                 </a>
+
                                                                 <a class="dropdown-item position-relative" href="#">
                                                                     <i class="bi bi-eye me-2"> </i>
                                                                     <span class="position-absolute" style="top: 9px">
@@ -294,10 +345,10 @@ $roles = select( 'SELECT * FROM roles');
 
         <!-- modal tambah data -->
         <div class="modal fade text-left" id="modalAddUser" tabindex="-1" aria-labelledby="myModalLabel33"
-            style="display: none;" aria-hidden="true">
+            style="display: none;" aria-hidden="true" role="dialog" aria-modal="true">
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header mx-2">
                         <h4 class="modal-title" id="myModalLabel33">Tambah Data Users</h4>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -309,85 +360,172 @@ $roles = select( 'SELECT * FROM roles');
                         </button>
                     </div>
                     <form action="" method="POST" enctype="multipart/form-data">
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-6">
-                                    <label for="name">Name: </label>
-                                    <div class="form-group">
-                                        <input id="name" type="text" name="name" placeholder="e.g Fadli Hifziansyah"
-                                            class="form-control" required>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <label for="email">Email: </label>
-                                    <div class="form-group">
-                                        <input id="email" type="email" name="email"
-                                            placeholder="e.g hafizudin@gmail.com" class="form-control" required>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <label for="phone">phone: </label>
-                                    <div class="form-group">
-                                        <input id="phone" type="phone" name="phone" placeholder="e.g 0878 2730 3327"
-                                            class="form-control" required>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="form-group">
-                                        <label for="status">Select Status</label>
-                                        <select id="status" class="choices form-select">
-                                            <option value="">-- Select Status --</option>
-                                            <option value="active">Active</option>
-                                            <option value="inactive">Inactive</option>
-                                        </select>
-                                    </div>
-                                </div>
+                        <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+                            <div class="row m-2">
                                 <div class="col-12">
-                                    <div class="form-group">
-                                        <label for="role">Select Role</label>
-                                        <select id="role" class="choices form-select">
+                                    <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="user_id" class="form-label">User ID</label>
+                                        <input type="number" id="user_id" name="user_id"
+                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["user_id"]) ? 'is-invalid' : '' ?>"
+                                            placeholder="e.g 241730042" value="<?= $_POST['user_id'] ?? '' ?>" required>
+                                        <div class="form-control-icon" style="top: 38px">
+                                            <i class="bi bi-person-exclamation"></i>
+                                        </div>
+                                        <?php if (isset($_SESSION["errors"]["user_id"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["user_id"]; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="name" class="form-label">Name</label>
+                                        <input type="text" id="name" name="name"
+                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["name"]) ? 'is-invalid' : '' ?>"
+                                            placeholder="e.g Fadli Hifziansyah" value="<?= $_POST['name'] ?? '' ?>"
+                                            required>
+                                        <div class="form-control-icon" style="top: 38px">
+                                            <i class="bi bi-person"></i>
+                                        </div>
+                                        <?php if (isset($_SESSION["errors"]["name"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["name"]; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" id="email" name="email"
+                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["email"]) ? 'is-invalid' : '' ?>"
+                                            placeholder="e.g fadlihifziansyah153@gmail.com"
+                                            value="<?= $_POST['email'] ?? '' ?>" required>
+                                        <div class="form-control-icon" style="top: 38px">
+                                            <i class="bi bi-envelope"></i>
+                                        </div>
+                                        <?php if (isset($_SESSION["errors"]["email"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["email"]; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="phone" class="form-label">Phone</label>
+                                        <input type="text" id="phone" name="phone"
+                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["phone"]) ? 'is-invalid' : '' ?>"
+                                            placeholder="e.g 0878 2738 2281" value="<?= $_POST['phone'] ?? '' ?>"
+                                            required>
+                                        <div class="form-control-icon" style="top: 38px">
+                                            <i class="bi bi-telephone"></i>
+                                        </div>
+                                        <?php if (isset($_SESSION["errors"]["phone"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["phone"]; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="password" class="form-label">Password</label>
+                                        <input type="password" id="password" name="password"
+                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["password"]) ? 'is-invalid' : '' ?>"
+                                            placeholder="e.g ao2koio4j8s" value="<?= $_POST['password'] ?? '' ?>"
+                                            required>
+                                        <div class="form-control-icon" style="top: 38px">
+                                            <i class="bi bi-shield-check"></i>
+                                        </div>
+                                        <?php if (isset($_SESSION["errors"]["password"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["password"]; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="status" class="form-label">Status</label>
+                                        <select id="status"
+                                            class="choices form-control form-select <?= isset($_SESSION["errors"]["status"]) ? 'is-invalid' : '' ?>"
+                                            name="status" required>
+                                            <option value="">-- Select Status --</option>
+                                            <option value="active"
+                                                <?= (($_POST['status'] ?? '') === 'active') ? 'selected' : '' ?>>Active
+                                            </option>
+                                            <option value="inactive"
+                                                <?= (($_POST['status'] ?? '') === 'inactive') ? 'selected' : '' ?>>
+                                                Inactive</option>
+                                        </select>
+                                        <?php if (isset($_SESSION["errors"]["status"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["status"]; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="role" class="form-label">Role</label>
+                                        <select id="role" name="role_id" required
+                                            class="choices form-control form-select <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>">
                                             <option value="">-- Select Role --</option>
-                                            <?php foreach($roles as $role): ?>
-                                            <option value="<?= $role["role_id"] ?>"><?= $role["role_name"] ?></option>
+                                            <?php foreach ($roles as $role): ?>
+                                            <option value="<?= $role["role_id"] ?>"
+                                                <?= (($_POST['role_id'] ?? '') == $role["role_id"]) ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($role["role_name"]) ?>
+                                            </option>
                                             <?php endforeach; ?>
                                         </select>
-                                    </div>
-                                </div>
-
-                                <div class="col-12">
-                                    <label for="password">Password: </label>
-                                    <div class="form-group">
-                                        <input id="password" type="password" name="password"
-                                            placeholder="e.g kaqp29d7anq" class="form-control" required>
+                                        <?php if (isset($_SESSION["errors"]["role_id"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["role_id"]; ?>
+                                        </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="col-12 mb-1">
                                     <fieldset>
-                                        <label for="photo">Photo: </label>
+                                        <label class="mb-1" for="photo">Photo</label>
                                         <div class="input-group">
                                             <input type="file" class="form-control" id="photo"
                                                 aria-describedby="inputGroupFileAddon04" aria-label="Upload"
-                                                name="photo">
-                                            <button class="btn btn-primary" type="button"
+                                                name="photo" accept="image/*">
+                                            <button class="btn btn-primary z-0" type="button"
                                                 id="inputGroupFileAddon04">Upload</button>
+                                        </div>
+
+                                        <!-- Preview container -->
+                                        <div class="mt-3 text-center position-relative" id="photoPreviewContainer"
+                                            style="display: none;">
+                                            <button type="button" class="position-absolute btn btn-danger btn-sm"
+                                                id="closePreviewBtn"
+                                                style="top: -12px; right: -12px; border-radius: 50%; width: 2px 2px;">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                            <img id="photoPreviewImg" src="#" alt="Preview foto"
+                                                style="max-height: 120px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                         </div>
                                     </fieldset>
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
-                                <i class="bx bx-x d-block d-sm-none"></i>
-                                <span class="d-none d-sm-block">Close</span>
-                            </button>
-                            <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">
-                                <i class="bx bx-x d-block d-sm-none"></i>
-                                <span class="d-none d-sm-block">Reset</span>
-                            </button>
-                            <button type="submit" class="btn btn-primary ms-1" data-bs-dismiss="modal">
+                        <div class="modal-footer mx-2">
+                            <button type="button" name="add-user" class="btn btn-danger" data-bs-toggle="tooltip"
+                                data-bs-placement="top" data-bs-original-title="Close" data-bs-dismiss="modal">
                                 <i class="bx bx-check d-block d-sm-none"></i>
-                                <span class="d-none d-sm-block">Insert</span>
+                                <span class="d-none d-sm-block"><i class="bi bi-x-circle"></i></span>
                             </button>
+                            <button type="submit" name="add-user" class="btn btn-primary" data-bs-toggle="tooltip"
+                                data-bs-placement="top" data-bs-original-title="Insert">
+                                <i class="bx bx-check d-block d-sm-none"></i>
+                                <span class="d-none d-sm-block"><i class="bi bi-check-circle"></i></span>
+                            </button>
+
+
                         </div>
                     </form>
                 </div>
@@ -418,19 +556,41 @@ $roles = select( 'SELECT * FROM roles');
     <!-- format phone -->
     <script src="../../assets/static/js/phoneFormat.js"></script>
 
+    <!-- parsley -->
+    <script src="../../assets/extensions/parsleyjs/parsley.min.js"></script>
+    <script src="../../assets/static/js/pages/parsley.js"></script>
 
+    <!-- izitoast -->
+    <script src="../../assets/extensions/iziToast/js/iziToast.min.js"></script>
+
+    <!-- iziToast -->
     <script>
-    <?php if (isset($_SESSION["sweetalert"])): ?>
-    Swal.fire({
-        icon: 'success',
-        title: 'Login Success!',
-        text: 'You have successfully logged in.',
-        confirmButtonText: 'OK'
+    <?php if (isset($_SESSION["success"])): ?>
+    $(document).ready(function() {
+        iziToast.success({
+            title: 'Success',
+            message: "<?= $_SESSION["success"]; ?>",
+            position: 'topRight'
+        })
     });
-    <?php unset($_SESSION["sweetalert"]); // hapus setelah ditampilkan ?>
+    <?php unset($_SESSION["success"]); // hapus setelah ditampilkan ?>
     <?php endif; ?>
     </script>
 
+    <script>
+    <?php if (isset($_SESSION["error"])): ?>
+    $(document).ready(function() {
+        iziToast.error({
+            title: 'Error',
+            message: "<?= $_SESSION["error"]; ?>",
+            position: 'topRight'
+        })
+    });
+    <?php unset($_SESSION["error"]); // hapus setelah ditampilkan ?>
+    <?php endif; ?>
+    </script>
+
+    <!-- logout -->
     <script>
     document.body.addEventListener('click', function(e) {
         const element = e.target.closest('.logout-btn'); // cari elemen logout-btn terdekat
@@ -471,6 +631,7 @@ $roles = select( 'SELECT * FROM roles');
     });
     </script>
 
+    <!-- choice -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         new Choices('#role', {
@@ -478,6 +639,59 @@ $roles = select( 'SELECT * FROM roles');
             itemSelectText: '',
         });
     });
+    document.addEventListener('DOMContentLoaded', function() {
+        new Choices('#status', {
+            searchEnabled: true,
+            itemSelectText: '',
+        });
+    });
+    </script>
+
+    <!-- preview img -->
+    <script>
+    const photoInput = document.getElementById('photo');
+    const previewContainer = document.getElementById('photoPreviewContainer');
+    const previewImg = document.getElementById('photoPreviewImg');
+    const closeBtn = document.getElementById('closePreviewBtn');
+
+    // tampilkan preview saat file dipilih
+    photoInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewContainer.style.display = 'inline-block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            previewContainer.style.display = 'none';
+        }
+    });
+
+    // tombol close preview
+    closeBtn.addEventListener('click', function() {
+        previewImg.src = '#';
+        previewContainer.style.display = 'none';
+        photoInput.value = ''; // kosongkan input file juga
+    });
+
+    // tombol reset form (jika ada)
+    document.querySelector('button[type="reset"]')?.addEventListener('click', function() {
+        previewImg.src = '#';
+        previewContainer.style.display = 'none';
+        photoInput.value = '';
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    }, false);
     </script>
 
 </body>

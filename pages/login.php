@@ -5,35 +5,32 @@ if (isset($_POST['submit_login'])) {
     $user_id = $_POST['user_id'];
     $password = $_POST['password'];
 
-    // Query dengan JOIN ke tabel roles
+    // Ambil user berdasarkan user_id saja
     $query = "
-        SELECT * FROM users LEFT JOIN roles ON users.role_id = roles.role_id WHERE users.user_id = '$user_id' AND users.password = '$password' LIMIT 1
+        SELECT * FROM users 
+        LEFT JOIN roles ON users.role_id = roles.role_id 
+        WHERE users.user_id = '$user_id' 
+        LIMIT 1
     ";
-
     $result = mysqli_query($connection, $query);
     $user = mysqli_fetch_assoc($result);
 
     if ($user) {
-        // Set session login
-        $_SESSION["log"] = true;
-        $_SESSION["sweetalert"] = true;
+        // Verifikasi password menggunakan bcrypt
+        if (password_verify($password, $user['password'])) {
+            // Set session login
+            $_SESSION["log"] = true;
+            $_SESSION["sweetalert"] = true;
 
-        $_SESSION['user'] = [
-            'id'    => $user['id'],
-            'name'  => $user['name'],
-            'email' => $user['email'],
-            'role'  => $user['role_name'] ?? 'User' // fallback jika role kosong
-        ];
-
-        header("Location: ../dashboard/dashboard.php");
-        exit;
+            header("Location: ../dashboard/dashboard.php");
+            exit;
+        } 
     } else {
-        $_SESSION["error"] = "NIM/NIK/Password is incorect";
-        header("Location: login.php");
-        exit;
+       $_SESSION["error"] = "NIM/NIK/Password is incorrect";
+            header("Location: login.php");
+            exit;
     }
 }
-
 
 // cek kalau sudah login ke dashboard
 if (isset($_SESSION["log"])) {
