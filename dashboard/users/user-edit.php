@@ -24,13 +24,13 @@ $user = detailUser($id);
 $roles = select('SELECT * FROM roles');
 
 $photo = $_SESSION['user']['photo'] ?? null;
-$photoDetail = $user["photo"] ?? null;
+$photoEdit = $user["photo"] ?? null;
 
 // path foto default
 $defaultPhoto = "../../assets/compiled/jpg/1.jpg";
 
 $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $defaultPhoto;
-$photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars($photoDetail) : $defaultPhoto;
+$photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($photoEdit) : $defaultPhoto;
 
 ?>
 
@@ -40,7 +40,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Detail | Dashboard</title>
+    <title>User Edit | Dashboard</title>
     <link rel="stylesheet" href="../../assets/extensions/choices.js/public/assets/styles/choices.css">
     <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon" />
     <link rel="stylesheet" href="../../assets/compiled/css/app.css" />
@@ -242,9 +242,9 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                     <div class="page-title">
                         <div class="row">
                             <div class="col-12 col-md-6 order-md-1 order-last">
-                                <h3 class="text-capitalize">Detail data <?= $user["name"] ?></h3>
+                                <h3 class="text-capitalize">Edit data <?= $user["name"] ?></h3>
                                 <p class="text-subtitle text-muted">
-                                    View detail data user
+                                    View edit data user
                                 </p>
                             </div>
                             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -257,7 +257,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                             <a href="users-index.php">Users</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="#">Users Detail</a>
+                                            <a href="#">Users Edit</a>
                                         </li>
                                     </ol>
                                 </nav>
@@ -277,7 +277,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                     <div class="card-body">
                                         <div class="d-flex justify-content-center align-items-center flex-column">
                                             <div class="avatar">
-                                                <img src="<?= $photoPathDetail ?>"
+                                                <img src="<?= $photoPathEdit ?>"
                                                     style="aspect-ratio: 1/1; width: 180px; height: 180px;"
                                                     alt="Avatar">
                                             </div>
@@ -301,7 +301,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                                             <input type="number" id="user_id" name="user_id"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["user_id"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g 241730042"
-                                                                value="<?= $user["user_id"] ?>" readonly>
+                                                                value="<?= $user["user_id"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-person-exclamation"></i>
                                                             </div>
@@ -319,7 +319,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                                             <input type="text" id="name" name="name"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["name"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g Fadli Hifziansyah"
-                                                                value="<?= $user["name"] ?>" readonly>
+                                                                value="<?= $user["name"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-person"></i>
                                                             </div>
@@ -337,7 +337,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                                             <input type="email" id="email" name="email"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["email"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g fadlihifziansyah153@gmail.com"
-                                                                value="<?= $user["email"] ?>" readonly>
+                                                                value="<?= $user["email"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-envelope"></i>
                                                             </div>
@@ -355,7 +355,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                                             <input type="text" id="phone" name="phone"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["phone"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g 0878 2738 2281"
-                                                                value="<?= $user["phone"] ?>" readonly>
+                                                                value="<?= $user["phone"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-telephone"></i>
                                                             </div>
@@ -372,7 +372,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                                             <label for="status" class="form-label">Status</label>
                                                             <select id="status"
                                                                 class="choices form-control form-select <?= isset($_SESSION["errors"]["status"]) ? 'is-invalid' : '' ?>"
-                                                                name="status" disabled>
+                                                                name="status" required>
                                                                 <option value="">-- Select Status --</option>
                                                                 <option value="active"
                                                                     <?= (($user["status"] ?? '') === 'active') ? 'selected' : '' ?>>
@@ -393,12 +393,12 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                                         <div
                                                             class="form-group mandatory position-relative has-icon-left">
                                                             <label for="role" class="form-label">Role</label>
-                                                            <select id="role" name="role_id" disabled
+                                                            <select id="role" name="role_id" required
                                                                 class="choices form-control form-select <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>">
                                                                 <option value="">-- Select Role --</option>
                                                                 <?php foreach ($roles as $role): ?>
                                                                 <option value="<?= $role["role_id"] ?>"
-                                                                    class="text-capitalize "
+                                                                    class="text-capitalize"
                                                                     <?= (($user['role_id'] ?? '') == $role["role_id"]) ? 'selected' : '' ?>>
                                                                     <?= htmlspecialchars($role["role_name"]) ?>
                                                                 </option>
@@ -429,13 +429,20 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                                     <i class="bi bi-door-open-fill text-white "></i>
                                                     <span class="text-white delete-btn" style="top: 9px">Delete</span>
                                                 </a>
-                                                <a href="user-edit.php?id=<?= $user['user_id']; ?>"
-                                                    class="btn btn-success me-2 text-white" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" data-bs-original-title="Edit User">
+                                                <a href="user-detail.php?id=<?= $user['user_id']; ?>"
+                                                    class="btn btn-info me-2 text-white" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" data-bs-original-title="Detail User">
                                                     <i class="bx bx-check d-block text-white d-sm-none"></i>
-                                                    <span class="d-none d-sm-block"><i class="bi bi-pencil-square"></i>
-                                                        Edit</span>
+                                                    <span class="d-none d-sm-block"><i class="bi bi-eye"></i>
+                                                        Detail</span>
                                                 </a>
+                                                <button type="submit" class="btn btn-primary me-2 text-white"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    data-bs-original-title="Edit User">
+                                                    <i class="bx bx-check d-block text-white d-sm-none"></i>
+                                                    <span class="d-none d-sm-block"><i class="bi bi-check-circle"></i>
+                                                        Edit</span>
+                                                </button>
                                             </div>
                                         </form>
                                     </div>

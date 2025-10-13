@@ -313,11 +313,12 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                                                     <span class="position-absolute text-primary"
                                                                         style="top: 9px">Detail</span>
                                                                 </a>
-
-                                                                <a class="dropdown-item position-relative" href="#">
-                                                                    <i class="bi bi-eye me-2"> </i>
-                                                                    <span class="position-absolute" style="top: 9px">
-                                                                        Detail</span>
+                                                                <a href="user-edit.php?id=<?= $user['user_id'] ?>"
+                                                                    class="dropdown-item position-relative btn-edit-user">
+                                                                    <i
+                                                                        class="bi bi-pencil-square me-2 text-success"></i>
+                                                                    <span class="position-absolute text-success"
+                                                                        style="top: 9px">Edit</span>
                                                                 </a>
                                                                 <a href="?delete_id=<?= $user['user_id']; ?>"
                                                                     class="dropdown-item position-relative delete-btn">
@@ -485,7 +486,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                             class="choices form-control form-select <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>">
                                             <option value="">-- Select Role --</option>
                                             <?php foreach ($roles as $role): ?>
-                                            <option value="<?= $role["role_id"] ?>"
+                                            <option value="<?= $role["role_id"] ?>" class="text-capitalize"
                                                 <?= (($_POST['role_id'] ?? '') == $role["role_id"]) ? 'selected' : '' ?>>
                                                 <?= htmlspecialchars($role["role_name"]) ?>
                                             </option>
@@ -641,7 +642,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             confirmButtonText: "Yes, Delete",
-            cancelButtonText: "Batal"
+            cancelButtonText: "Reject"
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = deleteUrl; // jalankan delete langsung di users-index.php
