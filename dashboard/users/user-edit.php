@@ -3,6 +3,17 @@
 require '../../function.php';
 require '../../check.php';
 
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $userId = $_POST['user_id_old'];
+    if (updateUser($userId, $_POST, $_FILES)) {
+        unset($_SESSION["errors"]);
+        $_SESSION["success"] = "Successfully updated user";
+        header("Location: users-index.php");
+        exit;
+    }
+}
+
 // Hapus data dulu kalau ada delete_id
 if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];
@@ -60,7 +71,7 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="index.html"><img src="../../assets/compiled/svg/logo.svg" alt="Logo"
+                            <a href="../../pages/index.php"><img src="../../assets/compiled/svg/logo.svg" alt="Logo"
                                     srcset="" /></a>
                         </div>
                         <div class="theme-toggle d-flex gap-2 align-items-center justify-content-center mt-2">
@@ -195,13 +206,14 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                         </div>
                                         <div class="user-img d-flex align-items-center">
                                             <?php if ($photo) { ?>
-                                            <div class="avatar avatar-md">
-                                                <img src="<?= $photoPath ?>" alt="User Photo" />
+                                            <div class="avatar avatar-md"
+                                                style="width: 43px; height: 43px; overflow: hidden; border-radius: 50%;">
+                                                <img src="<?= $photoPath ?>"
+                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
                                             </div>
                                             <?php } else { ?>
                                             <div class="avatar avatar-md">
-                                                <img src="../../assets/static/images/faces/
-                                                1.svg" alt="User Photo">
+                                                <img src="<?= $defaultPhoto ?>" alt="User Photo">
                                             </div>
                                             <?php } ?>
                                         </div>
@@ -212,6 +224,11 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                     style="min-width: 11rem">
                                     <li>
                                         <h6 class="dropdown-header text-capitalize">Hello, <?= $name ?></h6>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="../../pages/index.php"><i
+                                                class="icon-mid bi bi-house me-2"></i>
+                                            Home</a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="profile.php"><i
@@ -276,10 +293,10 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                     </a>
                                     <div class="card-body">
                                         <div class="d-flex justify-content-center align-items-center flex-column">
-                                            <div class="avatar">
+                                            <div class="avatar"
+                                                style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%;">
                                                 <img src="<?= $photoPathEdit ?>"
-                                                    style="aspect-ratio: 1/1; width: 180px; height: 180px;"
-                                                    alt="Avatar">
+                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
                                             </div>
 
                                             <h3 class="mt-3"><?= $user["name"] ?></h3>
@@ -291,7 +308,10 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                             <div class="col-12 col-lg-8">
                                 <div class="card">
                                     <div class="card-body">
-                                        <form action="" method="" enctype="multipart/form-data">
+                                        <form action="" method="post" enctype="multipart/form-data">
+                                            <input type="text" name="user_id_old" value="<?= $user["user_id"] ?>"
+                                                hidden>
+                                            <input type="text" name="password" value="<?= $user["password"] ?>" hidden>
                                             <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
                                                 <div class="row m-2">
                                                     <div class="col-12">
@@ -411,12 +431,37 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                                             <?php endif; ?>
                                                         </div>
                                                     </div>
+                                                    <div class="col-12 mb-1">
+                                                        <fieldset>
+                                                            <label class="mb-1" for="photo">Photo</label>
+                                                            <div class="input-group">
+                                                                <input type="file" class="form-control" id="photo"
+                                                                    aria-describedby="inputGroupFileAddon04"
+                                                                    aria-label="Upload" name="photo" accept="image/*">
+                                                                <button class="btn btn-primary z-0" type="button"
+                                                                    id="inputGroupFileAddon04">Upload</button>
+                                                            </div>
+
+                                                            <!-- Preview container -->
+                                                            <div class="mt-3 text-center position-relative"
+                                                                id="photoPreviewContainer" style="display: none;">
+                                                                <button type="button"
+                                                                    class="position-absolute btn btn-danger btn-sm"
+                                                                    id="closePreviewBtn"
+                                                                    style="top: -12px; right: -12px; border-radius: 50%; width: 2px 2px;">
+                                                                    <i class="bi bi-x-circle"></i>
+                                                                </button>
+                                                                <img id="photoPreviewImg" src="#" alt="Preview foto"
+                                                                    style="max-height: 120px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer mx-2 mt-2">
+                                            <div class="modal-footer mx-2 mt-4">
                                                 <a href="javascript:history.back()" type="button" name="add-user"
                                                     class="btn btn-secondary me-2 text-light" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" data-bs-original-title="Back to List">
+                                                    data-bs-placement="top" data-bs-original-title="Back">
                                                     <i class="bx bx-check d-block d-sm-none"></i>
                                                     <span class="d-none d-sm-block"><i
                                                             class="bi bi-arrow-90deg-left"></i>
@@ -426,7 +471,7 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                                     class="btn btn-danger me-2 text-white delete-btn"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-original-title="Delete User">
-                                                    <i class="bi bi-door-open-fill text-white "></i>
+                                                    <i class="bi bi-trash text-white "></i>
                                                     <span class="text-white delete-btn" style="top: 9px">Delete</span>
                                                 </a>
                                                 <a href="user-detail.php?id=<?= $user['user_id']; ?>"
@@ -524,11 +569,15 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
         <!-- Delete -->
         <script>
         document.body.addEventListener('click', function(e) {
-            const element = e.target.closest('.delete-btn');
-            if (!element) return;
+            const btn = e.target.closest('.delete-btn');
+            if (!btn) return;
             e.preventDefault();
 
-            const deleteUrl = element.getAttribute('href'); // ambil href dengan ?id=...
+            // Cari elemen <a> terdekat
+            const link = btn.closest('a');
+            if (!link) return;
+
+            const deleteUrl = link.getAttribute('href'); // Ambil URL delete
 
             Swal.fire({
                 title: "Sure Wanna delete?",
@@ -541,11 +590,12 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                 cancelButtonText: "Reject"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = deleteUrl; // jalankan delete langsung di users-index.php
+                    window.location.href = deleteUrl;
                 }
             });
         });
         </script>
+
 
         <!-- choice -->
         <script>
@@ -570,6 +620,22 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
         const previewImg = document.getElementById('photoPreviewImg');
         const closeBtn = document.getElementById('closePreviewBtn');
 
+        // tampilkan preview saat file dipilih
+        photoInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewContainer.style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        });
+
         // tombol close preview
         closeBtn.addEventListener('click', function() {
             previewImg.src = '#';
@@ -584,6 +650,7 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
             photoInput.value = '';
         });
         </script>
+
 
         <script>
         document.addEventListener('DOMContentLoaded', function() {

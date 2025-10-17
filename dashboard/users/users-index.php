@@ -61,7 +61,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="index.html"><img src="../../assets/compiled/svg/logo.svg" alt="Logo"
+                            <a href="../../pages/index.php"><img src="../../assets/compiled/svg/logo.svg" alt="Logo"
                                     srcset="" /></a>
                         </div>
                         <div class="theme-toggle d-flex gap-2 align-items-center justify-content-center mt-2">
@@ -120,7 +120,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                         </li>
 
                         <li class="sidebar-item active">
-                            <a href="../dashboard/users/users-index.php" class="sidebar-link">
+                            <a href="#" class="sidebar-link">
                                 <i class="bi bi-person-badge"></i>
                                 <span>Users</span>
                             </a>
@@ -196,13 +196,14 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                         </div>
                                         <div class="user-img d-flex align-items-center">
                                             <?php if ($photo) { ?>
-                                            <div class="avatar avatar-md">
-                                                <img src="<?= $photoPath ?>" alt="User Photo" />
+                                            <div class="avatar avatar-md"
+                                                style="width: 43px; height: 43px; overflow: hidden; border-radius: 50%;">
+                                                <img src="<?= $photoPath ?>"
+                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
                                             </div>
                                             <?php } else { ?>
                                             <div class="avatar avatar-md">
-                                                <img src="../../assets/static/images/faces/
-                                                1.svg" alt="User Photo">
+                                                <img src="<?= $defaultPhoto ?>" alt="User Photo">
                                             </div>
                                             <?php } ?>
                                         </div>
@@ -213,6 +214,11 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                     style="min-width: 11rem">
                                     <li>
                                         <h6 class="dropdown-header text-capitalize">Hello, <?= $name ?></h6>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="../../pages/index.php"><i
+                                                class="icon-mid bi bi-house me-2"></i>
+                                            Home</a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="profile.php"><i

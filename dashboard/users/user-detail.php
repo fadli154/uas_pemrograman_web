@@ -60,7 +60,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                 <div class="sidebar-header position-relative">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="logo">
-                            <a href="index.html"><img src="../../assets/compiled/svg/logo.svg" alt="Logo"
+                            <a href="../../pages/index.php"><img src="../../assets/compiled/svg/logo.svg" alt="Logo"
                                     srcset="" /></a>
                         </div>
                         <div class="theme-toggle d-flex gap-2 align-items-center justify-content-center mt-2">
@@ -195,13 +195,14 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                         </div>
                                         <div class="user-img d-flex align-items-center">
                                             <?php if ($photo) { ?>
-                                            <div class="avatar avatar-md">
-                                                <img src="<?= $photoPath ?>" alt="User Photo" />
+                                            <div class="avatar avatar-md"
+                                                style="width: 43px; height: 43px; overflow: hidden; border-radius: 50%;">
+                                                <img src="<?= $photoPath ?>"
+                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
                                             </div>
                                             <?php } else { ?>
                                             <div class="avatar avatar-md">
-                                                <img src="../../assets/static/images/faces/
-                                                1.svg" alt="User Photo">
+                                                <img src="<?= $defaultPhoto ?>" alt="User Photo">
                                             </div>
                                             <?php } ?>
                                         </div>
@@ -212,6 +213,11 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                     style="min-width: 11rem">
                                     <li>
                                         <h6 class="dropdown-header text-capitalize">Hello, <?= $name ?></h6>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="../../pages/index.php"><i
+                                                class="icon-mid bi bi-house me-2"></i>
+                                            Home</a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="profile.php"><i
@@ -276,10 +282,10 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                     </a>
                                     <div class="card-body">
                                         <div class="d-flex justify-content-center align-items-center flex-column">
-                                            <div class="avatar">
+                                            <div class="avatar"
+                                                style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%;">
                                                 <img src="<?= $photoPathDetail ?>"
-                                                    style="aspect-ratio: 1/1; width: 180px; height: 180px;"
-                                                    alt="Avatar">
+                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
                                             </div>
 
                                             <h3 class="mt-3"><?= $user["name"] ?></h3>
@@ -426,7 +432,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                                     class="btn btn-danger me-2 text-white delete-btn"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
                                                     data-bs-original-title="Delete User">
-                                                    <i class="bi bi-door-open-fill text-white "></i>
+                                                    <i class="bi bi-trash text-white "></i>
                                                     <span class="text-white delete-btn" style="top: 9px">Delete</span>
                                                 </a>
                                                 <a href="user-edit.php?id=<?= $user['user_id']; ?>"
@@ -517,11 +523,15 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
         <!-- Delete -->
         <script>
         document.body.addEventListener('click', function(e) {
-            const element = e.target.closest('.delete-btn');
-            if (!element) return;
+            const btn = e.target.closest('.delete-btn');
+            if (!btn) return;
             e.preventDefault();
 
-            const deleteUrl = element.getAttribute('href'); // ambil href dengan ?id=...
+            // Cari elemen <a> terdekat
+            const link = btn.closest('a');
+            if (!link) return;
+
+            const deleteUrl = link.getAttribute('href'); // Ambil URL delete
 
             Swal.fire({
                 title: "Sure Wanna delete?",
@@ -534,7 +544,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                 cancelButtonText: "Reject"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    window.location.href = deleteUrl; // jalankan delete langsung di users-index.php
+                    window.location.href = deleteUrl;
                 }
             });
         });

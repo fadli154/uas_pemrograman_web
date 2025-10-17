@@ -35,7 +35,7 @@ if (isset($_POST['submit_login'])) {
             exit;
         } 
     } else {
-       $_SESSION["error"] = "NIM/NIK/Password is incorrect";
+       $_SESSION["error"] = "NIM or Password is incorrect";
             header("Location: login.php");
             exit;
     }
@@ -68,6 +68,11 @@ if (isset($_SESSION["log"])) {
         <div class="row h-100">
             <div class="col-lg-5 col-12 d-flex flex-column justify-content-center align-items-center">
                 <div id="auth-left">
+                    <a href="javascript:history.back()"
+                        class="p-1 rounded-circle ms-2 mt-2 bg-primary d-flex justify-content-center align-items-center position-relative"
+                        style="width: 25px; height: 25px;">
+                        <i class="bi bi-arrow-left text-white pb-2 position-absolute" style="top: 0px;"></i>
+                    </a>
                     <div class="auth-logo">
                         <a href="index.php"><img src="../assets/compiled/svg/logo.svg" alt="Logo"></a>
                     </div>
@@ -78,7 +83,7 @@ if (isset($_SESSION["log"])) {
                         <div class="form-group position-relative has-icon-left mb-4">
                             <input type="text" name="user_id" id="user_id"
                                 class="form-control form-control-xl  <?= isset($_SESSION["error"]) ? 'is-invalid' : '' ?>"
-                                placeholder="NIM or NIK" required>
+                                placeholder="NIM" required>
                             <label class="form-control-icon d-inline-block" for="user_id">
                                 <i class="bi bi-person-lock"></i>
                             </label>
