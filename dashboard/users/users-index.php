@@ -113,7 +113,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                         <li class="sidebar-title">Aplication</li>
 
                         <li class="sidebar-item">
-                            <a href="../dashboard/roles/roles-index.php" class="sidebar-link">
+                            <a href="../roles/roles-index.php" class="sidebar-link">
                                 <i class="bi bi-person-exclamation"></i>
                                 <span>Roles</span>
                             </a>

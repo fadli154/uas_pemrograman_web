@@ -3,6 +3,8 @@ session_start();
 
 $connection = mysqli_connect("localhost", "root", "", "db_baind");
 
+// =============== users =================
+
 function select($query) {
     global $connection; // biar koneksi bisa diakses di dalam fungsi
     $result = mysqli_query($connection, $query);
@@ -211,7 +213,6 @@ function deleteUser($id) {
     }
 }
 
-
 // edit
 function updateUser($id, $data, $file)
 {
@@ -360,8 +361,122 @@ return true;
 
 }
 
+// =============== Roles =================
 
+function insertRole($data, $file)
+{
+    global $connection;
+    $errors = [];
 
+    // --- VALIDASI INPUT ---
+    if (strlen(trim($data["role_name"])) < 3) {
+        $errors["role_name"] = "Name must be at least 3 characters long. (Nama minimal 3 karakter.)";
+    }
 
+    // --- CEK DUPLIKAT DATA (role_name) ---
+    $checkQuery = "SELECT role_name FROM roles WHERE role_name = ?";
+    $checkStmt = $connection->prepare($checkQuery);
+
+    if ($checkStmt) {
+        $checkStmt->bind_param("s", $data["role_name"]);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+
+        if ($checkStmt->num_rows > 0) {
+            $checkStmt->bind_result($uid, $em, $ph);
+            while ($checkStmt->fetch()) {
+                if ($uid === $data["role_name"]) $errors["role_name"] = "Role name already exists. (role name sudah terdaftar.)";
+            }
+        }
+        $checkStmt->close();
+    } else {
+        $errors["db"] = "Database error: Failed to prepare duplicate check.";
+    }
+
+    // --- KALAU ADA ERROR APA PUN ---
+    if (!empty($errors)) {
+        $_SESSION["errors"] = $errors;
+        $_SESSION["error"] = implode(" ", $errors);
+        return false;
+    }
+
+    // --- INSERT DATA ---
+    $query = "INSERT INTO roles (role_name)
+              VALUES (?)";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param(
+        "s",
+        $data["role_name"],
+    );
+
+    if (!$stmt->execute()) {
+        $_SESSION["error"] = "Failed to insert data. (" . $stmt->error . ")";
+        return false;
+    }
+
+    $_SESSION["success"] = "Data has been successfully saved! (Data berhasil disimpan!)";
+    return true;
+}
+
+// detail
+ function detailRole($id){
+    global $connection;
+    $query = "SELECT * FROM roles WHERE role_id = $id";
+    $stmt = $connection->prepare($query);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $role = $result->fetch_assoc();
+    return $role;
+ }
+
+//  delete
+function deleteRole($id) {
+    global $connection;
+
+    // Pastikan user login
+    if (!isset($_SESSION["user"])) {
+        $_SESSION["error"] = "You must be logged in to perform this action.";
+        return false;
+    }
+
+    // cek apakah role sedang digunakan
+    $check = $connection->prepare("SELECT COUNT(*) FROM users WHERE role_id = ?");
+    $check->bind_param("i", $id);
+    $check->execute();
+    $check->bind_result($count);
+    $check->fetch();
+    $check->close();
+
+    if ($count > 0) {
+        $_SESSION["error"] = "This role is currently in use by $count user.";
+        return false;
+    }
+
+    $currentUser = $_SESSION["user"];
+
+    // Cegah user menghapus dirinya sendiri
+    if ($id == "1") {
+        $_SESSION["error"] = "You cannot delete this role.";
+        return false;
+    }
+
+    // Hanya admin yang boleh hapus user lain
+    if ($currentUser["role_id"] != '1') {
+        $_SESSION["error"] = "You do not have permission to delete roles.";
+        return false;
+    }
+
+    // Hapus data user dari database
+    $stmt = $connection->prepare("DELETE FROM roles WHERE role_id = ?");
+    $stmt->bind_param("s", $id);
+
+    if ($stmt->execute()) {
+        $_SESSION["success"] = "role has been successfully deleted!";
+        return true;
+    } else {
+        $_SESSION["error"] = "Failed to delete role: " . $stmt->error;
+        return false;
+    }
+}
 
 ?>
