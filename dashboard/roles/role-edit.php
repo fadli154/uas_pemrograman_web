@@ -5,11 +5,11 @@ require '../../check.php';
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $userId = $_POST['user_id_old'];
-    if (updateUser($userId, $_POST, $_FILES)) {
+    $roleId = $_POST['role_id_old'];
+    if (updateRole($roleId, $_POST)) {
         unset($_SESSION["errors"]);
-        $_SESSION["success"] = "Successfully updated user";
-        header("Location: users-index.php");
+        $_SESSION["success"] = "Successfully updated role";
+        header("Location: roles-index.php");
         exit;
     }
 }
@@ -17,21 +17,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Hapus data dulu kalau ada delete_id
 if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];
-    deleteUser($id);
-    header("Location: users-index.php");
+    deleteRole($id);
+    header("Location: roles-index.php");
     exit;
 }
 
 $name = htmlspecialchars($_SESSION['user']['name']);
-$role = htmlspecialchars($_SESSION['user']['role']);
+$rolee = htmlspecialchars($_SESSION['user']['role']);
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: users-index.php");
+    header("Location: roles-index.php");
     exit;
 }
 
 $id = $_GET['id'];
-$user = detailUser($id);
+$role = detailRole($id);
 $roles = select('SELECT * FROM roles');
 
 $photo = $_SESSION['user']['photo'] ?? null;
@@ -51,7 +51,7 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Edit | Dashboard</title>
+    <title>Role Edit | Dashboard</title>
     <link rel="stylesheet" href="../../assets/extensions/choices.js/public/assets/styles/choices.css">
     <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon" />
     <link rel="stylesheet" href="../../assets/compiled/css/app.css" />
@@ -122,15 +122,15 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
 
                         <li class="sidebar-title">Aplication</li>
 
-                        <li class="sidebar-item">
+                        <li class="sidebar-item active">
                             <a href="../roles/roles-index.php" class="sidebar-link">
                                 <i class="bi bi-person-exclamation"></i>
                                 <span>Roles</span>
                             </a>
                         </li>
 
-                        <li class="sidebar-item active">
-                            <a href="users-index.php" class="sidebar-link">
+                        <li class="sidebar-item">
+                            <a href="../users/users-index.php" class="sidebar-link">
                                 <i class="bi bi-person-badge"></i>
                                 <span>Users</span>
                             </a>
@@ -202,7 +202,7 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                             <h6 class="mb-0 text-gray-600 text-capitalize">
                                                 <?= $name ?></h6>
                                             <p class="mb-0 text-sm text-gray-600 text-capitalize">
-                                                <?= $role ?></p>
+                                                <?= $rolee ?></p>
                                         </div>
                                         <div class="user-img d-flex align-items-center">
                                             <?php if ($photo) { ?>
@@ -259,9 +259,9 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                     <div class="page-title">
                         <div class="row">
                             <div class="col-12 col-md-6 order-md-1 order-last">
-                                <h3 class="text-capitalize">Edit data <?= $user["name"] ?></h3>
+                                <h3 class="text-capitalize">Edit data <?= $role["role_name"] ?></h3>
                                 <p class="text-subtitle text-muted">
-                                    View edit data user
+                                    View edit data role
                                 </p>
                             </div>
                             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -271,10 +271,10 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                             <a href="../dashboard.php">Dashboard</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="users-index.php">Users</a>
+                                            <a href="roles-index.php">Roles</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="#">Users Edit</a>
+                                            <a href="#">Roles Edit</a>
                                         </li>
                                     </ol>
                                 </nav>
@@ -282,217 +282,80 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                         </div>
                     </div>
                     <section class="section">
-                        <div class="row">
-                            <div class="col-12 col-lg-4">
-                                <div class="card">
-                                    <a href="javascript:history.back()"
-                                        class="p-1 rounded-circle ms-2 mt-2 bg-secondary d-flex justify-content-center align-items-center position-relative"
-                                        style="width: 25px; height: 25px;">
-                                        <i class="bi bi-arrow-left text-white pb-2 position-absolute"
-                                            style="top: 0px;"></i>
-                                    </a>
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-center align-items-center flex-column">
-                                            <!-- Avatar asli -->
-                                            <div class="avatar" id="originalPhoto"
-                                                style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%;">
-                                                <img src="<?= $photoPathEdit ?>"
-                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
-                                            </div>
-
-                                            <!-- Preview container -->
-                                            <div class="avatar position-relative"
-                                                style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%; display: none;"
-                                                id="photoPreviewContainer">
-                                                <img src="" id="photoPreviewImg"
-                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
-
-                                                <!-- Tombol close -->
-                                                <button type="button" id="closePreviewBtn" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" data-bs-original-title="Close Preview"
-                                                    style="position: absolute; top: 0px; right: 77px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">
-                                                    ×
-                                                </button>
-                                            </div>
-
-                                            <h3 class="mt-3"><?= $user["name"] ?></h3>
-                                            <p class="text-small text-capitalize"><?= $user["role_name"] ?></p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-12 col-lg-8">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <form action="" method="post" enctype="multipart/form-data">
-                                            <input type="text" name="user_id_old" value="<?= $user["user_id"] ?>"
-                                                hidden>
-                                            <input type="text" name="password" value="<?= $user["password"] ?>" hidden>
-                                            <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
-                                                <div class="row m-2">
-                                                    <div class="col-12">
-                                                        <div
-                                                            class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="user_id" class="form-label">User ID</label>
-                                                            <input type="number" id="user_id" name="user_id"
-                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["user_id"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g 241730042"
-                                                                value="<?= $user["user_id"] ?>" required>
-                                                            <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person-exclamation"></i>
-                                                            </div>
-                                                            <?php if (isset($_SESSION["errors"]["user_id"])): ?>
-                                                            <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["user_id"]; ?>
-                                                            </div>
-                                                            <?php endif; ?>
+                        <div class="col-12 ">
+                            <div class="card">
+                                <div class="card-body">
+                                    <form action="" method="post" enctype="multipart/form-data">
+                                        <input type="text" name="role_id_old" value="<?= $role["role_id"] ?>" hidden>
+                                        <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+                                            <div class="row m-2">
+                                                <div class="col-12">
+                                                    <div class="form-group mandatory position-relative has-icon-left">
+                                                        <label for="role_id" class="form-label">Role ID</label>
+                                                        <input type="number" id="role_id" name="role_id"
+                                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>"
+                                                            placeholder="e.g 241730042" value="<?= $role["role_id"] ?>"
+                                                            readonly>
+                                                        <div class="form-control-icon" style="top: 38px">
+                                                            <i class="bi bi-person-exclamation"></i>
                                                         </div>
-                                                    </div>
-                                                    <div class="col-md-6 col-12">
-                                                        <div
-                                                            class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="name" class="form-label">Name</label>
-                                                            <input type="text" id="name" name="name"
-                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["name"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g Fadli Hifziansyah"
-                                                                value="<?= $user["name"] ?>" required>
-                                                            <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person"></i>
-                                                            </div>
-                                                            <?php if (isset($_SESSION["errors"]["name"])): ?>
-                                                            <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["name"]; ?>
-                                                            </div>
-                                                            <?php endif; ?>
+                                                        <?php if (isset($_SESSION["errors"]["role_id"])): ?>
+                                                        <div class="invalid-feedback">
+                                                            <?= $_SESSION["errors"]["role_id"]; ?>
                                                         </div>
+                                                        <?php endif; ?>
                                                     </div>
-                                                    <div class="col-md-6 col-12">
-                                                        <div
-                                                            class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="email" class="form-label">Email</label>
-                                                            <input type="email" id="email" name="email"
-                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["email"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g fadlihifziansyah153@gmail.com"
-                                                                value="<?= $user["email"] ?>" required>
-                                                            <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-envelope"></i>
-                                                            </div>
-                                                            <?php if (isset($_SESSION["errors"]["email"])): ?>
-                                                            <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["email"]; ?>
-                                                            </div>
-                                                            <?php endif; ?>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-group mandatory position-relative has-icon-left">
+                                                        <label for="role_name" class="form-label">Role Name</label>
+                                                        <input type="text" id="role_name" name="role_name"
+                                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["role_name"]) ? 'is-invalid' : '' ?>"
+                                                            placeholder="e.g Fadli Hifziansyah"
+                                                            value="<?= $role["role_name"] ?>" required>
+                                                        <div class="form-control-icon" style="top: 38px">
+                                                            <i class="bi bi-person"></i>
                                                         </div>
-                                                    </div>
-                                                    <div class=" col-12">
-                                                        <div
-                                                            class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="phone" class="form-label">Phone</label>
-                                                            <input type="text" id="phone" name="phone"
-                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["phone"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g 0878 2738 2281"
-                                                                value="<?= $user["phone"] ?>" required>
-                                                            <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-telephone"></i>
-                                                            </div>
-                                                            <?php if (isset($_SESSION["errors"]["phone"])): ?>
-                                                            <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["phone"]; ?>
-                                                            </div>
-                                                            <?php endif; ?>
+                                                        <?php if (isset($_SESSION["errors"]["role_name"])): ?>
+                                                        <div class="invalid-feedback">
+                                                            <?= $_SESSION["errors"]["role_name"]; ?>
                                                         </div>
-                                                    </div>
-                                                    <div class="col-md-6 col-12">
-                                                        <div
-                                                            class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="status" class="form-label">Status</label>
-                                                            <select id="status"
-                                                                class="choices form-control form-select <?= isset($_SESSION["errors"]["status"]) ? 'is-invalid' : '' ?>"
-                                                                name="status" required>
-                                                                <option value="">-- Select Status --</option>
-                                                                <option value="active"
-                                                                    <?= (($user["status"] ?? '') === 'active') ? 'selected' : '' ?>>
-                                                                    Active
-                                                                </option>
-                                                                <option value="inactive"
-                                                                    <?= (($user['status'] ?? '') === 'inactive') ? 'selected' : '' ?>>
-                                                                    Inactive</option>
-                                                            </select>
-                                                            <?php if (isset($_SESSION["errors"]["status"])): ?>
-                                                            <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["status"]; ?>
-                                                            </div>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6 col-12">
-                                                        <div
-                                                            class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="role" class="form-label">Role</label>
-                                                            <select id="role" name="role_id" required
-                                                                class="choices form-control form-select <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>">
-                                                                <option value="">-- Select Role --</option>
-                                                                <?php foreach ($roles as $role): ?>
-                                                                <option value="<?= $role["role_id"] ?>"
-                                                                    class="text-capitalize"
-                                                                    <?= (($user['role_id'] ?? '') == $role["role_id"]) ? 'selected' : '' ?>>
-                                                                    <?= htmlspecialchars($role["role_name"]) ?>
-                                                                </option>
-                                                                <?php endforeach; ?>
-                                                            </select>
-                                                            <?php if (isset($_SESSION["errors"]["role_id"])): ?>
-                                                            <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["role_id"]; ?>
-                                                            </div>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12 mb-1">
-                                                        <fieldset>
-                                                            <label class="mb-1" for="photo">Photo</label>
-                                                            <div class="input-group">
-                                                                <input type="file" class="form-control" id="photo"
-                                                                    name="photo" accept="image/*">
-                                                                <button class="btn btn-primary z-0" type="button"
-                                                                    id="inputGroupFileAddon04">Upload</button>
-                                                            </div>
-                                                        </fieldset>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="modal-footer mx-2 mt-4">
-                                                <a href="javascript:history.back()" type="button" name="add-user"
-                                                    class="btn btn-secondary me-2 text-light" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" data-bs-original-title="Back">
-                                                    <i class="bx bx-check d-block d-sm-none"></i>
-                                                    <span class="d-none d-sm-block"><i
-                                                            class="bi bi-arrow-90deg-left"></i>
-                                                        back</span>
-                                                </a>
-                                                <a href="?delete_id=<?= $user['user_id']; ?>"
-                                                    class="btn btn-danger me-2 text-white delete-btn"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    data-bs-original-title="Delete User">
-                                                    <i class="bi bi-trash text-white "></i>
-                                                    <span class="text-white delete-btn" style="top: 9px">Delete</span>
-                                                </a>
-                                                <a href="user-detail.php?id=<?= $user['user_id']; ?>"
-                                                    class="btn btn-info me-2 text-white" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" data-bs-original-title="Detail User">
-                                                    <i class="bx bx-check d-block text-white d-sm-none"></i>
-                                                    <span class="d-none d-sm-block"><i class="bi bi-eye"></i>
-                                                        Detail</span>
-                                                </a>
-                                                <button type="submit" class="btn btn-primary me-2 text-white"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    data-bs-original-title="Edit User">
-                                                    <i class="bx bx-check d-block text-white d-sm-none"></i>
-                                                    <span class="d-none d-sm-block"><i class="bi bi-check-circle"></i>
-                                                        Edit</span>
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                        </div>
+                                        <div class="modal-footer mx-2 mt-4">
+                                            <a href="javascript:history.back()" type="button" name="add-user"
+                                                class="btn btn-secondary me-2 text-light" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" data-bs-original-title="Back">
+                                                <i class="bx bx-check d-block d-sm-none"></i>
+                                                <span class="d-none d-sm-block"><i class="bi bi-arrow-90deg-left"></i>
+                                                    back</span>
+                                            </a>
+                                            <a href="?delete_id=<?= $role['role_id']; ?>"
+                                                class="btn btn-danger me-2 text-white delete-btn"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                data-bs-original-title="Delete Role">
+                                                <i class="bi bi-trash text-white "></i>
+                                                <span class="text-white delete-btn" style="top: 9px">Delete</span>
+                                            </a>
+                                            <a href="role-detail.php?id=<?= $role['role_id']; ?>"
+                                                class="btn btn-info me-2 text-white" data-bs-toggle="tooltip"
+                                                data-bs-placement="top" data-bs-original-title="Detail Role">
+                                                <i class="bx bx-check d-block text-white d-sm-none"></i>
+                                                <span class="d-none d-sm-block"><i class="bi bi-eye"></i>
+                                                    Detail</span>
+                                            </a>
+                                            <button type="submit" class="btn btn-primary me-2 text-white"
+                                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                                data-bs-original-title="Edit Role">
+                                                <i class="bx bx-check d-block text-white d-sm-none"></i>
+                                                <span class="d-none d-sm-block"><i class="bi bi-check-circle"></i>
+                                                    Edit</span>
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>

@@ -479,4 +479,58 @@ function deleteRole($id) {
     }
 }
 
+// edit
+
+function updateRole($id, $data)
+{
+    global $connection;
+    $errors = [];
+
+    if($id == "1"){
+        $_SESSION["error"] = "You cannot update this role.";
+        return false;
+    }
+
+    // --- VALIDASI DASAR ---
+    $roleName = trim($data["role_name"]);
+    if (strlen($roleName) < 3) {
+        $errors["role_name"] = "Role Name must be at least 3 characters long. (Nama minimal 3 karakter.)";
+    }
+
+    // --- CEK DUPLIKAT ROLE NAME ---
+    $checkQuery = "SELECT role_id FROM roles WHERE role_name = ? AND role_id != ?";
+    $checkStmt = $connection->prepare($checkQuery);
+    $checkStmt->bind_param("si", $roleName, $id);
+    $checkStmt->execute();
+    $checkStmt->store_result();
+    if ($checkStmt->num_rows > 0) {
+        $errors["duplicate"] = "Role name already exists. (Nama role sudah digunakan.)";
+    }
+    $checkStmt->close();
+
+    if (!empty($errors)) {
+        $_SESSION["errors"] = $errors;
+        $_SESSION["error"] = implode(" ", $errors);
+        return false;
+    }
+
+    // --- UPDATE ROLE ---
+    $query = "UPDATE roles SET role_name = ? WHERE role_id = ?";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("si", $roleName, $id);
+
+    if (!$stmt->execute()) {
+        $_SESSION["error"] = "Failed to update role. (" . $stmt->error . ")";
+        return false;
+    }
+
+    if ($_SESSION['user']['role_id'] == $id) {
+        $_SESSION['user']['role'] = $roleName;
+    }
+
+    $_SESSION["success"] = "Role successfully updated. (Role berhasil diperbarui.)";
+    return true;
+}
+
+
 ?>
