@@ -328,8 +328,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                                                 </a>
                                                                 <a href="?delete_id=<?= $user['user_id']; ?>"
                                                                     class="dropdown-item position-relative delete-btn">
-                                                                    <i
-                                                                        class="bi bi-door-open-fill text-danger me-2"></i>
+                                                                    <i class="bi bi-trash text-danger me-2"></i>
                                                                     <span class="position-absolute text-danger"
                                                                         style="top: 9px">Delete</span>
                                                                 </a>

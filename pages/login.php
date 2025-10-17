@@ -68,7 +68,7 @@ if (isset($_SESSION["log"])) {
         <div class="row h-100">
             <div class="col-lg-5 col-12 d-flex flex-column justify-content-center align-items-center">
                 <div id="auth-left">
-                    <a href="javascript:history.back()"
+                    <a href="index.php"
                         class="p-1 rounded-circle ms-2 mt-2 bg-primary d-flex justify-content-center align-items-center position-relative"
                         style="width: 25px; height: 25px;">
                         <i class="bi bi-arrow-left text-white pb-2 position-absolute" style="top: 0px;"></i>

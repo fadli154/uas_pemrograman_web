@@ -293,10 +293,26 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                     </a>
                                     <div class="card-body">
                                         <div class="d-flex justify-content-center align-items-center flex-column">
-                                            <div class="avatar"
+                                            <!-- Avatar asli -->
+                                            <div class="avatar" id="originalPhoto"
                                                 style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%;">
                                                 <img src="<?= $photoPathEdit ?>"
                                                     style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
+                                            </div>
+
+                                            <!-- Preview container -->
+                                            <div class="avatar position-relative"
+                                                style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%; display: none;"
+                                                id="photoPreviewContainer">
+                                                <img src="" id="photoPreviewImg"
+                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
+
+                                                <!-- Tombol close -->
+                                                <button type="button" id="closePreviewBtn" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" data-bs-original-title="Close Preview"
+                                                    style="position: absolute; top: 0px; right: 77px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">
+                                                    ×
+                                                </button>
                                             </div>
 
                                             <h3 class="mt-3"><?= $user["name"] ?></h3>
@@ -436,23 +452,9 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                                             <label class="mb-1" for="photo">Photo</label>
                                                             <div class="input-group">
                                                                 <input type="file" class="form-control" id="photo"
-                                                                    aria-describedby="inputGroupFileAddon04"
-                                                                    aria-label="Upload" name="photo" accept="image/*">
+                                                                    name="photo" accept="image/*">
                                                                 <button class="btn btn-primary z-0" type="button"
                                                                     id="inputGroupFileAddon04">Upload</button>
-                                                            </div>
-
-                                                            <!-- Preview container -->
-                                                            <div class="mt-3 text-center position-relative"
-                                                                id="photoPreviewContainer" style="display: none;">
-                                                                <button type="button"
-                                                                    class="position-absolute btn btn-danger btn-sm"
-                                                                    id="closePreviewBtn"
-                                                                    style="top: -12px; right: -12px; border-radius: 50%; width: 2px 2px;">
-                                                                    <i class="bi bi-x-circle"></i>
-                                                                </button>
-                                                                <img id="photoPreviewImg" src="#" alt="Preview foto"
-                                                                    style="max-height: 120px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                                                             </div>
                                                         </fieldset>
                                                     </div>
@@ -619,38 +621,33 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
         const previewContainer = document.getElementById('photoPreviewContainer');
         const previewImg = document.getElementById('photoPreviewImg');
         const closeBtn = document.getElementById('closePreviewBtn');
+        const originalPhoto = document.getElementById('originalPhoto');
 
         // tampilkan preview saat file dipilih
         photoInput.addEventListener('change', function(event) {
             const file = event.target.files[0];
-
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewImg.src = e.target.result;
                     previewContainer.style.display = 'inline-block';
+                    originalPhoto.style.display = 'none';
                 };
                 reader.readAsDataURL(file);
             } else {
                 previewContainer.style.display = 'none';
+                originalPhoto.style.display = 'inline-block';
             }
         });
 
         // tombol close preview
         closeBtn.addEventListener('click', function() {
-            previewImg.src = '#';
+            previewImg.src = '';
             previewContainer.style.display = 'none';
+            originalPhoto.style.display = 'inline-block';
             photoInput.value = ''; // kosongkan input file juga
         });
-
-        // tombol reset form (jika ada)
-        document.querySelector('button[type="reset"]')?.addEventListener('click', function() {
-            previewImg.src = '#';
-            previewContainer.style.display = 'none';
-            photoInput.value = '';
-        });
         </script>
-
 
         <script>
         document.addEventListener('DOMContentLoaded', function() {
