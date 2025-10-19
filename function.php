@@ -532,5 +532,7 @@ function updateRole($id, $data)
     return true;
 }
 
+// =============== Categories =================
+
 
 ?>

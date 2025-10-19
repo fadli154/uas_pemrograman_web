@@ -125,7 +125,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../dashboard/categories/categories-index.php" class="sidebar-link">
+                            <a href="../categories/categories-index.php" class="sidebar-link">
                                 <i class="bi bi-book"></i>
                                 <span>Categories</span>
                             </a>
@@ -543,44 +543,6 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
             searchEnabled: true,
             itemSelectText: '',
         });
-    });
-    </script>
-
-    <!-- preview img -->
-    <script>
-    const photoInput = document.getElementById('photo');
-    const previewContainer = document.getElementById('photoPreviewContainer');
-    const previewImg = document.getElementById('photoPreviewImg');
-    const closeBtn = document.getElementById('closePreviewBtn');
-
-    // tampilkan preview saat file dipilih
-    photoInput.addEventListener('change', function(event) {
-        const file = event.target.files[0];
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewImg.src = e.target.result;
-                previewContainer.style.display = 'inline-block';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            previewContainer.style.display = 'none';
-        }
-    });
-
-    // tombol close preview
-    closeBtn.addEventListener('click', function() {
-        previewImg.src = '#';
-        previewContainer.style.display = 'none';
-        photoInput.value = ''; // kosongkan input file juga
-    });
-
-    // tombol reset form (jika ada)
-    document.querySelector('button[type="reset"]')?.addEventListener('click', function() {
-        previewImg.src = '#';
-        previewContainer.style.display = 'none';
-        photoInput.value = '';
     });
     </script>
 

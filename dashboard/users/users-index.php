@@ -126,19 +126,19 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../dashboard/categories/categories-index.php" class="sidebar-link">
+                            <a href="../categories/categories-index.php" class="sidebar-link">
                                 <i class="bi bi-book"></i>
                                 <span>Categories</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../dashboard/books/books-index.php" class="sidebar-link">
+                            <a href="../books/books-index.php" class="sidebar-link">
                                 <i class="bi bi-book-half"></i>
                                 <span>Books</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="../dashboard/videos/videos-index.php" class="sidebar-link">
+                            <a href="../videos/videos-index.php" class="sidebar-link">
                                 <i class="bi bi-camera-video"></i>
                                 <span>Videos</span>
                             </a>
