@@ -534,5 +534,191 @@ function updateRole($id, $data)
 
 // =============== Categories =================
 
+function insertCategory($data, $file)
+{
+    global $connection;
+    $errors = [];
+
+    // --- VALIDASI INPUT ---
+    if (strlen(trim($data["category_name"])) < 3) {
+        $errors["category_name"] = "Name must be at least 3 characters long. (Nama minimal 3 karakter.)";
+    }
+    if (strlen(trim($data["category_id"])) < 7) {
+        $errors["category_id"] = "ID must be at least 7 characters long. (ID minimal 7 karakter.)";
+    }
+
+    // --- CEK DUPLIKAT DATA ---
+    $checkQuery = "SELECT category_name, category_id FROM categories WHERE category_name = ? OR category_id = ?";
+    $checkStmt = $connection->prepare($checkQuery);
+
+    if ($checkStmt) {
+        $checkStmt->bind_param("ss", $data["category_name"], $data["category_id"]);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+
+        if ($checkStmt->num_rows > 0) {
+            $checkStmt->bind_result($category_name_db, $category_id_db);
+            while ($checkStmt->fetch()) {
+                if ($category_name_db === $data["category_name"]) {
+                    $errors["category_name"] = "Category name already exists. (category name sudah terdaftar.)";
+                }
+                if ($category_id_db === $data["category_id"]) {
+                    $errors["category_id"] = "Category ID already exists. (category ID sudah terdaftar.)";
+                }
+            }
+        }
+        $checkStmt->close();
+    } else {
+        $errors["db"] = "Database error: Failed to prepare duplicate check.";
+    }
+
+    // --- KALAU ADA ERROR ---
+    if (!empty($errors)) {
+        $_SESSION["errors"] = $errors;
+        $_SESSION["error"] = implode(" ", $errors);
+        return false;
+    }
+
+    // --- INSERT DATA ---
+    $query = "INSERT INTO categories (category_name, category_id) VALUES (?, ?)";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("ss", $data["category_name"], $data["category_id"]);
+
+    if (!$stmt->execute()) {
+        $_SESSION["error"] = "Failed to insert data. (" . $stmt->error . ")";
+        return false;
+    }
+
+    $_SESSION["success"] = "Data has been successfully saved! (Data berhasil disimpan!)";
+    return true;
+}
+
+// detail
+function detailCategory($id) {
+    global $connection;
+    $query = "SELECT * FROM categories WHERE category_id = ?";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("s", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $category = $result->fetch_assoc();
+    return $category;
+}   
+
+//  delete
+function deleteCategory($id) {
+    global $connection;
+
+    // Pastikan user login
+    if (!isset($_SESSION["user"])) {
+        $_SESSION["error"] = "You must be logged in to perform this action.";
+        return false;
+    }
+
+    // cek apakah category sedang digunakan
+    $check = $connection->prepare("SELECT COUNT(*) FROM categories_books WHERE category_id = ?");
+    $check->bind_param("s", $id);
+    $check->execute();
+    $check->bind_result($count);
+    $check->fetch();
+    $check->close();
+
+    if ($count > 0) {
+        $_SESSION["error"] = "This category is currently in use by $count book.";
+        return false;
+    }
+
+    $currentUser = $_SESSION["user"];
+
+    var_dump($currentUser);
+
+    // Hanya admin yang boleh hapus category
+    if ($currentUser["role_id"] != '1' && $currentUser["role_id"] != '2') {
+        $_SESSION["error"] = "You do not have permission to delete categories.";
+        return false;
+    }
+
+    // Hapus data category dari database
+    $stmt = $connection->prepare("DELETE FROM categories WHERE category_id = ?");
+    $stmt->bind_param("s", $id);
+
+    if ($stmt->execute()) {
+        $_SESSION["success"] = "category has been successfully deleted!";
+        return true;
+    } else {
+        $_SESSION["error"] = "Failed to delete category: " . $stmt->error;
+        return false;
+    }
+}
+
+
+// edit
+
+function updateCategory($id, $data)
+{
+    global $connection;
+    $errors = [];
+
+    // --- CEK KATEGORI YANG TIDAK BOLEH DIUBAH ---
+    if ($id == "1") {
+        $_SESSION["error"] = "You cannot update this category.";
+        return false;
+    }
+
+    // --- VALIDASI INPUT ---
+    $categoryId = trim($data["category_id"]);
+    $categoryName = trim($data["category_name"]);
+
+    if (strlen($categoryId) < 7) {
+        $errors["category_id"] = "Category ID must be at least 7 characters long. (ID minimal 7 karakter.)";
+    }
+    if (strlen($categoryName) < 3) {
+        $errors["category_name"] = "Category Name must be at least 3 characters long. (Nama minimal 3 karakter.)";
+    }
+
+    // --- CEK DUPLIKAT ---
+    $checkQuery = "SELECT category_id, category_name FROM categories 
+                   WHERE (category_name = ? OR category_id = ?) AND category_id != ?";
+    $checkStmt = $connection->prepare($checkQuery);
+    $checkStmt->bind_param("sss", $categoryName, $categoryId, $id);
+    $checkStmt->execute();
+    $checkStmt->store_result();
+
+    if ($checkStmt->num_rows > 0) {
+        $checkStmt->bind_result($db_category_id, $db_category_name);
+        while ($checkStmt->fetch()) {
+            if ($db_category_name === $categoryName) {
+                $errors["category_name"] = "Category name already exists. (Nama kategori sudah terdaftar.)";
+            }
+            if ($db_category_id === $categoryId) {
+                $errors["category_id"] = "Category ID already exists. (ID kategori sudah terdaftar.)";
+            }
+        }
+    }
+    $checkStmt->close();
+
+    // --- KALAU ADA ERROR ---
+    if (!empty($errors)) {
+        $_SESSION["errors"] = $errors;
+        $_SESSION["error"] = implode(" ", $errors);
+        return false;
+    }
+
+    // --- UPDATE DATA ---
+    $query = "UPDATE categories SET category_id = ?, category_name = ? WHERE category_id = ?";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("sss", $categoryId, $categoryName, $id);
+
+    if (!$stmt->execute()) {
+        $_SESSION["error"] = "Failed to update category. (" . $stmt->error . ")";
+        return false;
+    }
+
+    $_SESSION["success"] = "Category successfully updated. (Category berhasil diperbarui.)";
+    return true;
+}
+
+
+
 
 ?>

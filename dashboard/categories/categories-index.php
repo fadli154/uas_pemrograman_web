@@ -372,13 +372,30 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                             <div class="row m-2">
                                 <div class="col-12">
                                     <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="category_id" class="form-label">Category ID</label>
+                                        <input type="text" id="category_id" name="category_id"
+                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["category_id"]) ? 'is-invalid' : '' ?>"
+                                            placeholder="e.g CTGR002" value="<?= $_POST['category_id'] ?? '' ?>"
+                                            required>
+                                        <div class="form-control-icon" style="top: 38px">
+                                            <i class="bi bi-book-fill"></i>
+                                        </div>
+                                        <?php if (isset($_SESSION["errors"]["category_id"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["category_id"]; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group mandatory position-relative has-icon-left">
                                         <label for="category_name" class="form-label">Category Name</label>
                                         <input type="text" id="category_name" name="category_name"
                                             class="form-control form-control-lg <?= isset($_SESSION["errors"]["category_name"]) ? 'is-invalid' : '' ?>"
                                             placeholder="e.g User" value="<?= $_POST['category_name'] ?? '' ?>"
                                             required>
                                         <div class="form-control-icon" style="top: 38px">
-                                            <i class="bi bi-person-exclamation"></i>
+                                            <i class="bi bi-book"></i>
                                         </div>
                                         <?php if (isset($_SESSION["errors"]["category_name"])): ?>
                                         <div class="invalid-feedback">

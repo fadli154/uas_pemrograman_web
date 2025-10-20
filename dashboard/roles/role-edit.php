@@ -294,7 +294,7 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                                         <label for="role_id" class="form-label">Role ID</label>
                                                         <input type="number" id="role_id" name="role_id"
                                                             class="form-control form-control-lg <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>"
-                                                            placeholder="e.g 241730042" value="<?= $role["role_id"] ?>"
+                                                            placeholder="e.g 1" value="<?= $role["role_id"] ?>"
                                                             readonly>
                                                         <div class="form-control-icon" style="top: 38px">
                                                             <i class="bi bi-person-exclamation"></i>
@@ -311,8 +311,8 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                                         <label for="role_name" class="form-label">Role Name</label>
                                                         <input type="text" id="role_name" name="role_name"
                                                             class="form-control form-control-lg <?= isset($_SESSION["errors"]["role_name"]) ? 'is-invalid' : '' ?>"
-                                                            placeholder="e.g Fadli Hifziansyah"
-                                                            value="<?= $role["role_name"] ?>" required>
+                                                            placeholder="e.g Officer" value="<?= $role["role_name"] ?>"
+                                                            required>
                                                         <div class="form-control-icon" style="top: 38px">
                                                             <i class="bi bi-person"></i>
                                                         </div>

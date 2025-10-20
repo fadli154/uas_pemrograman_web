@@ -6,8 +6,8 @@ require '../../check.php';
 // Hapus data dulu kalau ada delete_id
 if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];
-    deleteRole($id);
-    header("Location: roles-index.php");
+    deleteCategory($id);
+    header("Location: categories-index.php");
     exit;
 }
 
@@ -15,13 +15,12 @@ $name = htmlspecialchars($_SESSION['user']['name']);
 $rolee = htmlspecialchars($_SESSION['user']['role']);
 
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: roles-index.php");
+    header("Location: categories-index.php");
     exit;
 }
 
 $id = $_GET['id'];
-$role = detailRole($id);
-$roles = select('SELECT * FROM roles');
+$category = detailCategory($id);
 
 $photo = $_SESSION['user']['photo'] ?? null;
 $photoDetail = $user["photo"] ?? null;
@@ -40,7 +39,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Role Detail | Dashboard</title>
+    <title>Category Detail | Dashboard</title>
     <link rel="stylesheet" href="../../assets/extensions/choices.js/public/assets/styles/choices.css">
     <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon" />
     <link rel="stylesheet" href="../../assets/compiled/css/app.css" />
@@ -111,8 +110,8 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
 
                         <li class="sidebar-title">Aplication</li>
 
-                        <li class="sidebar-item active">
-                            <a href="roles-index.php" class="sidebar-link">
+                        <li class="sidebar-item ">
+                            <a href="../roles/roles-index.php" class="sidebar-link">
                                 <i class="bi bi-person-exclamation"></i>
                                 <span>Roles</span>
                             </a>
@@ -124,7 +123,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                 <span>Users</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
+                        <li class="sidebar-item active">
                             <a href="../categories/categories-index.php" class="sidebar-link">
                                 <i class="bi bi-book"></i>
                                 <span>Categories</span>
@@ -248,9 +247,9 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                     <div class="page-title">
                         <div class="row">
                             <div class="col-12 col-md-6 order-md-1 order-last">
-                                <h3 class="text-capitalize">Detail data <?= $role["role_name"] ?></h3>
+                                <h3 class="text-capitalize">Detail data <?= $category["category_name"] ?></h3>
                                 <p class="text-subtitle text-muted">
-                                    View detail data role
+                                    View detail data category
                                 </p>
                             </div>
                             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -260,10 +259,10 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                             <a href="../dashboard.php">Dashboard</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="roles-index.php">Roles</a>
+                                            <a href="categories -index.php">Categories</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="#">Role Detail</a>
+                                            <a href="#">Category Detail</a>
                                         </li>
                                     </ol>
                                 </nav>
@@ -279,34 +278,35 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                             <div class="row m-2">
                                                 <div class="col-12">
                                                     <div class="form-group mandatory position-relative has-icon-left">
-                                                        <label for="role_id" class="form-label">Role ID</label>
-                                                        <input type="number" id="role_id" name="role_id"
-                                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["role_id"]) ? 'is-invalid' : '' ?>"
-                                                            placeholder="e.g 241730042" value="<?= $role["role_id"] ?>"
-                                                            readonly>
+                                                        <label for="category_id" class="form-label">Category ID</label>
+                                                        <input type="text" id="category_id" name="category_id"
+                                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["category_id"]) ? 'is-invalid' : '' ?>"
+                                                            placeholder="e.g 241730042"
+                                                            value="<?= $category["category_id"] ?>" readonly>
                                                         <div class="form-control-icon" style="top: 38px">
-                                                            <i class="bi bi-person-exclamation"></i>
+                                                            <i class="bi bi-book-fill"></i>
                                                         </div>
-                                                        <?php if (isset($_SESSION["errors"]["role_id"])): ?>
+                                                        <?php if (isset($_SESSION["errors"]["category_id"])): ?>
                                                         <div class="invalid-feedback">
-                                                            <?= $_SESSION["errors"]["role_id"]; ?>
+                                                            <?= $_SESSION["errors"]["category_id"]; ?>
                                                         </div>
                                                         <?php endif; ?>
                                                     </div>
                                                 </div>
                                                 <div class="col-12">
                                                     <div class="form-group mandatory position-relative has-icon-left">
-                                                        <label for="role_name" class="form-label">Role Name</label>
-                                                        <input type="text" id="role_name" name="role_name"
-                                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["role_name"]) ? 'is-invalid' : '' ?>"
+                                                        <label for="category_name" class="form-label">Category
+                                                            Name</label>
+                                                        <input type="text" id="category_name" name="category_name"
+                                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["category_name"]) ? 'is-invalid' : '' ?>"
                                                             placeholder="e.g Fadli Hifziansyah"
-                                                            value="<?= $role["role_name"] ?>" readonly>
+                                                            value="<?= $category["category_name"] ?>" readonly>
                                                         <div class="form-control-icon" style="top: 38px">
-                                                            <i class="bi bi-person"></i>
+                                                            <i class="bi bi-book"></i>
                                                         </div>
-                                                        <?php if (isset($_SESSION["errors"]["role_name"])): ?>
+                                                        <?php if (isset($_SESSION["errors"]["category_name"])): ?>
                                                         <div class="invalid-feedback">
-                                                            <?= $_SESSION["errors"]["role_name"]; ?>
+                                                            <?= $_SESSION["errors"]["category_name"]; ?>
                                                         </div>
                                                         <?php endif; ?>
                                                     </div>
@@ -314,23 +314,23 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
                                             </div>
                                         </div>
                                         <div class="modal-footer mx-2 mt-2">
-                                            <a href="javascript:history.back()" type="button" name="add-role"
+                                            <a href="javascript:history.back()" type="button" name="add-category"
                                                 class="btn btn-secondary me-2 text-light" data-bs-toggle="tooltip"
                                                 data-bs-placement="top" data-bs-original-title="Back to List">
                                                 <i class="bx bx-check d-block d-sm-none"></i>
                                                 <span class="d-none d-sm-block"><i class="bi bi-arrow-90deg-left"></i>
                                                     back</span>
                                             </a>
-                                            <a href="?delete_id=<?= $role['role_id']; ?>"
+                                            <a href="?delete_id=<?= $category['category_id']; ?>"
                                                 class="btn btn-danger me-2 text-white delete-btn"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
-                                                data-bs-original-title="Delete Role">
+                                                data-bs-original-title="Delete Category">
                                                 <i class="bi bi-trash text-white "></i>
                                                 <span class="text-white delete-btn" style="top: 9px">Delete</span>
                                             </a>
-                                            <a href="role-edit.php?id=<?= $role['role_id']; ?>"
+                                            <a href="category-edit.php?id=<?= $category['category_id']; ?>"
                                                 class="btn btn-success me-2 text-white" data-bs-toggle="tooltip"
-                                                data-bs-placement="top" data-bs-original-title="Edit Role">
+                                                data-bs-placement="top" data-bs-original-title="Edit Category">
                                                 <i class="bx bx-check d-block text-white d-sm-none"></i>
                                                 <span class="d-none d-sm-block"><i class="bi bi-pencil-square"></i>
                                                     Edit</span>
@@ -427,7 +427,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
 
             Swal.fire({
                 title: "Sure Wanna delete?",
-                text: "Data role will be deleted permanently.",
+                text: "Data category will be deleted permanently.",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -445,7 +445,7 @@ $photoPathDetail = (!empty($photoDetail)) ? "../../uploads/" . htmlspecialchars(
         <!-- choice -->
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-            new Choices('#role', {
+            new Choices('#category', {
                 searchEnabled: true,
                 itemSelectText: '',
             });
