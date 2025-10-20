@@ -49,7 +49,7 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Role Edit | Dashboard</title>
+    <title>Category Edit | Dashboard</title>
     <link rel="stylesheet" href="../../assets/extensions/choices.js/public/assets/styles/choices.css">
     <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon" />
     <link rel="stylesheet" href="../../assets/compiled/css/app.css" />
@@ -259,7 +259,7 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                             <div class="col-12 col-md-6 order-md-1 order-last">
                                 <h3 class="text-capitalize">Edit data <?= $category["category_name"] ?></h3>
                                 <p class="text-subtitle text-muted">
-                                    View edit data role
+                                    View edit data category
                                 </p>
                             </div>
                             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -336,20 +336,20 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
                                             <a href="?delete_id=<?= $category['category_id']; ?>"
                                                 class="btn btn-danger me-2 text-white delete-btn"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
-                                                data-bs-original-title="Delete Role">
+                                                data-bs-original-title="Delete category">
                                                 <i class="bi bi-trash text-white "></i>
                                                 <span class="text-white delete-btn" style="top: 9px">Delete</span>
                                             </a>
                                             <a href="category-detail.php?id=<?= $category['category_id']; ?>"
                                                 class="btn btn-info me-2 text-white" data-bs-toggle="tooltip"
-                                                data-bs-placement="top" data-bs-original-title="Detail Role">
+                                                data-bs-placement="top" data-bs-original-title="Detail category">
                                                 <i class="bx bx-check d-block text-white d-sm-none"></i>
                                                 <span class="d-none d-sm-block"><i class="bi bi-eye"></i>
                                                     Detail</span>
                                             </a>
                                             <button type="submit" class="btn btn-primary me-2 text-white"
                                                 data-bs-toggle="tooltip" data-bs-placement="top"
-                                                data-bs-original-title="Edit Role">
+                                                data-bs-original-title="Edit category">
                                                 <i class="bx bx-check d-block text-white d-sm-none"></i>
                                                 <span class="d-none d-sm-block"><i class="bi bi-check-circle"></i>
                                                     Edit</span>
@@ -461,22 +461,6 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
         });
         </script>
 
-
-        <!-- choice -->
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            new Choices('#role', {
-                searchEnabled: true,
-                itemSelectText: '',
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            new Choices('#status', {
-                searchEnabled: true,
-                itemSelectText: '',
-            });
-        });
-        </script>
 
         <!-- preview img -->
         <script>
