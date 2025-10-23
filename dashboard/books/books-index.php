@@ -53,6 +53,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
     <link rel="stylesheet" href="../../assets/extensions/iziToast/css/iziToast.min.css">
     <link rel="stylesheet" href="../../assets/extensions/quill/quill.snow.css">
     <link rel="stylesheet" href="../../assets/extensions/quill/quill.bubble.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
 </head>
 
 <body>
@@ -414,7 +415,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                             class="form-control form-control-lg <?= isset($_SESSION["errors"]["title"]) ? 'is-invalid' : '' ?>"
                                             placeholder="e.g dilan 1990" value="<?= $_POST['title'] ?? '' ?>" required>
                                         <div class="form-control-icon" style="top: 38px">
-                                            <i class="bi bi-person-fill-check"></i>
+                                            <i class="bi bi-book-fill"></i>
                                         </div>
                                         <?php if (isset($_SESSION["errors"]["title"])): ?>
                                         <div class="invalid-feedback">
@@ -431,7 +432,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                             placeholder="e.g dilan 1990" value="<?= $_POST['publisher'] ?? '' ?>"
                                             required>
                                         <div class="form-control-icon" style="top: 38px">
-                                            <i class="bi bi-person-fill-check"></i>
+                                            <i class="bi bi-person-fill"></i>
                                         </div>
                                         <?php if (isset($_SESSION["errors"]["publisher"])): ?>
                                         <div class="invalid-feedback">
@@ -442,14 +443,32 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                 </div>
                                 <div class="col-md-6 col-12">
                                     <div class="form-group mandatory position-relative has-icon-left">
-                                        <label for="publication_year" class="form-label">Publication Year</label>
-                                        <input type="year" id="publication_year" name="publication_year"
-                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["publication_year"]) ? 'is-invalid' : '' ?>"
-                                            placeholder="e.g 2018" value="<?= $_POST['publication_year'] ?? '' ?>"
-                                            required min="1100" max="2100">
+                                        <label for="author" class="form-label">Author</label>
+                                        <input type="text" id="author" name="author"
+                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["author"]) ? 'is-invalid' : '' ?>"
+                                            placeholder="e.g dilan 1990" value="<?= $_POST['author'] ?? '' ?>" required>
                                         <div class="form-control-icon" style="top: 38px">
-                                            <i class="bi bi-person-fill-check"></i>
+                                            <i class="bi bi-person"></i>
                                         </div>
+                                        <?php if (isset($_SESSION["errors"]["author"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["author"]; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="publication_year" class="form-label">Publication Year</label>
+                                        <input type="text" id="publication_year" name="publication_year"
+                                            class="form-control form-control-lg <?= isset($_SESSION["errors"]["publication_year"]) ? 'is-invalid' : '' ?>"
+                                            placeholder="e.g. 2018" value="<?= $_POST['publication_year'] ?? '' ?>"
+                                            required>
+
+                                        <div class="form-control-icon" style="top: 38px">
+                                            <i class="bi bi-calendar-event"></i>
+                                        </div>
+
                                         <?php if (isset($_SESSION["errors"]["publication_year"])): ?>
                                         <div class="invalid-feedback">
                                             <?= $_SESSION["errors"]["publication_year"]; ?>
@@ -457,6 +476,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                         <?php endif; ?>
                                     </div>
                                 </div>
+
                                 <div class="col-12">
                                     <div class="form-group mandatory position-relative has-icon-left">
                                         <label for="synopsis" class="form-label">Synopsis</label>
@@ -474,35 +494,13 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                         <?php endif; ?>
                                     </div>
                                 </div>
-
-                                <div class="col-md-6 col-12">
-                                    <div class="form-group mandatory position-relative has-icon-left">
-                                        <label for="status" class="form-label">Status</label>
-                                        <select id="status"
-                                            class="choices form-control form-select <?= isset($_SESSION["errors"]["status"]) ? 'is-invalid' : '' ?>"
-                                            name="status" required>
-                                            <option value="">-- Select Status --</option>
-                                            <option value="active"
-                                                <?= (($_POST['status'] ?? '') === 'active') ? 'selected' : '' ?>>Active
-                                            </option>
-                                            <option value="inactive"
-                                                <?= (($_POST['status'] ?? '') === 'inactive') ? 'selected' : '' ?>>
-                                                Inactive</option>
-                                        </select>
-                                        <?php if (isset($_SESSION["errors"]["status"])): ?>
-                                        <div class="invalid-feedback">
-                                            <?= $_SESSION["errors"]["status"]; ?>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
                                 <div class="col-12 mb-1">
                                     <fieldset>
-                                        <label class="mb-1" for="photo">Photo</label>
+                                        <label class="mb-1" for="book_cover">Book Cover</label>
                                         <div class="input-group">
-                                            <input type="file" class="form-control" id="photo"
+                                            <input type="file" class="form-control" id="book_cover"
                                                 aria-describedby="inputGroupFileAddon04" aria-label="Upload"
-                                                name="photo" accept="image/*">
+                                                name="book_cover" accept="image/*">
                                             <button class="btn btn-primary z-0" type="button"
                                                 id="inputGroupFileAddon04">Upload</button>
                                         </div>
@@ -572,7 +570,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
 
     <!-- tinymce -->
     <script src="../../assets/extensions/quill/quill.min.js"></script>
-    <script src="../../assets/static/js/pages/quill.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <!-- iziToast -->
     <script>
     <?php if (isset($_SESSION["success"])): ?>
@@ -692,6 +690,63 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
         })
     }, false);
     </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Inisialisasi Quill
+        var quill = new Quill('#snow', {
+            theme: 'snow',
+            placeholder: 'write here...',
+            modules: {
+                toolbar: [
+                    [{
+                        'header': [1, 2, false]
+                    }],
+                    ['bold', 'italic', 'underline'],
+                    ['blockquote', 'code-block'],
+                    [{
+                        'list': 'ordered'
+                    }, {
+                        'list': 'bullet'
+                    }]
+                ]
+            }
+        });
+
+        // Ambil input hidden
+        var inputSynopsis = document.getElementById('synopsis');
+
+        // Update isi input hidden setiap ada perubahan
+        quill.on('text-change', function() {
+            inputSynopsis.value = quill.root.innerHTML;
+        });
+
+        // Jika form diisi ulang (misalnya saat edit data), isi ulang editor
+        if (inputSynopsis.value) {
+            quill.root.innerHTML = inputSynopsis.value;
+        }
+    });
+    </script>
+
+    <script>
+    $(function() {
+        $("#publication_year").datepicker({
+            changeYear: true,
+            changeMonth: false,
+            showButtonPanel: true,
+            dateFormat: 'yy', // hanya tampil tahun
+            yearRange: "1100:2100",
+            onClose: function(dateText, inst) {
+                var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+                $(this).datepicker('setDate', new Date(year, 1));
+            },
+            beforeShow: function(input, inst) {
+                $(".ui-datepicker-month").hide();
+            }
+        });
+    });
+    </script>
+
 
 </body>
 
