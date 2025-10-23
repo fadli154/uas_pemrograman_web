@@ -1,27 +1,19 @@
 var snow = new Quill("#snow", {
   theme: "snow",
-})
-var bubble = new Quill("#bubble", {
-  theme: "bubble",
-})
-new Quill("#full", {
-  bounds: "#full-container .editor",
+  placeholder: "Tulis deskripsi publikasi di sini...",
   modules: {
     toolbar: [
-      [{ font: [] }, { size: [] }],
-      ["bold", "italic", "underline", "strike"],
-      [{ color: [] }, { background: [] }],
-      [{ script: "super" }, { script: "sub" }],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
-      ],
-      ["direction", { align: [] }],
-      ["link", "image", "video"],
-      ["clean"],
+      [{ header: [1, 2, false] }],
+      ["bold", "italic", "underline"],
+      [{ list: "ordered" }, { list: "bullet" }],
     ],
   },
+});
+var bubble = new Quill("#bubble", {
+  theme: "bubble",
+});
+new Quill("#full", {
+  bounds: "#full-container .editor",
+  placeholder: "Tulis deskripsi publikasi di sini...",
   theme: "snow",
-})
+});

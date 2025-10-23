@@ -278,7 +278,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                         <div class="card">
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-striped" id="categoriesTable">
+                                    <table class="table table-striped" id="categoryTable">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
