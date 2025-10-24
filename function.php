@@ -718,6 +718,117 @@ function updateCategory($id, $data)
     return true;
 }
 
+// =============== Books =================
+
+
+function insertBook($data, $file)
+{
+    global $connection;
+    $errors = [];
+
+    // --- VALIDASI DASAR ---
+    if (empty(trim($data["book_id"]))) $errors["book_id"] = "Book ID tidak boleh kosong.";
+    if (empty(trim($data["isbn"]))) $errors["isbn"] = "ISBN tidak boleh kosong.";
+    if (empty(trim($data["title"]))) $errors["title"] = "Judul buku tidak boleh kosong.";
+    if (empty(trim($data["author"]))) $errors["author"] = "Penulis tidak boleh kosong.";
+    if (empty(trim($data["publisher"]))) $errors["publisher"] = "Penerbit tidak boleh kosong.";
+    if (empty($data["publication_year"])) $errors["publication_year"] = "Tahun terbit tidak boleh kosong.";
+    if (empty($data["categories"]) || !is_array($data["categories"])) $errors["categories"] = "Minimal satu kategori harus dipilih.";
+
+    // --- CEK DUPLIKAT BOOK_ID ATAU ISBN ---
+    $checkQuery = "SELECT book_id, isbn FROM books WHERE book_id = ? OR isbn = ?";
+    $checkStmt = $connection->prepare($checkQuery);
+    if ($checkStmt) {
+        $checkStmt->bind_param("ss", $data["book_id"], $data["isbn"]);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+
+        if ($checkStmt->num_rows > 0) {
+            $checkStmt->bind_result($bid, $bisbn);
+            while ($checkStmt->fetch()) {
+                if ($bid === $data["book_id"]) $errors["book_id"] = "Book ID sudah terdaftar.";
+                if ($bisbn === $data["isbn"]) $errors["isbn"] = "ISBN sudah terdaftar.";
+            }
+        }
+        $checkStmt->close();
+    }
+
+    // --- HANDLE ERROR VALIDASI ---
+    if (!empty($errors)) {
+        $_SESSION["errors"] = $errors;
+        $_SESSION["error"] = implode(" ", $errors);
+        return false;
+    }
+
+    // --- UPLOAD COVER ---
+    $coverName = null;
+    if (isset($file["book_cover"]) && $file["book_cover"]["error"] === UPLOAD_ERR_OK) {
+        $targetDir = "../../uploads/";
+        if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
+
+        $coverName = time() . "_" . basename($file["book_cover"]["name"]);
+        $targetFile = $targetDir . $coverName;
+        $ext = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowed = ["jpg", "jpeg", "png"];
+
+        if (!in_array($ext, $allowed)) {
+            $_SESSION["error"] = "Cover harus JPG, JPEG, atau PNG.";
+            return false;
+        }
+
+        if ($file["book_cover"]["size"] > 3 * 1024 * 1024) {
+            $_SESSION["error"] = "Ukuran cover maksimal 3MB.";
+            return false;
+        }
+
+        if (!move_uploaded_file($file["book_cover"]["tmp_name"], $targetFile)) {
+            $_SESSION["error"] = "Gagal upload cover buku.";
+            return false;
+        }
+    }
+
+    // --- INSERT KE TABLE BOOK ---
+    $query = "INSERT INTO books 
+              (book_id, isbn, title, author, publisher, synopsis, publication_year, book_cover, created_by, updated_by)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param(
+        "ssssssisss",
+        $data["book_id"],
+        $data["isbn"],
+        $data["title"],
+        $data["author"],
+        $data["publisher"],
+        $data["synopsis"],
+        $data["publication_year"],
+        $coverName,
+        $data["created_by"],
+        $data["updated_by"]
+    );
+
+    if (!$stmt->execute()) {
+        $_SESSION["error"] = "Gagal menyimpan buku (" . $stmt->error . ")";
+        return false;
+    }
+    $stmt->close();
+
+    // --- INSERT KE TABLE CATEGORIES_BOOKS ---
+$catQuery = "INSERT INTO categories_books (category_book_id, category_id, book_id) VALUES (?, ?, ?)";
+$catStmt = $connection->prepare($catQuery);
+
+foreach ($data["categories"] as $categoryId) {
+    $categoryBookId = uniqid();
+    $catStmt->bind_param("sss", $categoryBookId, $categoryId, $data["book_id"]);
+    $catStmt->execute();
+}
+
+$catStmt->close();
+
+
+    $_SESSION["success"] = "Data buku dan kategori berhasil disimpan.";
+    return true;
+}
+
 
 
 

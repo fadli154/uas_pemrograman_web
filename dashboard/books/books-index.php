@@ -6,8 +6,8 @@ require '../../check.php';
 $name = htmlspecialchars($_SESSION['user']['name']);
 $role = htmlspecialchars($_SESSION['user']['role']);
 
-$roles = select( 'SELECT * FROM roles');
 $books = select('SELECT * FROM books');
+$categories = select('SELECT * FROM categories');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (insertBook($_POST, $_FILES)) {
@@ -476,7 +476,25 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                         <?php endif; ?>
                                     </div>
                                 </div>
-
+                                <div class="col-12">
+                                    <div class="form-group mandatory position-relative has-icon-left">
+                                        <label for="categories" class="form-label">Categories Book</label>
+                                        <select id="categories" name="categories[]" multiple="multiple" required
+                                            class="form-select multiple-remove choices <?= isset($_SESSION["errors"]["category_id"]) ? 'is-invalid' : '' ?>">
+                                            <?php foreach ($categories as $category): ?>
+                                            <option value="<?= $category["category_id"] ?>"
+                                                <?= (isset($_POST["categories"]) && in_array($category["category_id"], $_POST["categories"])) ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($category["category_name"]) ?>
+                                            </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <?php if (isset($_SESSION["errors"]["category_id"])): ?>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["category_id"]; ?>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
                                 <div class="col-12">
                                     <div class="form-group mandatory position-relative has-icon-left">
                                         <label for="synopsis" class="form-label">Synopsis</label>
@@ -691,6 +709,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
     }, false);
     </script>
 
+    <!-- Quill -->
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         // Inisialisasi Quill
@@ -728,14 +747,15 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
     });
     </script>
 
+    <!-- year -->
     <script>
     $(function() {
         $("#publication_year").datepicker({
             changeYear: true,
             changeMonth: false,
             showButtonPanel: true,
-            dateFormat: 'yy', // hanya tampil tahun
-            yearRange: "1100:2100",
+            dateFormat: 'yy',
+            yearRange: "1100:2030",
             onClose: function(dateText, inst) {
                 var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
                 $(this).datepicker('setDate', new Date(year, 1));
@@ -743,6 +763,16 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
             beforeShow: function(input, inst) {
                 $(".ui-datepicker-month").hide();
             }
+        });
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new Choices('#categories', {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select one or more categories'
         });
     });
     </script>
