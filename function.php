@@ -580,9 +580,9 @@ function insertCategory($data, $file)
     }
 
     // --- INSERT DATA ---
-    $query = "INSERT INTO categories (category_name, category_id) VALUES (?, ?)";
+    $query = "INSERT INTO categories (category_name, category_id, created_by, updated_by) VALUES (?, ?, ?, ?)";
     $stmt = $connection->prepare($query);
-    $stmt->bind_param("ss", $data["category_name"], $data["category_id"]);
+    $stmt->bind_param("ssss", $data["category_name"], $data["category_id"], $_SESSION["user"]["user_id"], $_SESSION["user"]["user_id"]);
 
     if (!$stmt->execute()) {
         $_SESSION["error"] = "Failed to insert data. (" . $stmt->error . ")";
@@ -705,9 +705,9 @@ function updateCategory($id, $data)
     }
 
     // --- UPDATE DATA ---
-    $query = "UPDATE categories SET category_id = ?, category_name = ? WHERE category_id = ?";
+    $query = "UPDATE categories SET category_id = ?, category_name = ?, updated_by = ? WHERE category_id = ?";
     $stmt = $connection->prepare($query);
-    $stmt->bind_param("sss", $categoryId, $categoryName, $id);
+    $stmt->bind_param("ssss", $categoryId, $categoryName, $_SESSION["user"]["user_id"], $id);
 
     if (!$stmt->execute()) {
         $_SESSION["error"] = "Failed to update category. (" . $stmt->error . ")";
@@ -810,8 +810,8 @@ function insertBook($data, $file)
         $data["synopsis"],
         $data["publication_year"],
         $coverName,
-        $data["created_by"],
-        $data["updated_by"]
+        $_SESSION["user"]["user_id"],
+        $_SESSION["user"]["user_id"]
     );
 
     if (!$stmt->execute()) {
