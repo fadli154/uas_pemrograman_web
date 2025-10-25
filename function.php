@@ -917,5 +917,39 @@ function deleteBook($id) {
     }
 }
 
+// detail
+function detailBook($id) {
+    global $connection;
+
+    // Ambil detail buku utama
+    $query = "SELECT * FROM books WHERE book_id = ?";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("s", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $book = $result->fetch_assoc();
+    $stmt->close();
+
+    if (!$book) return null; // jika buku tidak ditemukan
+
+    // Ambil daftar kategori buku
+    $catQuery = "SELECT c.category_id, c.category_name 
+                 FROM categories_books cb
+                 JOIN categories c ON cb.category_id = c.category_id
+                 WHERE cb.book_id = ?";
+    $catStmt = $connection->prepare($catQuery);
+    $catStmt->bind_param("s", $id);
+    $catStmt->execute();
+    $catResult = $catStmt->get_result();
+
+    $book["categories"] = [];
+    while ($row = $catResult->fetch_assoc()) {
+        $book["categories"][] = $row;
+    }
+    $catStmt->close();
+
+    return $book;
+}
+
 
 ?>

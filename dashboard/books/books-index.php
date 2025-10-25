@@ -309,7 +309,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                                                 aria-labelledby="dropdownMenuButton"
                                                                 style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(0px, 40px, 0px);"
                                                                 data-popper-placement="bottom-start">
-                                                                <a href="book-detail.php?id=<?= $book['title'] ?>"
+                                                                <a href="book-detail.php?id=<?= $book['book_id'] ?>"
                                                                     class="dropdown-item position-relative btn-detail-book">
                                                                     <i class="bi bi-eye me-2 text-primary"></i>
                                                                     <span class="position-absolute text-primary"
@@ -586,7 +586,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
     <!-- izitoast -->
     <script src="../../assets/extensions/iziToast/js/iziToast.min.js"></script>
 
-    <!-- tinymce -->
+    <!-- quil -->
     <script src="../../assets/extensions/quill/quill.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
     <!-- iziToast -->
