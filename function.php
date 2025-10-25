@@ -219,6 +219,14 @@ function updateUser($id, $data, $file)
     global $connection;
     $errors = [];
 
+    $currentUser = $_SESSION["user"];
+
+    // Hanya admin yang boleh edit data admin lain
+    if ($currentUser["role_id"] != '1') {
+        $_SESSION["error"] = "You do not have permission to delete users.";
+        return false;
+    }
+    
     // --- VALIDASI DASAR ---
     if (empty(trim($data["user_id"]))) {
         $errors["user_id"] = "User ID cannot be empty. (User ID tidak boleh kosong.)";
@@ -247,14 +255,24 @@ function updateUser($id, $data, $file)
     }
 
     // --- CEK DUPLIKAT user_id, email, phone (pada user lain) ---
-    $checkQuery = "SELECT user_id FROM users WHERE (user_id = ? OR email = ? OR phone = ?) AND user_id != ?";
+    $checkQuery = "SELECT user_id, email, phone FROM users WHERE (user_id = ? OR email = ? OR phone = ?) AND user_id != ?";
     $checkStmt = $connection->prepare($checkQuery);
     $checkStmt->bind_param("ssss", $data["user_id"], $data["email"], $data["phone"], $id);
     $checkStmt->execute();
-    $checkStmt->store_result();
-    if ($checkStmt->num_rows > 0) {
-        $errors["duplicate"] = "User ID, email, or phone already used by another user. (User ID, email, atau nomor telepon sudah digunakan pengguna lain.)";
+    $result = $checkStmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        if ($row["user_id"] === $data["user_id"]) {
+            $errors["user_id"] = "User ID is already used by another user.";
+        }
+        if ($row["email"] === $data["email"]) {
+            $errors["email"] = "Email is already used by another user.";
+        }
+        if ($row["phone"] === $data["phone"]) {
+            $errors["phone"] = "Phone number is already used by another user.";
+        }
     }
+
     $checkStmt->close();
 
     if (!empty($errors)) {

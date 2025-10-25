@@ -56,6 +56,7 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
     <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon" />
     <link rel="stylesheet" href="../../assets/compiled/css/app.css" />
     <link rel="stylesheet" href="../../assets/compiled/css/app-dark.css" />
+    <link rel="stylesheet" href="../../assets/extensions/iziToast/css/iziToast.min.css">
 
     <!-- datatables -->
     <link rel="stylesheet" href="../../assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
@@ -386,6 +387,9 @@ $photoPathEdit = (!empty($photoEdit)) ? "../../uploads/" . htmlspecialchars($pho
 
         <!-- choices -->
         <script src="../../assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
+
+        <!-- izitoast -->
+        <script src="../../assets/extensions/iziToast/js/iziToast.min.js"></script>
 
         <!-- sweetalert -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>

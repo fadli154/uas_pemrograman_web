@@ -362,7 +362,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
             <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header mx-2">
-                        <h4 class="modal-title" id="myModalLabel33">Tambah Data Books</h4>
+                        <h4 class="modal-title" id="myModalLabel33">Add Data Books</h4>
                         <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
