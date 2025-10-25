@@ -750,7 +750,10 @@ function insertBook($data, $file)
                 if ($bisbn === $data["isbn"]) $errors["isbn"] = "ISBN sudah terdaftar.";
             }
         }
+
         $checkStmt->close();
+    } else {
+        $errors["db"] = "Database error saat cek duplikat.";
     }
 
     // --- HANDLE ERROR VALIDASI ---
@@ -763,7 +766,7 @@ function insertBook($data, $file)
     // --- UPLOAD COVER ---
     $coverName = null;
     if (isset($file["book_cover"]) && $file["book_cover"]["error"] === UPLOAD_ERR_OK) {
-        $targetDir = "../../uploads/";
+        $targetDir = "../../books_cover/";
         if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
 
         $coverName = time() . "_" . basename($file["book_cover"]["name"]);
@@ -787,11 +790,16 @@ function insertBook($data, $file)
         }
     }
 
-    // --- INSERT KE TABLE BOOK ---
+    // --- INSERT KE TABLE BOOKS ---
     $query = "INSERT INTO books 
               (book_id, isbn, title, author, publisher, synopsis, publication_year, book_cover, created_by, updated_by)
               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($query);
+    if (!$stmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query insert buku: " . $connection->error;
+        return false;
+    }
+
     $stmt->bind_param(
         "ssssssisss",
         $data["book_id"],
@@ -813,23 +821,83 @@ function insertBook($data, $file)
     $stmt->close();
 
     // --- INSERT KE TABLE CATEGORIES_BOOKS ---
-$catQuery = "INSERT INTO categories_books (category_book_id, category_id, book_id) VALUES (?, ?, ?)";
-$catStmt = $connection->prepare($catQuery);
+    $catQuery = "INSERT INTO categories_books (category_book_id, category_id, book_id) VALUES (?, ?, ?)";
+    $catStmt = $connection->prepare($catQuery);
+    if (!$catStmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query kategori: " . $connection->error;
+        return false;
+    }
 
-foreach ($data["categories"] as $categoryId) {
-    $categoryBookId = uniqid();
-    $catStmt->bind_param("sss", $categoryBookId, $categoryId, $data["book_id"]);
-    $catStmt->execute();
-}
+    foreach ($data["categories"] as $categoryId) {
+        $categoryBookId = uniqid("CTGRBOOK");
+        $catStmt->bind_param("sss", $categoryBookId, $categoryId, $data["book_id"]);
+        $catStmt->execute();
+    }
 
-$catStmt->close();
-
+    $catStmt->close();
 
     $_SESSION["success"] = "Data buku dan kategori berhasil disimpan.";
     return true;
 }
 
+//  delete
+function deleteBook($id) {
+    global $connection;
 
+    // Pastikan user login
+    if (!isset($_SESSION["user"])) {
+        $_SESSION["error"] = "You must be logged in to perform this action.";
+        return false;
+    }
+
+    $currentUser = $_SESSION["user"];
+
+    if ($currentUser["role_id"] != '1' && $currentUser["role_id"] != '2') {
+        $_SESSION["error"] = "You do not have permission to delete books.";
+        return false;
+    }
+
+    // Cek apakah buku ada
+    $check = $connection->prepare("SELECT book_cover FROM books WHERE book_id = ?");
+    $check->bind_param("s", $id);
+    $check->execute();
+    $result = $check->get_result();
+
+    if ($result->num_rows == 0) {
+        $_SESSION["error"] = "Book not found.";
+        return false;
+    }
+
+    $book = $result->fetch_assoc();
+    $book_cover = $book["book_cover"];
+    $check->close();
+
+    // Hapus relasi buku dari tabel categories_books
+    $delRelation = $connection->prepare("DELETE FROM categories_books WHERE book_id = ?");
+    $delRelation->bind_param("s", $id);
+    $delRelation->execute();
+    $delRelation->close();
+
+    // Hapus file cover jika ada
+    if (!empty($book_cover)) {
+        $bookCoverPath = "../../books_cover/" . $book_cover;
+        if (file_exists($bookCoverPath)) {
+            unlink($bookCoverPath);
+        }
+    }
+
+    // Hapus buku dari tabel books
+    $stmt = $connection->prepare("DELETE FROM books WHERE book_id = ?");
+    $stmt->bind_param("s", $id);
+
+    if ($stmt->execute()) {
+        $_SESSION["success"] = "Book has been successfully deleted!";
+        return true;
+    } else {
+        $_SESSION["error"] = "Failed to delete book: " . $stmt->error;
+        return false;
+    }
+}
 
 
 ?>

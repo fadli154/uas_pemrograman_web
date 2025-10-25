@@ -652,7 +652,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
 
         Swal.fire({
             title: "Sure Wanna delete?",
-            text: "Data role will be deleted permanently.",
+            text: "Data book will be deleted permanently.",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -661,7 +661,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
             cancelButtonText: "Reject"
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = deleteUrl; // jalankan delete langsung di roles-index.php
+                window.location.href = deleteUrl; // jalankan delete langsung di books-index.php
             }
         });
     });
