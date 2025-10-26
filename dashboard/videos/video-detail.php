@@ -42,6 +42,12 @@ $defaultPhoto = "../../assets/compiled/jpg/video_placeholder.png";
 $photoPath = !empty($photo) ? "../../uploads/" . htmlspecialchars($photo) : $defaultPhoto;
 $photoPathDetail = !empty($photoDetail) ? "../../thumbnail/" . htmlspecialchars($photoDetail) : $defaultPhoto;
 
+function getYouTubeID($url) {
+    preg_match("/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^\"&?\/ ]{11})/", $url, $match);
+    return $match[1] ?? null;
+}
+
+$youtubeID = getYouTubeID($video["youtube_url"]);
 ?>
 
 
@@ -310,6 +316,24 @@ $photoPathDetail = !empty($photoDetail) ? "../../thumbnail/" . htmlspecialchars(
                                 </div>
                             </div>
                             <div class="col-12 col-lg-8">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="preview-video-yt">
+                                            <div class="preview-video-yt text-center">
+                                                <?php if (!empty($youtubeID)): ?>
+                                                <iframe width="100%" height="400"
+                                                    src="https://www.youtube.com/embed/<?= $youtubeID ?>"
+                                                    frameborder="0"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allowfullscreen>
+                                                </iframe>
+                                                <?php else: ?>
+                                                <p class="text-muted">Video tidak tersedia</p>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="card">
                                     <div class="card-body">
                                         <form action="" method="" enctype="multipart/form-data">
