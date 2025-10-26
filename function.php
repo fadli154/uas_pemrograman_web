@@ -1162,29 +1162,29 @@ function insertVideo($data, $file)
         return false;
     }
 
-    // --- UPLOAD THUMBNAIL ---
-    $thumbnailUri = null;
-    if (isset($file["thumbnail"]) && $file["thumbnail"]["error"] === UPLOAD_ERR_OK) {
-        $targetDir = "../../videos_thumbnail/";
+    // --- UPLOAD THUMBNAIL_URL ---
+    $thumbnail_url = null;
+    if (isset($file["thumbnail_url"]) && $file["thumbnail_url"]["error"] === UPLOAD_ERR_OK) {
+        $targetDir = "../../thumbnail/";
         if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
 
-        $thumbnailUri = time() . "_" . basename($file["thumbnail"]["name"]);
-        $targetFile = $targetDir . $thumbnailUri;
+        $thumbnail_url = time() . "_" . basename($file["thumbnail_url"]["name"]);
+        $targetFile = $targetDir . $thumbnail_url;
         $ext = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
         $allowed = ["jpg", "jpeg", "png"];
 
         if (!in_array($ext, $allowed)) {
-            $_SESSION["error"] = "Thumbnail harus JPG, JPEG, atau PNG.";
+            $_SESSION["error"] = "Thumbnail_url harus JPG, JPEG, atau PNG.";
             return false;
         }
 
-        if ($file["thumbnail"]["size"] > 3 * 1024 * 1024) {
-            $_SESSION["error"] = "Ukuran thumbnail maksimal 3MB.";
+        if ($file["thumbnail_url"]["size"] > 3 * 1024 * 1024) {
+            $_SESSION["error"] = "Ukuran thumbnail_url maksimal 3MB.";
             return false;
         }
 
-        if (!move_uploaded_file($file["thumbnail"]["tmp_name"], $targetFile)) {
-            $_SESSION["error"] = "Gagal upload thumbnail video.";
+        if (!move_uploaded_file($file["thumbnail_url"]["tmp_name"], $targetFile)) {
+            $_SESSION["error"] = "Gagal upload thumbnail_url video.";
             return false;
         }
     }
@@ -1205,7 +1205,7 @@ function insertVideo($data, $file)
         $data["title"],
         $data["description"],
         $data["youtube_url"],
-        $thumbnailUri,
+        $thumbnail_url,
         $data["duration"],
         $data["category_id"],
         $_SESSION["user"]["user_id"]

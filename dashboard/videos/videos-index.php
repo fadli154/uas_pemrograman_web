@@ -466,7 +466,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
 
                                         <!-- Elemen tempat Quill muncul -->
                                         <div id="snow" class="ql-container ql-snow"></div>
-                                        s
+
                                         <!-- Hidden input untuk kirim isi editor -->
                                         <input type="hidden" name="description" id="description">
 
