@@ -158,14 +158,14 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                         <li class="sidebar-title">Settings</li>
 
                         <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
+                            <a href="../profile.php" class="sidebar-link">
                                 <i class="bi bi-person-gear"></i>
                                 <span>Profile</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
+                            <a href="../change-password.php" class="sidebar-link">
                                 <i class="bi bi-person-lock"></i>
                                 <span>Change Password</span>
                             </a>
@@ -232,12 +232,12 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                             Home</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="profile.php"><i
+                                        <a class="dropdown-item" href="../profile.php"><i
                                                 class="icon-mid bi bi-person me-2"></i> My
                                             Profile</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="change-password.php"><i
+                                        <a class="dropdown-item" href="../change-password.php"><i
                                                 class="icon-mid bi bi-person-lock me-2"></i>
                                             Change Password</a>
                                     </li>
@@ -324,7 +324,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                                 placeholder="e.g BOOK001"
                                                                 value="<?= $book["book_id"] ?>" readonly>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person-exclamation"></i>
+                                                                <i class="bi bi-book-half"></i>
                                                             </div>
                                                             <?php if (isset($_SESSION["errors"]["book_id"])): ?>
                                                             <div class="invalid-feedback">
@@ -342,7 +342,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                                 placeholder="e.g Fadli Hifziansyah"
                                                                 value="<?= $book["isbn"] ?>" readonly>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person"></i>
+                                                                <i class="bi bi-sort-numeric-down"></i>
                                                             </div>
                                                             <?php if (isset($_SESSION["errors"]["isbn"])): ?>
                                                             <div class="invalid-feedback">
@@ -360,7 +360,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                                 placeholder="e.g Fadli Hifziansyah"
                                                                 value="<?= $book["title"] ?>" readonly>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person"></i>
+                                                                <i class="bi bi-book-fill"></i>
                                                             </div>
                                                             <?php if (isset($_SESSION["errors"]["title"])): ?>
                                                             <div class="invalid-feedback">
@@ -396,7 +396,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                                 placeholder="e.g fadlihifziansyah153@gmail.com"
                                                                 value="<?= $book["publisher"] ?>" readonly>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person-fill-check"></i>
+                                                                <i class="bi bi-building"></i>
                                                             </div>
                                                             <?php if (isset($_SESSION["errors"]["publisher"])): ?>
                                                             <div class="invalid-feedback">

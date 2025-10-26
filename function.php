@@ -15,6 +15,202 @@ function select($query) {
     return $rows; // kembalikan hasilnya
 }
 
+// profile
+
+// =============== Profile =================
+
+// edit
+function updateProfile($id, $data, $file)
+{
+    global $connection;
+    $errors = [];
+
+    $currentUser = $_SESSION["user"];
+
+    // --- CEK AKSES ---
+    if ($currentUser["role_id"] != $currentUser["role_id"]) {
+        $_SESSION["error"] = "You do not have permission to edit this user.";
+        return false;
+    }
+
+    // --- VALIDASI DASAR ---
+    if (empty(trim($data["user_id"]))) {
+        $errors["user_id"] = "User ID cannot be empty.";
+    }
+
+    if (strlen(trim($data["name"])) < 3) {
+        $errors["name"] = "Name must be at least 3 characters.";
+    }
+
+    if (!filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
+        $errors["email"] = "Invalid email format.";
+    }
+
+    $cleanPhone = preg_replace('/\s+/', '', $data["phone"]);
+    if (!preg_match('/^[0-9]{10,13}$/', $cleanPhone)) {
+        $errors["phone"] = "Phone number must contain 10–13 digits only.";
+    }
+    $data["phone"] = $cleanPhone;
+
+    if (empty($data["status"])) {
+        $errors["status"] = "Status must be selected.";
+    }
+
+    if (empty($data["role_id"])) {
+        $errors["role_id"] = "Role must be selected.";
+    }
+
+    // --- CEK DUPLIKAT user_id, email, phone (kecuali user sendiri) ---
+    $checkQuery = "SELECT user_id, email, phone FROM users WHERE (user_id = ? OR email = ? OR phone = ?) AND user_id != ?";
+    $checkStmt = $connection->prepare($checkQuery);
+    $checkStmt->bind_param("ssss", $data["user_id"], $data["email"], $data["phone"], $id);
+    $checkStmt->execute();
+    $result = $checkStmt->get_result();
+
+    while ($row = $result->fetch_assoc()) {
+        if ($row["user_id"] === $data["user_id"]) {
+            $errors["user_id"] = "User ID already used.";
+        }
+        if ($row["email"] === $data["email"]) {
+            $errors["email"] = "Email already used.";
+        }
+        if ($row["phone"] === $data["phone"]) {
+            $errors["phone"] = "Phone number already used.";
+        }
+    }
+
+    $checkStmt->close();
+
+    if (!empty($errors)) {
+        $_SESSION["errors"] = $errors;
+        $_SESSION["error"] = implode(" ", $errors);
+        return false;
+    }
+
+    // --- AMBIL FOTO DAN PASSWORD LAMA ---
+    $photoName = null;
+    $hashedPassword = null;
+    $getOld = $connection->prepare("SELECT photo, password FROM users WHERE user_id = ?");
+    $getOld->bind_param("s", $id);
+    $getOld->execute();
+    $getOld->bind_result($oldPhoto, $oldHashedPassword);
+    $getOld->fetch();
+    $getOld->close();
+    $photoName = $oldPhoto;
+    $hashedPassword = $oldHashedPassword;
+
+    // --- UPLOAD FOTO BARU (JIKA ADA) ---
+    $newPhotoUploaded = false;
+    if (isset($file["photo"]) && $file["photo"]["error"] === UPLOAD_ERR_OK) {
+        $targetDir = "../../uploads/";
+        if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
+
+        $photoName = time() . "_" . basename($file["photo"]["name"]);
+        $targetFile = $targetDir . $photoName;
+        $fileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowedTypes = ["jpg", "jpeg", "png"];
+
+        if (!in_array($fileType, $allowedTypes)) {
+            $_SESSION["error"] = "Photo must be JPG, JPEG, or PNG.";
+            return false;
+        }
+
+        if ($file["photo"]["size"] > 3 * 1024 * 1024) {
+            $_SESSION["error"] = "Photo max size is 3MB.";
+            return false;
+        }
+
+        if (!move_uploaded_file($file["photo"]["tmp_name"], $targetFile)) {
+            $_SESSION["error"] = "Failed to upload photo.";
+            return false;
+        }
+
+        if (!empty($oldPhoto) && file_exists($targetDir . $oldPhoto)) {
+            unlink($targetDir . $oldPhoto);
+        }
+
+        $newPhotoUploaded = true;
+    }
+
+    // --- UPDATE PASSWORD (OPSIONAL) ---
+    $newPassword = null;
+    if (!empty($data["old_password"]) || !empty($data["new_password"])) {
+        if (empty($data["old_password"]) || empty($data["new_password"])) {
+            $_SESSION["error"] = "Both old and new passwords must be filled.";
+            return false;
+        }
+
+        if (!password_verify($data["old_password"], $hashedPassword)) {
+            $_SESSION["error"] = "Old password is incorrect.";
+            return false;
+        }
+
+        if (strlen($data["new_password"]) < 6) {
+            $_SESSION["error"] = "New password must be at least 6 characters.";
+            return false;
+        }
+
+        $newPassword = password_hash($data["new_password"], PASSWORD_BCRYPT);
+    }
+
+    // --- SIAPKAN QUERY UPDATE ---
+    $updateFields = "user_id=?, name=?, email=?, phone=?, status=?, role_id=?";
+    $params = [
+        $data["user_id"],
+        $data["name"],
+        $data["email"],
+        $data["phone"],
+        $data["status"],
+        $data["role_id"]
+    ];
+    $types = "sssssi";
+
+    if ($newPhotoUploaded) {
+        $updateFields .= ", photo=?";
+        $params[] = $photoName;
+        $types .= "s";
+    }
+
+    if (!empty($newPassword)) {
+        $updateFields .= ", password=?";
+        $params[] = $newPassword;
+        $types .= "s";
+    }
+
+    $query = "UPDATE users SET $updateFields WHERE user_id=?";
+    $params[] = $id;
+    $types .= "s";
+
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param($types, ...$params);
+
+    if (!$stmt->execute()) {
+        $_SESSION["error"] = "Failed to update data. (" . $stmt->error . ")";
+        return false;
+    }
+
+    // --- UPDATE SESSION JIKA USER EDIT DIRINYA SENDIRI ---
+    if ($_SESSION['user']['user_id'] === $id) {
+        $_SESSION['user']['user_id'] = $data['user_id'];
+        $_SESSION['user']['name'] = $data['name'];
+        $_SESSION['user']['email'] = $data['email'];
+        $_SESSION['user']['photo'] = $photoName ?? $_SESSION['user']['photo'];
+        $_SESSION['user']['role_id'] = $data['role_id'];
+
+        $roleQuery = $connection->prepare("SELECT role_name FROM roles WHERE role_id = ?");
+        $roleQuery->bind_param("i", $data['role_id']);
+        $roleQuery->execute();
+        $roleQuery->bind_result($roleName);
+        $roleQuery->fetch();
+        $roleQuery->close();
+        $_SESSION['user']['role'] = $roleName ?? $_SESSION['user']['role'];
+    }
+
+    $_SESSION["success"] = "Data updated successfully.";
+    return true;
+}
+
+
 // insert
 
 function insertUser($data, $file)

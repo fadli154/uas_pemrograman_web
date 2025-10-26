@@ -128,7 +128,7 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
                         </li>
 
                         <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
+                            <a href="cahnge-password.php" class="sidebar-link">
                                 <i class="bi bi-person-lock"></i>
                                 <span>Change Password</span>
                             </a>

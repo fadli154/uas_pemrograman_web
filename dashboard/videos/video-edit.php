@@ -165,14 +165,14 @@ $photoPathEdit = !empty($photoDetail) ? "../../thumbnail/" . htmlspecialchars($p
                         <li class="sidebar-title">Settings</li>
 
                         <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
+                            <a href="../profile.php" class="sidebar-link">
                                 <i class="bi bi-person-gear"></i>
                                 <span>Profile</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
+                            <a href="../change-password.php" class="sidebar-link">
                                 <i class="bi bi-person-lock"></i>
                                 <span>Change Password</span>
                             </a>
@@ -239,12 +239,12 @@ $photoPathEdit = !empty($photoDetail) ? "../../thumbnail/" . htmlspecialchars($p
                                             Home</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="profile.php"><i
+                                        <a class="dropdown-item" href="../profile.php"><i
                                                 class="icon-mid bi bi-person me-2"></i> My
                                             Profile</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="change-password.php"><i
+                                        <a class="dropdown-item" href="../change-password.php"><i
                                                 class="icon-mid bi bi-person-lock me-2"></i>
                                             Change Password</a>
                                     </li>
@@ -361,7 +361,7 @@ $photoPathEdit = !empty($photoDetail) ? "../../thumbnail/" . htmlspecialchars($p
                                                             <label for="title" class="form-label">Title</label>
                                                             <input type="text" id="title" name="title"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["title"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g Dilan 1990"
+                                                                placeholder="e.g Tutorial HTML Dasar"
                                                                 value="<?= $video["title"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-camera-video"></i>
@@ -398,7 +398,7 @@ $photoPathEdit = !empty($photoDetail) ? "../../thumbnail/" . htmlspecialchars($p
                                                                 url</label>
                                                             <input type="text" id="youtube_url" name="youtube_url"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["youtube_url"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g fadlihifziansyah153@gmail.com"
+                                                                placeholder="e.g https://www.youtube.com/watch?v=StWOHGInGsc&t=1593s"
                                                                 value="<?= $video["youtube_url"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-link-45deg"></i>

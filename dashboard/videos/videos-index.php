@@ -150,14 +150,14 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                         <li class="sidebar-title">Settings</li>
 
                         <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
+                            <a href="../profile.php" class="sidebar-link">
                                 <i class="bi bi-person-gear"></i>
                                 <span>Profile</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
+                            <a href="../change-password.php" class="sidebar-link">
                                 <i class="bi bi-person-lock"></i>
                                 <span>Change Password</span>
                             </a>
@@ -224,12 +224,12 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                             Home</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="profile.php"><i
+                                        <a class="dropdown-item" href="../profile.php"><i
                                                 class="icon-mid bi bi-person me-2"></i> My
                                             Profile</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="change-password.php"><i
+                                        <a class="dropdown-item" href="../change-password.php"><i
                                                 class="icon-mid bi bi-person-lock me-2"></i>
                                             Change Password</a>
                                     </li>

@@ -165,14 +165,14 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                         <li class="sidebar-title">Settings</li>
 
                         <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
+                            <a href="../profile.php" class="sidebar-link">
                                 <i class="bi bi-person-gear"></i>
                                 <span>Profile</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item">
-                            <a href="profile.php" class="sidebar-link">
+                            <a href="../change-password.php" class="sidebar-link">
                                 <i class="bi bi-person-lock"></i>
                                 <span>Change Password</span>
                             </a>
@@ -239,12 +239,12 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                                             Home</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="profile.php"><i
+                                        <a class="dropdown-item" href="../profile.php"><i
                                                 class="icon-mid bi bi-person me-2"></i> My
                                             Profile</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="change-password.php"><i
+                                        <a class="dropdown-item" href="../change-password.php"><i
                                                 class="icon-mid bi bi-person-lock me-2"></i>
                                             Change Password</a>
                                     </li>
@@ -346,7 +346,7 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                                                                 placeholder="e.g BOOK001"
                                                                 value="<?= $book["book_id"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person-exclamation"></i>
+                                                                <i class="bi bi-book-half"></i>
                                                             </div>
                                                             <?php if (isset($_SESSION["errors"]["book_id"])): ?>
                                                             <div class="invalid-feedback">
@@ -361,10 +361,10 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                                                             <label for="isbn" class="form-label">ISBN</label>
                                                             <input type="text" id="isbn" name="isbn"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["isbn"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g Fadli Hifziansyah"
+                                                                placeholder="e.g 9786027870413"
                                                                 value="<?= $book["isbn"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person"></i>
+                                                                <i class="bi bi-sort-numeric-down"></i>
                                                             </div>
                                                             <?php if (isset($_SESSION["errors"]["isbn"])): ?>
                                                             <div class="invalid-feedback">
@@ -379,10 +379,10 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                                                             <label for="title" class="form-label">Title</label>
                                                             <input type="text" id="title" name="title"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["title"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g Fadli Hifziansyah"
+                                                                placeholder="e.g Dilan 1990"
                                                                 value="<?= $book["title"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person"></i>
+                                                                <i class="bi bi-book"></i>
                                                             </div>
                                                             <?php if (isset($_SESSION["errors"]["title"])): ?>
                                                             <div class="invalid-feedback">
@@ -397,7 +397,7 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                                                             <label for="author" class="form-label">Author</label>
                                                             <input type="text" id="author" name="author"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["author"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g fadlihifziansyah153@gmail.com"
+                                                                placeholder="e.g fadlihifziansyah153"
                                                                 value="<?= $book["author"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-person-fill"></i>
@@ -415,10 +415,10 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                                                             <label for="publisher" class="form-label">Publisher</label>
                                                             <input type="text" id="publisher" name="publisher"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["publisher"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g fadlihifziansyah153@gmail.com"
+                                                                placeholder="e.g gramedia"
                                                                 value="<?= $book["publisher"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person-fill-check"></i>
+                                                                <i class="bi bi-building"></i>
                                                             </div>
                                                             <?php if (isset($_SESSION["errors"]["publisher"])): ?>
                                                             <div class="invalid-feedback">

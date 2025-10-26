@@ -33,7 +33,11 @@ if (isset($_POST['submit_login'])) {
 
             header("Location: ../dashboard/dashboard.php");
             exit;
-        } 
+        } else {
+            $_SESSION["error"] = "NIM or Password is incorrect";
+            header("Location: login.php");
+            exit;
+        }
     } else {
        $_SESSION["error"] = "NIM or Password is incorrect";
             header("Location: login.php");
