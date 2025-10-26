@@ -951,5 +951,178 @@ function detailBook($id) {
     return $book;
 }
 
+// update
+function updateBook($oldBookId, $data, $file)
+{
+    global $connection;
+    $errors = [];
+
+    // --- VALIDASI DASAR ---
+    if (empty(trim($data["book_id"]))) $errors["book_id"] = "Book ID tidak boleh kosong.";
+    if (empty(trim($data["isbn"]))) $errors["isbn"] = "ISBN tidak boleh kosong.";
+    if (empty(trim($data["title"]))) $errors["title"] = "Judul buku tidak boleh kosong.";
+    if (empty(trim($data["author"]))) $errors["author"] = "Penulis tidak boleh kosong.";
+    if (empty(trim($data["publisher"]))) $errors["publisher"] = "Penerbit tidak boleh kosong.";
+    if (empty($data["publication_year"])) $errors["publication_year"] = "Tahun terbit tidak boleh kosong.";
+    if (empty($data["categories"]) || !is_array($data["categories"])) $errors["categories"] = "Minimal satu kategori harus dipilih.";
+
+    if (!empty($errors)) {
+        $_SESSION["errors"] = $errors;
+        $_SESSION["error"] = implode(" ", $errors);
+        return false;
+    }
+
+    // --- CEK DATA LAMA ---
+    $oldStmt = $connection->prepare("SELECT * FROM books WHERE book_id = ?");
+    if (!$oldStmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query cek data lama: " . $connection->error;
+        return false;
+    }
+    $oldStmt->bind_param("s", $oldBookId);
+    $oldStmt->execute();
+    $oldResult = $oldStmt->get_result();
+    $oldBook = $oldResult->fetch_assoc();
+    $oldStmt->close();
+
+    if (!$oldBook) {
+        $_SESSION["error"] = "Buku tidak ditemukan.";
+        return false;
+    }
+
+    // --- CEK DUPLIKAT BOOK_ID ---
+    if ($data["book_id"] !== $oldBookId) {
+        $check = $connection->prepare("SELECT book_id FROM books WHERE book_id = ?");
+        if (!$check) {
+            $_SESSION["error"] = "Gagal cek duplikat book_id: " . $connection->error;
+            return false;
+        }
+        $check->bind_param("s", $data["book_id"]);
+        $check->execute();
+        $check->store_result();
+        if ($check->num_rows > 0) {
+            $_SESSION["error"] = "Book ID sudah terdaftar.";
+            return false;
+        }
+        $check->close();
+    }
+
+    // --- CEK DUPLIKAT ISBN ---
+    $check = $connection->prepare("SELECT isbn FROM books WHERE isbn = ? AND book_id != ?");
+    if (!$check) {
+        $_SESSION["error"] = "Gagal cek duplikat ISBN: " . $connection->error;
+        return false;
+    }
+    $check->bind_param("ss", $data["isbn"], $oldBookId);
+    $check->execute();
+    $check->store_result();
+    if ($check->num_rows > 0) {
+        $_SESSION["error"] = "ISBN sudah terdaftar.";
+        return false;
+    }
+    $check->close();
+
+    // --- UPLOAD COVER ---
+    $coverName = $oldBook["book_cover"];
+    if (isset($file["book_cover"]) && $file["book_cover"]["error"] === UPLOAD_ERR_OK) {
+        $targetDir = "../../books_cover/";
+        if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
+
+        $newName = time() . "_" . basename($file["book_cover"]["name"]);
+        $targetFile = $targetDir . $newName;
+        $ext = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowed = ["jpg", "jpeg", "png"];
+
+        if (!in_array($ext, $allowed)) {
+            $_SESSION["error"] = "Cover harus JPG, JPEG, atau PNG.";
+            return false;
+        }
+
+        if ($file["book_cover"]["size"] > 3 * 1024 * 1024) {
+            $_SESSION["error"] = "Ukuran cover maksimal 3MB.";
+            return false;
+        }
+
+        if (!move_uploaded_file($file["book_cover"]["tmp_name"], $targetFile)) {
+            $_SESSION["error"] = "Gagal upload cover buku.";
+            return false;
+        }
+
+        if (!empty($oldBook["book_cover"])) {
+            $oldCoverPath = $targetDir . $oldBook["book_cover"];
+            if (file_exists($oldCoverPath)) unlink($oldCoverPath);
+        }
+
+        $coverName = $newName;
+    }
+
+    // --- UPDATE DATA BUKU ---
+    $updateQuery = "UPDATE books SET 
+                    book_id = ?, isbn = ?, title = ?, author = ?, publisher = ?, 
+                    synopsis = ?, publication_year = ?, book_cover = ?, updated_by = ? 
+                    WHERE book_id = ?";
+    $stmt = $connection->prepare($updateQuery);
+    if (!$stmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query update buku: " . $connection->error;
+        return false;
+    }
+
+    $userId = $_SESSION["user"]["user_id"];
+    $stmt->bind_param(
+        "ssssssisss",
+        $data["book_id"],
+        $data["isbn"],
+        $data["title"],
+        $data["author"],
+        $data["publisher"],
+        $data["synopsis"],
+        $data["publication_year"],
+        $coverName,
+        $userId,
+        $oldBookId
+    );
+
+    if (!$stmt->execute()) {
+        $_SESSION["error"] = "Gagal update buku: " . $stmt->error;
+        return false;
+    }
+    $stmt->close();
+
+    // --- UPDATE RELASI KATEGORI ---
+    $delCat = $connection->prepare("DELETE FROM categories_books WHERE book_id = ?");
+    if (!$delCat) {
+        $_SESSION["error"] = "Gagal hapus kategori lama: " . $connection->error;
+        return false;
+    }
+    $delCat->bind_param("s", $oldBookId);
+    $delCat->execute();
+    $delCat->close();
+
+    $catQuery = "INSERT INTO categories_books (category_book_id, category_id, book_id) VALUES (?, ?, ?)";
+    $catStmt = $connection->prepare($catQuery);
+    if (!$catStmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query kategori: " . $connection->error;
+        return false;
+    }
+
+    foreach ($data["categories"] as $categoryId) {
+    // Cek dulu apakah kombinasi kategori dan buku sudah ada
+    $checkCat = $connection->prepare("SELECT * FROM categories_books WHERE category_id = ? AND book_id = ?");
+    $checkCat->bind_param("ss", $categoryId, $data["book_id"]);
+    $checkCat->execute();
+    $exists = $checkCat->get_result()->num_rows > 0;
+    $checkCat->close();
+
+    if (!$exists) {
+        $categoryBookId = uniqid("CTGRBOOK");
+        $catStmt = $connection->prepare("INSERT INTO categories_books (category_book_id, category_id, book_id) VALUES (?, ?, ?)");
+        $catStmt->bind_param("sss", $categoryBookId, $categoryId, $data["book_id"]);
+        $catStmt->execute();
+        $catStmt->close();
+    }
+}
+
+    $_SESSION["success"] = "Data buku berhasil diperbarui.";
+    return true;
+}
 
 ?>

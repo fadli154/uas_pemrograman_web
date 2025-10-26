@@ -589,6 +589,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
     <!-- quil -->
     <script src="../../assets/extensions/quill/quill.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
     <!-- iziToast -->
     <script>
     <?php if (isset($_SESSION["success"])): ?>

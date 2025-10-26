@@ -3,7 +3,18 @@
 require '../../function.php';
 require '../../check.php';
 
-// Hapus data jika ada parameter delete_id
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $bookId = $_POST['book_id_old'];
+    if (updateBook($bookId, $_POST, $_FILES)) {
+        unset($_SESSION["errors"]);
+        $_SESSION["success"] = "Successfully updated book";
+        header("Location: books-index.php");
+        exit;
+    }
+}
+
+// Hapus data dulu kalau ada delete_id
 if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];
     deleteBook($id);
@@ -14,7 +25,6 @@ if (isset($_GET['delete_id'])) {
 $name = htmlspecialchars($_SESSION['user']['name']);
 $role = htmlspecialchars($_SESSION['user']['role']);
 
-// Cek parameter id
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     header("Location: books-index.php");
     exit;
@@ -22,11 +32,7 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 
 $id = $_GET['id'];
 $book = detailBook($id);
-
-if (!$book) {
-    header("Location: books-index.php");
-    exit;
-}
+$roles = select('SELECT * FROM roles');
 
 $categories = select('SELECT * FROM categories');
 
@@ -40,10 +46,10 @@ $photoDetail = $book["book_cover"] ?? null;
 // Path foto default
 $defaultPhoto = "../../assets/compiled/jpg/1.jpg";
 $photoPath = !empty($photo) ? "../../uploads/" . htmlspecialchars($photo) : $defaultPhoto;
-$photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars($photoDetail) : $defaultPhoto;
+$photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars($photoDetail) : $defaultPhoto;
+
 
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -51,17 +57,18 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Book Detail | Dashboard</title>
+    <title>Book Edit | Dashboard</title>
     <link rel="stylesheet" href="../../assets/extensions/choices.js/public/assets/styles/choices.css">
     <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon" />
     <link rel="stylesheet" href="../../assets/compiled/css/app.css" />
     <link rel="stylesheet" href="../../assets/compiled/css/app-dark.css" />
+    <link rel="stylesheet" href="../../assets/extensions/iziToast/css/iziToast.min.css">
     <link rel="stylesheet" href="../../assets/extensions/quill/quill.snow.css">
     <link rel="stylesheet" href="../../assets/extensions/quill/quill.bubble.css">
+
     <!-- datatables -->
     <link rel="stylesheet" href="../../assets/extensions/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" crossorigin="" href="../../assets/compiled/css/table-datatable-jquery.css">
-    <link rel="stylesheet" href="../../assets/extensions/iziToast/css/iziToast.min.css">
 </head>
 
 <body>
@@ -124,14 +131,14 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                         <li class="sidebar-title">Aplication</li>
 
                         <li class="sidebar-item">
-                            <a href="../dashboard/roles/roles-index.php" class="sidebar-link">
+                            <a href="../roles/roles-index.php" class="sidebar-link">
                                 <i class="bi bi-person-exclamation"></i>
                                 <span>Roles</span>
                             </a>
                         </li>
 
                         <li class="sidebar-item">
-                            <a href="users-index.php" class="sidebar-link">
+                            <a href="../users/users-index.php" class="sidebar-link">
                                 <i class="bi bi-person-badge"></i>
                                 <span>Users</span>
                             </a>
@@ -260,9 +267,9 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                     <div class="page-title">
                         <div class="row">
                             <div class="col-12 col-md-6 order-md-1 order-last">
-                                <h3 class="text-capitalize">Detail Book <?= $book["title"] ?></h3>
+                                <h3 class="text-capitalize">Edit data <?= $book["title"] ?></h3>
                                 <p class="text-subtitle text-muted">
-                                    View detail data Book
+                                    View edit data book
                                 </p>
                             </div>
                             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -275,7 +282,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                             <a href="users-index.php">Users</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="#">Users Detail</a>
+                                            <a href="#">Users Edit</a>
                                         </li>
                                     </ol>
                                 </nav>
@@ -287,32 +294,47 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                             <div class="col-12 col-lg-4">
                                 <div class="card">
                                     <a href="javascript:history.back()"
-                                        class="p-1 rounded-circle ms-2 mt-2 bg-secondary d-flex justify-content-center align-items-center position-relative bg-primary"
+                                        class="p-1 rounded-circle ms-2 mt-2 bg-secondary d-flex justify-content-center align-items-center position-relative"
                                         style="width: 25px; height: 25px;">
-                                        <i class="bi bi-arrow-left text-white pb-2 position-absolute text-primary"
+                                        <i class="bi bi-arrow-left text-white pb-2 position-absolute"
                                             style="top: 0px;"></i>
                                     </a>
                                     <div class="card-body">
                                         <div class="d-flex justify-content-center align-items-center flex-column">
-                                            <div class="avatar"
+                                            <!-- Avatar asli -->
+                                            <div class="avatar" id="originalPhoto"
                                                 style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%;">
-                                                <img src="<?= $photoPathDetail ?>"
-                                                    style="width: 100%; height: 100%; object-fit: cover;"
-                                                    alt="Book Cover">
+                                                <img src="<?= $photoPathEdit ?>"
+                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
                                             </div>
 
-                                            <h3 class="mt-3"><?= htmlspecialchars($book["title"]) ?></h3>
-                                            <p class="text-small text-capitalize">
-                                                <?= htmlspecialchars($book["author"]) ?></p>
+                                            <!-- Preview container -->
+                                            <div class="avatar position-relative"
+                                                style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%; display: none;"
+                                                id="photoPreviewContainer">
+                                                <img src="" id="photoPreviewImg"
+                                                    style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
+
+                                                <!-- Tombol close -->
+                                                <button type="button" id="closePreviewBtn" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" data-bs-original-title="Close Preview"
+                                                    style="position: absolute; top: 0px; right: 77px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">
+                                                    ×
+                                                </button>
+                                            </div>
+
+                                            <h3 class="mt-3"><?= $book["title"] ?></h3>
+                                            <p class="text-small text-capitalize"><?= $book["author"] ?></p>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                             <div class="col-12 col-lg-8">
                                 <div class="card">
                                     <div class="card-body">
-                                        <form action="" method="" enctype="multipart/form-data">
+                                        <form action="" method="POST" enctype="multipart/form-data">
+                                            <input type="text" name="book_id_old" hidden
+                                                value="<?= $book["book_id"] ?>">
                                             <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
                                                 <div class="row m-2">
                                                     <div class="col-12">
@@ -322,7 +344,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                             <input type="text" id="book_id" name="book_id"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["book_id"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g BOOK001"
-                                                                value="<?= $book["book_id"] ?>" readonly>
+                                                                value="<?= $book["book_id"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-person-exclamation"></i>
                                                             </div>
@@ -340,7 +362,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                             <input type="text" id="isbn" name="isbn"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["isbn"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g Fadli Hifziansyah"
-                                                                value="<?= $book["isbn"] ?>" readonly>
+                                                                value="<?= $book["isbn"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-person"></i>
                                                             </div>
@@ -358,7 +380,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                             <input type="text" id="title" name="title"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["title"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g Fadli Hifziansyah"
-                                                                value="<?= $book["title"] ?>" readonly>
+                                                                value="<?= $book["title"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-person"></i>
                                                             </div>
@@ -376,7 +398,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                             <input type="text" id="author" name="author"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["author"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g fadlihifziansyah153@gmail.com"
-                                                                value="<?= $book["author"] ?>" readonly>
+                                                                value="<?= $book["author"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-person-fill"></i>
                                                             </div>
@@ -394,7 +416,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                             <input type="text" id="publisher" name="publisher"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["publisher"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g fadlihifziansyah153@gmail.com"
-                                                                value="<?= $book["publisher"] ?>" readonly>
+                                                                value="<?= $book["publisher"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-person-fill-check"></i>
                                                             </div>
@@ -414,7 +436,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                                 name="publication_year"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["publication_year"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g fadlihifziansyah153@gmail.com"
-                                                                value="<?= $book["publication_year"] ?>" readonly>
+                                                                value="<?= $book["publication_year"] ?>" required>
                                                             <div class="form-control-icon" style="top: 38px">
                                                                 <i class="bi bi-sort-numeric-down"></i>
                                                             </div>
@@ -452,7 +474,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                                 Book</label>
                                                             <select id="categories" name="categories[]"
                                                                 multiple="multiple"
-                                                                class="form-select multiple-remove choices" disabled>
+                                                                class="form-select multiple-remove choices" required>
                                                                 <?php foreach ($categories as $category): ?>
                                                                 <option value="<?= $category["category_id"] ?>"
                                                                     <?= in_array($category["category_id"], $selectedCategories) ? 'selected' : '' ?>>
@@ -462,12 +484,23 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                             </select>
                                                         </div>
                                                     </div>
+                                                    <div class="col-12 mb-1">
+                                                        <fieldset>
+                                                            <label class="mb-1" for="book_cover">Book Cover</label>
+                                                            <div class="input-group">
+                                                                <input type="file" class="form-control" id="book_cover"
+                                                                    name="book_cover" accept="image/*">
+                                                                <button class="btn btn-primary z-0" type="button"
+                                                                    id="inputGroupFileAddon04">Upload</button>
+                                                            </div>
+                                                        </fieldset>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="modal-footer mx-2 mt-2">
                                                 <a href="javascript:history.back()" type="button" name="add-book"
                                                     class="btn btn-secondary me-2 text-light" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" data-bs-original-title="Back to List">
+                                                    data-bs-placement="top" data-bs-original-title="Back">
                                                     <i class="bx bx-check d-block d-sm-none"></i>
                                                     <span class="d-none d-sm-block"><i
                                                             class="bi bi-arrow-90deg-left"></i>
@@ -480,13 +513,20 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                     <i class="bi bi-trash text-white "></i>
                                                     <span class="text-white delete-btn" style="top: 9px">Delete</span>
                                                 </a>
-                                                <a href="book-edit.php?id=<?= $book['book_id']; ?>"
-                                                    class="btn btn-success me-2 text-white" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" data-bs-original-title="Edit Book">
+                                                <a href="book-detail.php?id=<?= $book['book_id']; ?>"
+                                                    class="btn btn-info me-2 text-white" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" data-bs-original-title="Detail Book">
                                                     <i class="bx bx-check d-block text-white d-sm-none"></i>
-                                                    <span class="d-none d-sm-block"><i class="bi bi-pencil-square"></i>
-                                                        Edit</span>
+                                                    <span class="d-none d-sm-block"><i class="bi bi-eye"></i>
+                                                        Detail</span>
                                                 </a>
+                                                <button type="submit" class="btn btn-primary me-2 text-white"
+                                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                                    data-bs-original-title="Edit Book">
+                                                    <i class="bx bx-check d-block text-white d-sm-none"></i>
+                                                    <span class="d-none d-sm-block"><i class="bi bi-check-circle"></i>
+                                                        Edit</span>
+                                                </button>
                                             </div>
                                         </form>
                                     </div>
@@ -517,6 +557,9 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
         <script src="../../assets/static/js/components/dark.js"></script>
         <script src="../../assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
         <script src="../../assets/compiled/js/app.js"></script>
+
+        <!-- izitoast -->
+        <script src="../../assets/extensions/iziToast/js/iziToast.min.js"></script>
 
         <!-- choices -->
         <script src="../../assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
@@ -598,6 +641,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
         });
         </script>
 
+
         <!-- choice -->
         <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -611,46 +655,73 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
         <!-- Quill -->
         <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Inisialisasi Quill dalam mode readonly
+            // Inisialisasi Quill
             var quill = new Quill('#snow', {
                 theme: 'snow',
-                readOnly: true, // ini yang bikin readonly
+                placeholder: 'write here...',
                 modules: {
-                    toolbar: false // sembunyikan toolbar
+                    toolbar: [
+                        [{
+                            'header': [1, 2, false]
+                        }],
+                        ['bold', 'italic', 'underline'],
+                        ['blockquote', 'code-block'],
+                        [{
+                            'list': 'ordered'
+                        }, {
+                            'list': 'bullet'
+                        }]
+                    ]
                 }
             });
 
-            // Ambil input hidden (jika ada)
+            // Ambil input hidden
             var inputSynopsis = document.getElementById('synopsis');
 
-            // Tampilkan isi sinopsis
-            if (inputSynopsis && inputSynopsis.value) {
+            // Update isi input hidden setiap ada perubahan
+            quill.on('text-change', function() {
+                inputSynopsis.value = quill.root.innerHTML;
+            });
+
+            // Jika form diisi ulang (misalnya saat edit data), isi ulang editor
+            if (inputSynopsis.value) {
                 quill.root.innerHTML = inputSynopsis.value;
             }
         });
         </script>
 
 
-
         <!-- preview img -->
         <script>
-        const photoInput = document.getElementById('photo');
+        const photoInput = document.getElementById('book_cover');
         const previewContainer = document.getElementById('photoPreviewContainer');
         const previewImg = document.getElementById('photoPreviewImg');
         const closeBtn = document.getElementById('closePreviewBtn');
+        const originalPhoto = document.getElementById('originalPhoto');
+
+        // tampilkan preview saat file dipilih
+        photoInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewContainer.style.display = 'inline-block';
+                    originalPhoto.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewContainer.style.display = 'none';
+                originalPhoto.style.display = 'inline-block';
+            }
+        });
 
         // tombol close preview
         closeBtn.addEventListener('click', function() {
-            previewImg.src = '#';
+            previewImg.src = '';
             previewContainer.style.display = 'none';
+            originalPhoto.style.display = 'inline-block';
             photoInput.value = ''; // kosongkan input file juga
-        });
-
-        // tombol reset form (jika ada)
-        document.querySelector('button[type="reset"]')?.addEventListener('click', function() {
-            previewImg.src = '#';
-            previewContainer.style.display = 'none';
-            photoInput.value = '';
         });
         </script>
 
