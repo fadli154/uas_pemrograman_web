@@ -44,7 +44,7 @@ $photo = $_SESSION['user']['photo'] ?? null;
 $photoDetail = $book["book_cover"] ?? null;
 
 // Path foto default
-$defaultPhoto = "../../assets/compiled/jpg/1.jpg";
+$defaultPhoto = "../../assets/compiled/jpg/book_placeholder.jpg";
 $photoPath = !empty($photo) ? "../../uploads/" . htmlspecialchars($photo) : $defaultPhoto;
 $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars($photoDetail) : $defaultPhoto;
 
@@ -279,10 +279,10 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                                             <a href="../dashboard.php">Dashboard</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="users-index.php">Users</a>
+                                            <a href="book-index.php">Book</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="#">Users Edit</a>
+                                            <a href="#">Book Edit</a>
                                         </li>
                                     </ol>
                                 </nav>
@@ -302,15 +302,15 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                                     <div class="card-body">
                                         <div class="d-flex justify-content-center align-items-center flex-column">
                                             <!-- Avatar asli -->
-                                            <div class="avatar" id="originalPhoto"
-                                                style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%;">
+                                            <div class="rounded-3" id="originalPhoto"
+                                                style="width: 250px; height: 250px; overflow: hidden;">
                                                 <img src="<?= $photoPathEdit ?>"
                                                     style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
                                             </div>
 
                                             <!-- Preview container -->
-                                            <div class="avatar position-relative"
-                                                style="width: 180px; height: 180px; overflow: hidden; border-radius: 50%; display: none;"
+                                            <div class="position-relative rounded-3"
+                                                style="width: 250px; height: 250px; overflow: hidden; display: none;"
                                                 id="photoPreviewContainer">
                                                 <img src="" id="photoPreviewImg"
                                                     style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
@@ -318,7 +318,7 @@ $photoPathEdit = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars(
                                                 <!-- Tombol close -->
                                                 <button type="button" id="closePreviewBtn" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" data-bs-original-title="Close Preview"
-                                                    style="position: absolute; top: 0px; right: 77px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">
+                                                    style="position: absolute; top: 0px; right: 0px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; z-index: 10;">
                                                     ×
                                                 </button>
                                             </div>

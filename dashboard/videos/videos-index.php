@@ -409,7 +409,7 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                 <div class="col-md-6 col-12">
                                     <div class="form-group mandatory position-relative has-icon-left">
                                         <label for="duration" class="form-label">Duration (mm:ss)</label>
-                                        <input type="text" id="duration" name="duration"
+                                        <input type="time" id="duration" name="duration"
                                             class="form-control form-control-lg <?= isset($_SESSION["errors"]["duration"]) ? 'is-invalid' : '' ?>"
                                             placeholder="e.g 12:34" value="<?= $_POST['duration'] ?? '' ?>" required>
                                         <div class="form-control-icon" style="top: 38px">
@@ -441,20 +441,20 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                 <!-- Category -->
                                 <div class="col-12">
                                     <div class="form-group mandatory position-relative has-icon-left">
-                                        <label for="category_id" class="form-label">Category</label>
-                                        <select id="category_id" name="category_id"
-                                            class="form-select <?= isset($_SESSION["errors"]["category_id"]) ? 'is-invalid' : '' ?>"
-                                            required>
-                                            <option value="">Pilih kategori</option>
+                                        <label for="categories" class="form-label">Categories video</label>
+                                        <select id="categories" name="categories[]" multiple="multiple" required
+                                            class="form-select multiple-remove choices <?= isset($_SESSION["errors"]["category_id"]) ? 'is-invalid' : '' ?>">
                                             <?php foreach ($categories as $category): ?>
                                             <option value="<?= $category["category_id"] ?>"
-                                                <?= (isset($_POST["category_id"]) && $_POST["category_id"] == $category["category_id"]) ? 'selected' : '' ?>>
+                                                <?= (isset($_POST["categories"]) && in_array($category["category_id"], $_POST["categories"])) ? 'selected' : '' ?>>
                                                 <?= htmlspecialchars($category["category_name"]) ?>
                                             </option>
                                             <?php endforeach; ?>
                                         </select>
                                         <?php if (isset($_SESSION["errors"]["category_id"])): ?>
-                                        <div class="invalid-feedback"><?= $_SESSION["errors"]["category_id"]; ?></div>
+                                        <div class="invalid-feedback">
+                                            <?= $_SESSION["errors"]["category_id"]; ?>
+                                        </div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -655,12 +655,14 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
     <!-- choice -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        new Choices('#category_id', {
-            searchEnabled: true,
-            itemSelectText: '',
+        new Choices('#categories', {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select one or more categories'
         });
     });
     </script>
+
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {

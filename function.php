@@ -1136,7 +1136,7 @@ function insertVideo($data, $file)
     if (empty(trim($data["video_id"]))) $errors["video_id"] = "Video ID tidak boleh kosong.";
     if (empty(trim($data["title"]))) $errors["title"] = "Judul video tidak boleh kosong.";
     if (empty(trim($data["youtube_url"]))) $errors["youtube_url"] = "URL YouTube tidak boleh kosong.";
-    if (empty($data["category_id"])) $errors["category_id"] = "Kategori harus dipilih.";
+    if (empty($data["categories"]) || !is_array($data["categories"])) $errors["categories"] = "Minimal satu kategori harus dipilih.";
 
     // --- CEK DUPLIKAT VIDEO_ID ---
     $checkQuery = "SELECT video_id FROM videos WHERE video_id = ?";
@@ -1191,8 +1191,8 @@ function insertVideo($data, $file)
 
     // --- INSERT KE TABLE VIDEOS ---
     $query = "INSERT INTO videos 
-              (video_id, title, description, youtube_url, thumbnail_url, duration, category_id, created_by)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+              (video_id, title, description, youtube_url, thumbnail_url, duration, created_by)
+              VALUES (?, ?, ?, ?, ?, ?, ?)";
     $stmt = $connection->prepare($query);
     if (!$stmt) {
         $_SESSION["error"] = "Gagal menyiapkan query insert video: " . $connection->error;
@@ -1200,14 +1200,13 @@ function insertVideo($data, $file)
     }
 
     $stmt->bind_param(
-        "ssssssss",
+        "sssssss",
         $data["video_id"],
         $data["title"],
         $data["description"],
         $data["youtube_url"],
         $thumbnail_url,
         $data["duration"],
-        $data["category_id"],
         $_SESSION["user"]["user_id"]
     );
 
@@ -1216,6 +1215,22 @@ function insertVideo($data, $file)
         return false;
     }
     $stmt->close();
+
+    // --- INSERT KE TABLE CATEGORIES_VIDEOS ---
+    $catQuery = "INSERT INTO categories_videos (category_video_id, category_id, video_id) VALUES (?, ?, ?)";
+    $catStmt = $connection->prepare($catQuery);
+    if (!$catStmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query kategori: " . $connection->error;
+        return false;
+    }
+
+    foreach ($data["categories"] as $categoryId) {
+        $categoryVideoId = uniqid("CTGRVIDEO");
+        $catStmt->bind_param("sss", $categoryVideoId, $categoryId, $data["video_id"]);
+        $catStmt->execute();
+    }
+
+    $catStmt->close();
 
     $_SESSION["success"] = "Data video berhasil disimpan.";
     return true;
@@ -1253,6 +1268,12 @@ function deleteVideo($id) {
     $thumbnail_url = $video["thumbnail_url"];
     $check->close();
 
+    // Hapus relasi buku dari tabel categories_videos
+    $delRelation = $connection->prepare("DELETE FROM categories_videos WHERE video_id = ?");
+    $delRelation->bind_param("s", $id);
+    $delRelation->execute();
+    $delRelation->close();
+
     // Hapus file cover jika ada
     if (!empty($thumbnail_url)) {
         $videoCoverPath = "../../thumbnail/" . $thumbnail_url;
@@ -1261,7 +1282,7 @@ function deleteVideo($id) {
         }
     }
 
-    // Hapus buku dari tabel videos
+    // Hapus video dari tabel videos
     $stmt = $connection->prepare("DELETE FROM videos WHERE video_id = ?");
     $stmt->bind_param("s", $id);
 
@@ -1273,5 +1294,186 @@ function deleteVideo($id) {
         return false;
     }
 }
+
+// detail
+function detailVideo($id) {
+    global $connection;
+
+    // Ambil detail video utama
+    $query = "SELECT * FROM videos WHERE video_id = ?";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("s", $id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $video = $result->fetch_assoc();
+    $stmt->close();
+
+    if (!$video) return null; // jika video tidak ditemukan
+
+    // Ambil daftar kategori video
+    $catQuery = "SELECT c.category_id, c.category_name 
+                 FROM categories_videos cb
+                 JOIN categories c ON cb.category_id = c.category_id
+                 WHERE cb.video_id = ?";
+    $catStmt = $connection->prepare($catQuery);
+    $catStmt->bind_param("s", $id);
+    $catStmt->execute();
+    $catResult = $catStmt->get_result();
+
+    $video["categories"] = [];
+    while ($row = $catResult->fetch_assoc()) {
+        $video["categories"][] = $row;
+    }
+    $catStmt->close();
+
+    return $video;
+}
+
+// update
+function updateVideo($oldVideoId, $data, $file)
+{
+    global $connection;
+    $errors = [];
+
+    // --- VALIDASI DASAR ---
+    if (empty(trim($data["video_id"]))) $errors["video_id"] = "Video ID tidak boleh kosong.";
+    if (empty(trim($data["title"]))) $errors["title"] = "Judul video tidak boleh kosong.";
+    if (empty(trim($data["youtube_url"]))) $errors["youtube_url"] = "URL YouTube tidak boleh kosong.";
+    if (empty($data["categories"]) || !is_array($data["categories"])) $errors["categories"] = "Minimal satu kategori harus dipilih.";
+
+    if (!empty($errors)) {
+        $_SESSION["errors"] = $errors;
+        $_SESSION["error"] = implode(" ", $errors);
+        return false;
+    }
+
+    // --- CEK DATA LAMA ---
+    $oldStmt = $connection->prepare("SELECT * FROM videos WHERE video_id = ?");
+    if (!$oldStmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query cek data lama: " . $connection->error;
+        return false;
+    }
+    $oldStmt->bind_param("s", $oldVideoId);
+    $oldStmt->execute();
+    $oldResult = $oldStmt->get_result();
+    $oldVideo = $oldResult->fetch_assoc();
+    $oldStmt->close();
+
+    if (!$oldVideo) {
+        $_SESSION["error"] = "Video tidak ditemukan.";
+        return false;
+    }
+
+    // --- CEK DUPLIKAT VIDEO_ID ---
+    if ($data["video_id"] !== $oldVideoId) {
+        $check = $connection->prepare("SELECT video_id FROM videos WHERE video_id = ?");
+        if (!$check) {
+            $_SESSION["error"] = "Gagal cek duplikat video_id: " . $connection->error;
+            return false;
+        }
+        $check->bind_param("s", $data["video_id"]);
+        $check->execute();
+        $check->store_result();
+        if ($check->num_rows > 0) {
+            $_SESSION["error"] = "Video ID sudah terdaftar.";
+            return false;
+        }
+        $check->close();
+    }
+
+    // --- UPLOAD THUMBNAIL ---
+    $thumbnailUrl = $oldVideo["thumbnail_url"];
+    if (isset($file["thumbnail_url"]) && $file["thumbnail_url"]["error"] === UPLOAD_ERR_OK) {
+        $targetDir = "../../thumbnail/";
+        if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
+
+        $newName = time() . "_" . basename($file["thumbnail_url"]["name"]);
+        $targetFile = $targetDir . $newName;
+        $ext = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowed = ["jpg", "jpeg", "png"];
+
+        if (!in_array($ext, $allowed)) {
+            $_SESSION["error"] = "Thumbnail url harus JPG, JPEG, atau PNG.";
+            return false;
+        }
+
+        if ($file["thumbnail_url"]["size"] > 3 * 1024 * 1024) {
+            $_SESSION["error"] = "Ukuran thumbnail url maksimal 3MB.";
+            return false;
+        }
+
+        if (!move_uploaded_file($file["thumbnail_url"]["tmp_name"], $targetFile)) {
+            $_SESSION["error"] = "Gagal upload thumbnail_url video.";
+            return false;
+        }
+
+        // Hapus thumbnail_url lama jika ada
+        if (!empty($oldVideo["thumbnail_url"])) {
+            $oldThumbnailPath = $targetDir . $oldVideo["thumbnail_url"];
+            if (file_exists($oldThumbnailPath)) unlink($oldThumbnailPath);
+        }
+
+        $thumbnailUrl = $newName;
+    }
+
+    // --- UPDATE DATA VIDEO ---
+    $updateQuery = "UPDATE videos SET 
+                    video_id = ?, title = ?, description = ?, youtube_url = ?, 
+                    thumbnail_url = ?, duration = ?
+                    WHERE video_id = ?";
+    $stmt = $connection->prepare($updateQuery);
+    if (!$stmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query update video: " . $connection->error;
+        return false;
+    }
+
+    $stmt->bind_param(
+        "sssssss",
+        $data["video_id"],
+        $data["title"],
+        $data["description"],
+        $data["youtube_url"],
+        $thumbnailUrl,
+        $data["duration"],
+        $oldVideoId
+    );
+
+    if (!$stmt->execute()) {
+        $_SESSION["error"] = "Gagal update video: " . $stmt->error;
+        return false;
+    }
+    $stmt->close();
+
+    // --- UPDATE RELASI KATEGORI ---
+    // Hapus kategori lama
+    $delCat = $connection->prepare("DELETE FROM categories_videos WHERE video_id = ?");
+    if (!$delCat) {
+        $_SESSION["error"] = "Gagal hapus kategori lama: " . $connection->error;
+        return false;
+    }
+    $delCat->bind_param("s", $data["video_id"]);
+    $delCat->execute();
+    $delCat->close();
+
+    // Insert kategori baru
+    $catQuery = "INSERT INTO categories_videos (category_video_id, category_id, video_id) VALUES (?, ?, ?)";
+    $catStmt = $connection->prepare($catQuery);
+    if (!$catStmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query kategori: " . $connection->error;
+        return false;
+    }
+
+    foreach ($data["categories"] as $categoryId) {
+        $categoryVideoId = uniqid("CTGRVIDEO");
+        $catStmt->bind_param("sss", $categoryVideoId, $categoryId, $data["video_id"]);
+        $catStmt->execute();
+    }
+
+    $catStmt->close();
+
+    $_SESSION["success"] = "Data video berhasil diperbarui.";
+    return true;
+}
+
 
 ?>

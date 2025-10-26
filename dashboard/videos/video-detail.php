@@ -6,8 +6,8 @@ require '../../check.php';
 // Hapus data jika ada parameter delete_id
 if (isset($_GET['delete_id'])) {
     $id = $_GET['delete_id'];
-    deleteBook($id);
-    header("Location: books-index.php");
+    deleteVideo($id);
+    header("Location: videos-index.php");
     exit;
 }
 
@@ -16,31 +16,31 @@ $role = htmlspecialchars($_SESSION['user']['role']);
 
 // Cek parameter id
 if (!isset($_GET['id']) || empty($_GET['id'])) {
-    header("Location: books-index.php");
+    header("Location: videos-index.php");
     exit;
 }
 
 $id = $_GET['id'];
-$book = detailBook($id);
+$video = detailVideo($id);
 
-if (!$book) {
-    header("Location: books-index.php");
+if (!$video) {
+    header("Location: videos-index.php");
     exit;
 }
 
 $categories = select('SELECT * FROM categories');
 
 // Ambil daftar ID kategori yang sudah dimiliki buku
-$selectedCategories = array_column($book['categories'], 'category_id');
+$selectedCategories = array_column($video['categories'], 'category_id');
 
 // Foto user
 $photo = $_SESSION['user']['photo'] ?? null;
-$photoDetail = $book["book_cover"] ?? null;
+$photoDetail = $video["thumbnail_url"] ?? null;
 
 // Path foto default
-$defaultPhoto = "../../assets/compiled/jpg/book_placeholder.jpg";
+$defaultPhoto = "../../assets/compiled/jpg/video_placeholder.png";
 $photoPath = !empty($photo) ? "../../uploads/" . htmlspecialchars($photo) : $defaultPhoto;
-$photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchars($photoDetail) : $defaultPhoto;
+$photoPathDetail = !empty($photoDetail) ? "../../thumbnail/" . htmlspecialchars($photoDetail) : $defaultPhoto;
 
 ?>
 
@@ -51,7 +51,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Book Detail | Dashboard</title>
+    <title>Video Detail | Dashboard</title>
     <link rel="stylesheet" href="../../assets/extensions/choices.js/public/assets/styles/choices.css">
     <link rel="shortcut icon" href="../../assets/compiled/svg/favicon.svg" type="image/x-icon" />
     <link rel="stylesheet" href="../../assets/compiled/css/app.css" />
@@ -142,13 +142,13 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                 <span>Categories</span>
                             </a>
                         </li>
-                        <li class="sidebar-item active">
+                        <li class="sidebar-item ">
                             <a href="../books/books-index.php" class="sidebar-link">
                                 <i class="bi bi-book-half"></i>
                                 <span>Books</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
+                        <li class="sidebar-item active">
                             <a href="../videos/videos-index.php" class="sidebar-link">
                                 <i class="bi bi-camera-video"></i>
                                 <span>Videos</span>
@@ -260,9 +260,9 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                     <div class="page-title">
                         <div class="row">
                             <div class="col-12 col-md-6 order-md-1 order-last">
-                                <h3 class="text-capitalize">Detail Book <?= $book["title"] ?></h3>
+                                <h3 class="text-capitalize">Detail Video <?= $video["title"] ?></h3>
                                 <p class="text-subtitle text-muted">
-                                    View detail data Book
+                                    View detail data Video
                                 </p>
                             </div>
                             <div class="col-12 col-md-6 order-md-2 order-first">
@@ -272,10 +272,10 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                             <a href="../dashboard.php">Dashboard</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="books-index.php">Books</a>
+                                            <a href="video-index.php">Video</a>
                                         </li>
                                         <li class="breadcrumb-item">
-                                            <a href="#">Books Detail</a>
+                                            <a href="#">Video Detail</a>
                                         </li>
                                     </ol>
                                 </nav>
@@ -295,15 +295,15 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                     <div class="card-body">
                                         <div class="d-flex justify-content-center align-items-center flex-column">
                                             <div class="rounded-3"
-                                                style="width: 250px; height: 250px; overflow: hidden;">
+                                                style="width: 250px; height: 200px; overflow: hidden;">
                                                 <img src="<?= $photoPathDetail ?>"
                                                     style="width: 100%; height: 100%; object-fit: cover;"
-                                                    alt="Book Cover">
+                                                    alt="Video Cover">
                                             </div>
 
-                                            <h3 class="mt-3"><?= htmlspecialchars($book["title"]) ?></h3>
+                                            <h3 class="mt-3"><?= htmlspecialchars($video["title"]) ?></h3>
                                             <p class="text-small text-capitalize">
-                                                <?= htmlspecialchars($book["author"]) ?></p>
+                                                <?= htmlspecialchars($video["duration"]) ?></p>
                                         </div>
                                     </div>
 
@@ -318,35 +318,17 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                     <div class="col-12">
                                                         <div
                                                             class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="book_id" class="form-label">Book ID</label>
-                                                            <input type="text" id="book_id" name="book_id"
-                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["book_id"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g BOOK001"
-                                                                value="<?= $book["book_id"] ?>" readonly>
+                                                            <label for="video_id" class="form-label">Video ID</label>
+                                                            <input type="text" id="video_id" name="video_id"
+                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["video_id"]) ? 'is-invalid' : '' ?>"
+                                                                placeholder="e.g VIDEO001"
+                                                                value="<?= $video["video_id"] ?>" readonly>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person-exclamation"></i>
+                                                                <i class="bi bi-hash"></i>
                                                             </div>
-                                                            <?php if (isset($_SESSION["errors"]["book_id"])): ?>
+                                                            <?php if (isset($_SESSION["errors"]["video_id"])): ?>
                                                             <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["book_id"]; ?>
-                                                            </div>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6 col-12">
-                                                        <div
-                                                            class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="isbn" class="form-label">ISBN</label>
-                                                            <input type="text" id="isbn" name="isbn"
-                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["isbn"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g Fadli Hifziansyah"
-                                                                value="<?= $book["isbn"] ?>" readonly>
-                                                            <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person"></i>
-                                                            </div>
-                                                            <?php if (isset($_SESSION["errors"]["isbn"])): ?>
-                                                            <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["isbn"]; ?>
+                                                                <?= $_SESSION["errors"]["video_id"]; ?>
                                                             </div>
                                                             <?php endif; ?>
                                                         </div>
@@ -358,9 +340,9 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                             <input type="text" id="title" name="title"
                                                                 class="form-control form-control-lg <?= isset($_SESSION["errors"]["title"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g Fadli Hifziansyah"
-                                                                value="<?= $book["title"] ?>" readonly>
+                                                                value="<?= $video["title"] ?>" readonly>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person"></i>
+                                                                <i class="bi bi-camera-video"></i>
                                                             </div>
                                                             <?php if (isset($_SESSION["errors"]["title"])): ?>
                                                             <div class="invalid-feedback">
@@ -372,35 +354,17 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                     <div class="col-md-6 col-12">
                                                         <div
                                                             class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="author" class="form-label">Author</label>
-                                                            <input type="text" id="author" name="author"
-                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["author"]) ? 'is-invalid' : '' ?>"
+                                                            <label for="duration" class="form-label">Duration</label>
+                                                            <input type="time" id="duration" name="duration"
+                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["duration"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g fadlihifziansyah153@gmail.com"
-                                                                value="<?= $book["author"] ?>" readonly>
+                                                                value="<?= $video["duration"] ?>" readonly>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person-fill"></i>
+                                                                <i class="bi bi-clock"></i>
                                                             </div>
-                                                            <?php if (isset($_SESSION["errors"]["author"])): ?>
+                                                            <?php if (isset($_SESSION["errors"]["duration"])): ?>
                                                             <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["author"]; ?>
-                                                            </div>
-                                                            <?php endif; ?>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6 col-12">
-                                                        <div
-                                                            class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="publisher" class="form-label">Publisher</label>
-                                                            <input type="text" id="publisher" name="publisher"
-                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["publisher"]) ? 'is-invalid' : '' ?>"
-                                                                placeholder="e.g fadlihifziansyah153@gmail.com"
-                                                                value="<?= $book["publisher"] ?>" readonly>
-                                                            <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-person-fill-check"></i>
-                                                            </div>
-                                                            <?php if (isset($_SESSION["errors"]["publisher"])): ?>
-                                                            <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["publisher"]; ?>
+                                                                <?= $_SESSION["errors"]["duration"]; ?>
                                                             </div>
                                                             <?php endif; ?>
                                                         </div>
@@ -408,19 +372,18 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                     <div class="col-12">
                                                         <div
                                                             class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="publication_year" class="form-label">Publication
-                                                                Year</label>
-                                                            <input type="text" id="publication_year"
-                                                                name="publication_year"
-                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["publication_year"]) ? 'is-invalid' : '' ?>"
+                                                            <label for="youtube_url" class="form-label">Youtube
+                                                                url</label>
+                                                            <input type="text" id="youtube_url" name="youtube_url"
+                                                                class="form-control form-control-lg <?= isset($_SESSION["errors"]["youtube_url"]) ? 'is-invalid' : '' ?>"
                                                                 placeholder="e.g fadlihifziansyah153@gmail.com"
-                                                                value="<?= $book["publication_year"] ?>" readonly>
+                                                                value="<?= $video["youtube_url"] ?>" readonly>
                                                             <div class="form-control-icon" style="top: 38px">
-                                                                <i class="bi bi-sort-numeric-down"></i>
+                                                                <i class="bi bi-link-45deg"></i>
                                                             </div>
-                                                            <?php if (isset($_SESSION["errors"]["publication_year"])): ?>
+                                                            <?php if (isset($_SESSION["errors"]["youtube_url"])): ?>
                                                             <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["publication_year"]; ?>
+                                                                <?= $_SESSION["errors"]["youtube_url"]; ?>
                                                             </div>
                                                             <?php endif; ?>
                                                         </div>
@@ -428,19 +391,20 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                     <div class="col-12">
                                                         <div
                                                             class="form-group mandatory position-relative has-icon-left">
-                                                            <label for="synopsis" class="form-label">Synopsis</label>
+                                                            <label for="description"
+                                                                class="form-label">Description</label>
 
                                                             <!-- Elemen tempat Quill muncul -->
                                                             <div id="snow" class="ql-container ql-snow">
-                                                                <?= $book["synopsis"] ?>
+                                                                <?= $video["description"] ?>
                                                             </div>
 
                                                             <!-- Hidden input untuk kirim isi editor -->
-                                                            <input type="hidden" name="synopsis" id="synopsis">
+                                                            <input type="hidden" name="description" id="description">
 
-                                                            <?php if (isset($_SESSION["errors"]["synopsis"])): ?>
+                                                            <?php if (isset($_SESSION["errors"]["description"])): ?>
                                                             <div class="invalid-feedback">
-                                                                <?= $_SESSION["errors"]["synopsis"]; ?>
+                                                                <?= $_SESSION["errors"]["description"]; ?>
                                                             </div>
                                                             <?php endif; ?>
                                                         </div>
@@ -449,7 +413,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                         <div
                                                             class="form-group mandatory position-relative has-icon-left">
                                                             <label for="categories" class="form-label">Categories
-                                                                Book</label>
+                                                                Video</label>
                                                             <select id="categories" name="categories[]"
                                                                 multiple="multiple"
                                                                 class="form-select multiple-remove choices" disabled>
@@ -465,7 +429,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                 </div>
                                             </div>
                                             <div class="modal-footer mx-2 mt-2">
-                                                <a href="javascript:history.back()" type="button" name="add-book"
+                                                <a href="javascript:history.back()" type="button" name="add-video"
                                                     class="btn btn-secondary me-2 text-light" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" data-bs-original-title="Back to List">
                                                     <i class="bx bx-check d-block d-sm-none"></i>
@@ -473,16 +437,16 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                             class="bi bi-arrow-90deg-left"></i>
                                                         back</span>
                                                 </a>
-                                                <a href="?delete_id=<?= $book['book_id']; ?>"
+                                                <a href="?delete_id=<?= $video['video_id']; ?>"
                                                     class="btn btn-danger me-2 text-white delete-btn"
                                                     data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    data-bs-original-title="Delete Book">
+                                                    data-bs-original-title="Delete Video">
                                                     <i class="bi bi-trash text-white "></i>
                                                     <span class="text-white delete-btn" style="top: 9px">Delete</span>
                                                 </a>
-                                                <a href="book-edit.php?id=<?= $book['book_id']; ?>"
+                                                <a href="video-edit.php?id=<?= $video['video_id']; ?>"
                                                     class="btn btn-success me-2 text-white" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" data-bs-original-title="Edit Book">
+                                                    data-bs-placement="top" data-bs-original-title="Edit Video">
                                                     <i class="bx bx-check d-block text-white d-sm-none"></i>
                                                     <span class="d-none d-sm-block"><i class="bi bi-pencil-square"></i>
                                                         Edit</span>
@@ -583,7 +547,7 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
 
             Swal.fire({
                 title: "Sure Wanna delete?",
-                text: "Data book will be deleted permanently.",
+                text: "Data video will be deleted permanently.",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -621,11 +585,11 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
             });
 
             // Ambil input hidden (jika ada)
-            var inputSynopsis = document.getElementById('synopsis');
+            var inputDescription = document.getElementById('description');
 
             // Tampilkan isi sinopsis
-            if (inputSynopsis && inputSynopsis.value) {
-                quill.root.innerHTML = inputSynopsis.value;
+            if (inputDescription && inputDescription.value) {
+                quill.root.innerHTML = inputDescription.value;
             }
         });
         </script>
