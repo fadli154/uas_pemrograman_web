@@ -1125,4 +1125,153 @@ function updateBook($oldBookId, $data, $file)
     return true;
 }
 
+// =============== Videos =================
+
+function insertVideo($data, $file)
+{
+    global $connection;
+    $errors = [];
+
+    // --- VALIDASI DASAR ---
+    if (empty(trim($data["video_id"]))) $errors["video_id"] = "Video ID tidak boleh kosong.";
+    if (empty(trim($data["title"]))) $errors["title"] = "Judul video tidak boleh kosong.";
+    if (empty(trim($data["youtube_url"]))) $errors["youtube_url"] = "URL YouTube tidak boleh kosong.";
+    if (empty($data["category_id"])) $errors["category_id"] = "Kategori harus dipilih.";
+
+    // --- CEK DUPLIKAT VIDEO_ID ---
+    $checkQuery = "SELECT video_id FROM videos WHERE video_id = ?";
+    $checkStmt = $connection->prepare($checkQuery);
+    if ($checkStmt) {
+        $checkStmt->bind_param("s", $data["video_id"]);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+
+        if ($checkStmt->num_rows > 0) {
+            $errors["video_id"] = "Video ID sudah terdaftar.";
+        }
+
+        $checkStmt->close();
+    } else {
+        $errors["db"] = "Database error saat cek duplikat.";
+    }
+
+    // --- HANDLE ERROR VALIDASI ---
+    if (!empty($errors)) {
+        $_SESSION["errors"] = $errors;
+        $_SESSION["error"] = implode(" ", $errors);
+        return false;
+    }
+
+    // --- UPLOAD THUMBNAIL ---
+    $thumbnailUri = null;
+    if (isset($file["thumbnail"]) && $file["thumbnail"]["error"] === UPLOAD_ERR_OK) {
+        $targetDir = "../../videos_thumbnail/";
+        if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
+
+        $thumbnailUri = time() . "_" . basename($file["thumbnail"]["name"]);
+        $targetFile = $targetDir . $thumbnailUri;
+        $ext = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowed = ["jpg", "jpeg", "png"];
+
+        if (!in_array($ext, $allowed)) {
+            $_SESSION["error"] = "Thumbnail harus JPG, JPEG, atau PNG.";
+            return false;
+        }
+
+        if ($file["thumbnail"]["size"] > 3 * 1024 * 1024) {
+            $_SESSION["error"] = "Ukuran thumbnail maksimal 3MB.";
+            return false;
+        }
+
+        if (!move_uploaded_file($file["thumbnail"]["tmp_name"], $targetFile)) {
+            $_SESSION["error"] = "Gagal upload thumbnail video.";
+            return false;
+        }
+    }
+
+    // --- INSERT KE TABLE VIDEOS ---
+    $query = "INSERT INTO videos 
+              (video_id, title, description, youtube_url, thumbnail_url, duration, category_id, created_by)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $connection->prepare($query);
+    if (!$stmt) {
+        $_SESSION["error"] = "Gagal menyiapkan query insert video: " . $connection->error;
+        return false;
+    }
+
+    $stmt->bind_param(
+        "ssssssss",
+        $data["video_id"],
+        $data["title"],
+        $data["description"],
+        $data["youtube_url"],
+        $thumbnailUri,
+        $data["duration"],
+        $data["category_id"],
+        $_SESSION["user"]["user_id"]
+    );
+
+    if (!$stmt->execute()) {
+        $_SESSION["error"] = "Gagal menyimpan video (" . $stmt->error . ")";
+        return false;
+    }
+    $stmt->close();
+
+    $_SESSION["success"] = "Data video berhasil disimpan.";
+    return true;
+}
+
+//  delete
+function deleteVideo($id) {
+    global $connection;
+
+    // Pastikan user login
+    if (!isset($_SESSION["user"])) {
+        $_SESSION["error"] = "You must be logged in to perform this action.";
+        return false;
+    }
+
+    $currentUser = $_SESSION["user"];
+
+    if ($currentUser["role_id"] != '1' && $currentUser["role_id"] != '2') {
+        $_SESSION["error"] = "You do not have permission to delete videos.";
+        return false;
+    }
+
+    // Cek apakah buku ada
+    $check = $connection->prepare("SELECT thumbnail_url FROM videos WHERE video_id = ?");
+    $check->bind_param("s", $id);
+    $check->execute();
+    $result = $check->get_result();
+
+    if ($result->num_rows == 0) {
+        $_SESSION["error"] = "Video not found.";
+        return false;
+    }
+
+    $video = $result->fetch_assoc();
+    $thumbnail_url = $video["thumbnail_url"];
+    $check->close();
+
+    // Hapus file cover jika ada
+    if (!empty($thumbnail_url)) {
+        $videoCoverPath = "../../thumbnail/" . $thumbnail_url;
+        if (file_exists($videoCoverPath)) {
+            unlink($videoCoverPath);
+        }
+    }
+
+    // Hapus buku dari tabel videos
+    $stmt = $connection->prepare("DELETE FROM videos WHERE video_id = ?");
+    $stmt->bind_param("s", $id);
+
+    if ($stmt->execute()) {
+        $_SESSION["success"] = "Video has been successfully deleted!";
+        return true;
+    } else {
+        $_SESSION["error"] = "Failed to delete video: " . $stmt->error;
+        return false;
+    }
+}
+
 ?>
