@@ -27,8 +27,8 @@ if (isset($_POST['submit_login'])) {
                 'name'  => $user['name'],
                 'email' => $user['email'],
                 'photo' => $user['photo'],
-                'role'  => $user['role_name'] ?? 'User',
-                'role_id' => $user['role_id'] ?? '3',
+                'role'  => $user['role_name'],
+                'role_id' => $user['role_id'],
             ];
 
             header("Location: ../dashboard/dashboard.php");

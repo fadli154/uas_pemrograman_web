@@ -8,7 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $userId = $_POST['user_id_old'];
     if (updateProfile($userId, $_POST, $_FILES)) {
         unset($_SESSION["errors"]);
-        $_SESSION["success"] = "Successfully updated user";
+        $_SESSION["success"] = "Successfully updated profile.";
         header("Location: profile.php");
         exit;
     }
@@ -450,11 +450,18 @@ $photoPathEdit = (!empty($photoEdit)) ? "../uploads/" . htmlspecialchars($photoE
                                                     <!-- PASSWORD SECTION -->
                                                     <div class="col-12">
                                                         <div class="">
-                                                            <h6 class="mb-2 text-primary"><i
-                                                                    class="bi bi-shield-lock"></i> Change Password
-                                                                (Optional)</h6>
-                                                            <p class="text-muted small mb-3">Leave these fields blank if
-                                                                you don't want to change your password.</p>
+                                                            <div class="mt-2 mb-3 px-2 py-3 rounded-3 shadow-sm"
+                                                                style="background: rgba(0, 123, 255, 0.15); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,0.2);">
+                                                                <h6 class="mb-1 text-primary">
+                                                                    <i class="bi bi-shield-lock"></i> Change Password
+                                                                    (Optional)
+                                                                </h6>
+                                                                <p class="text-white text-muted mb-0">
+                                                                    Leave these fields blank if you don't want to change
+                                                                    your password.
+                                                                </p>
+                                                            </div>
+
                                                             <div class="row">
                                                                 <div class="col-md-6 col-12">
                                                                     <div

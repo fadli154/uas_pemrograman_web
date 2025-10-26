@@ -206,7 +206,7 @@ function updateProfile($id, $data, $file)
         $_SESSION['user']['role'] = $roleName ?? $_SESSION['user']['role'];
     }
 
-    $_SESSION["success"] = "Data updated successfully.";
+    $_SESSION["success"] = "Data profile updated successfully.";
     return true;
 }
 

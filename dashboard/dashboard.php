@@ -128,7 +128,7 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
                         </li>
 
                         <li class="sidebar-item">
-                            <a href="cahnge-password.php" class="sidebar-link">
+                            <a href="change-password.php" class="sidebar-link">
                                 <i class="bi bi-person-lock"></i>
                                 <span>Change Password</span>
                             </a>
@@ -320,7 +320,7 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
             cancelButtonText: "Reject"
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "../../pages/logout.php";
+                window.location.href = "../pages/logout.php";
             }
         });
     });

@@ -452,12 +452,26 @@ $photoPathDetail = (!empty($photoDetail)) ? "../uploads/" . htmlspecialchars($ph
 
         <!-- choices -->
         <script src="../assets/extensions/choices.js/public/assets/scripts/choices.js"></script>
+        <script src="../assets/extensions/iziToast/js/iziToast.min.js"></script>
 
         <!-- sweetalert -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
         <!-- format phone -->
         <script src="../assets/static/js/phoneFormat.js"></script>
+
+        <script>
+        <?php if (isset($_SESSION["success"])): ?>
+        $(document).ready(function() {
+            iziToast.success({
+                title: 'Success',
+                message: "<?= $_SESSION["success"]; ?>",
+                position: 'topRight'
+            })
+        });
+        <?php unset($_SESSION["success"]); // hapus setelah ditampilkan ?>
+        <?php endif; ?>
+        </script>
 
         <script>
         <?php if (isset($_SESSION["error"])): ?>
