@@ -210,7 +210,6 @@ function updateProfile($id, $data, $file)
     return true;
 }
 
-
 // insert
 
 function insertUser($data, $file)
@@ -949,7 +948,7 @@ function insertBook($data, $file)
     if (empty($data["publication_year"])) $errors["publication_year"] = "Tahun terbit tidak boleh kosong.";
     if (empty($data["categories"]) || !is_array($data["categories"])) $errors["categories"] = "Minimal satu kategori harus dipilih.";
 
-    // --- CEK DUPLIKAT BOOK_ID ATAU ISBN ---
+    // --- CEK DUPLIKAT BOOK_ID & ISBN ---
     $checkQuery = "SELECT book_id, isbn FROM books WHERE book_id = ? OR isbn = ?";
     $checkStmt = $connection->prepare($checkQuery);
     if ($checkStmt) {
@@ -964,7 +963,6 @@ function insertBook($data, $file)
                 if ($bisbn === $data["isbn"]) $errors["isbn"] = "ISBN sudah terdaftar.";
             }
         }
-
         $checkStmt->close();
     } else {
         $errors["db"] = "Database error saat cek duplikat.";
@@ -977,7 +975,11 @@ function insertBook($data, $file)
         return false;
     }
 
-    // --- UPLOAD COVER ---
+    /*
+    |--------------------------------------------------------------------------
+    | UPLOAD COVER 
+    |--------------------------------------------------------------------------
+    */
     $coverName = null;
     if (isset($file["book_cover"]) && $file["book_cover"]["error"] === UPLOAD_ERR_OK) {
         $targetDir = "../../books_cover/";
@@ -1004,18 +1006,59 @@ function insertBook($data, $file)
         }
     }
 
-    // --- INSERT KE TABLE BOOKS ---
+    /*
+    |--------------------------------------------------------------------------
+    | UPLOAD BOOK FILE 
+    |--------------------------------------------------------------------------
+    */
+    $bookFileName = null;
+
+    if (isset($file["book_file"]) && $file["book_file"]["error"] === UPLOAD_ERR_OK) {
+
+        $targetDir = "../../books_files/";
+        if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
+
+        $bookFileName = time() . "_" . basename($file["book_file"]["name"]);
+
+        $targetFile = $targetDir . $bookFileName;
+
+        $ext = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+        $allowedFiles = ["pdf"];
+
+        if (!in_array($ext, $allowedFiles)) {
+            $_SESSION["error"] = "File buku harus PDF.";
+            return false;
+        }
+
+        if ($file["book_file"]["size"] > 50 * 1024 * 1024) {
+            $_SESSION["error"] = "File buku maksimal 50MB.";
+            return false;
+        }
+
+        if (!move_uploaded_file($file["book_file"]["tmp_name"], $targetFile)) {
+            $_SESSION["error"] = "Gagal upload file buku.";
+            return false;
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | INSERT KE TABLE BOOKS 
+    |--------------------------------------------------------------------------
+    */
     $query = "INSERT INTO books 
-              (book_id, isbn, title, author, publisher, synopsis, publication_year, book_cover, created_by, updated_by)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+              (book_id, isbn, title, author, publisher, synopsis, publication_year, book_cover, book_file, created_by, updated_by)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     $stmt = $connection->prepare($query);
+
     if (!$stmt) {
         $_SESSION["error"] = "Gagal menyiapkan query insert buku: " . $connection->error;
         return false;
     }
 
     $stmt->bind_param(
-        "ssssssisss",
+        "ssssssissss",
         $data["book_id"],
         $data["isbn"],
         $data["title"],
@@ -1024,6 +1067,7 @@ function insertBook($data, $file)
         $data["synopsis"],
         $data["publication_year"],
         $coverName,
+        $bookFileName, 
         $_SESSION["user"]["user_id"],
         $_SESSION["user"]["user_id"]
     );
@@ -1032,11 +1076,17 @@ function insertBook($data, $file)
         $_SESSION["error"] = "Gagal menyimpan buku (" . $stmt->error . ")";
         return false;
     }
+
     $stmt->close();
 
-    // --- INSERT KE TABLE CATEGORIES_BOOKS ---
+    /*
+    |--------------------------------------------------------------------------
+    | INSERT CATEGORIES
+    |--------------------------------------------------------------------------
+    */
     $catQuery = "INSERT INTO categories_books (category_book_id, category_id, book_id) VALUES (?, ?, ?)";
     $catStmt = $connection->prepare($catQuery);
+
     if (!$catStmt) {
         $_SESSION["error"] = "Gagal menyiapkan query kategori: " . $connection->error;
         return false;
@@ -1050,9 +1100,10 @@ function insertBook($data, $file)
 
     $catStmt->close();
 
-    $_SESSION["success"] = "Data buku dan kategori berhasil disimpan.";
+    $_SESSION["success"] = "Data buku, file buku, dan kategori berhasil disimpan.";
     return true;
 }
+
 
 //  delete
 function deleteBook($id) {
@@ -1071,8 +1122,8 @@ function deleteBook($id) {
         return false;
     }
 
-    // Cek apakah buku ada
-    $check = $connection->prepare("SELECT book_cover FROM books WHERE book_id = ?");
+    // Cek apakah buku ada dan ambil cover + file
+    $check = $connection->prepare("SELECT book_cover, book_file FROM books WHERE book_id = ?");
     $check->bind_param("s", $id);
     $check->execute();
     $result = $check->get_result();
@@ -1084,6 +1135,7 @@ function deleteBook($id) {
 
     $book = $result->fetch_assoc();
     $book_cover = $book["book_cover"];
+    $book_file  = $book["book_file"];
     $check->close();
 
     // Hapus relasi buku dari tabel categories_books
@@ -1094,9 +1146,17 @@ function deleteBook($id) {
 
     // Hapus file cover jika ada
     if (!empty($book_cover)) {
-        $bookCoverPath = "../../books_cover/" . $book_cover;
-        if (file_exists($bookCoverPath)) {
-            unlink($bookCoverPath);
+        $coverPath = "../../books_cover/" . $book_cover;
+        if (file_exists($coverPath)) {
+            unlink($coverPath);
+        }
+    }
+
+    //  HAPUS FILE BUKU 
+    if (!empty($book_file)) {
+        $filePath = "../../books_files/" . $book_file;
+        if (file_exists($filePath)) {
+            unlink($filePath);
         }
     }
 
@@ -1112,6 +1172,7 @@ function deleteBook($id) {
         return false;
     }
 }
+
 
 // detail
 function detailBook($id) {
@@ -1251,10 +1312,51 @@ function updateBook($oldBookId, $data, $file)
         $coverName = $newName;
     }
 
+    // --- UPLOAD FILE BUKU (PDF / DOCX / DLL) ---
+$bookFileName = $oldBook["book_file"];
+
+if (isset($file["book_file"]) && $file["book_file"]["error"] === UPLOAD_ERR_OK) {
+    $targetDirFile = "../../books_files/";
+    if (!file_exists($targetDirFile)) mkdir($targetDirFile, 0777, true);
+
+    // nama baru file
+    $newFileName = time() . "_" . basename($file["book_file"]["name"]);
+    $targetFilePath = $targetDirFile . $newFileName;
+
+    // ekstensinya
+    $ext = strtolower(pathinfo($targetFilePath, PATHINFO_EXTENSION));
+    $allowedFile = ["pdf"];
+
+    if (!in_array($ext, $allowedFile)) {
+        $_SESSION["error"] = "File buku harus berformat PDF";
+        return false;
+    }
+
+    // maksimal 20MB
+    if ($file["book_file"]["size"] > 50 * 1024 * 1024) {
+        $_SESSION["error"] = "Ukuran file buku maksimal 50MB.";
+        return false;
+    }
+
+    // upload
+    if (!move_uploaded_file($file["book_file"]["tmp_name"], $targetFilePath)) {
+        $_SESSION["error"] = "Gagal upload file buku.";
+        return false;
+    }
+
+    // hapus file lama
+    if (!empty($oldBook["book_file"])) {
+        $oldFilePath = $targetDirFile . $oldBook["book_file"];
+        if (file_exists($oldFilePath)) unlink($oldFilePath);
+    }
+
+    $bookFileName = $newFileName;
+}
+
     // --- UPDATE DATA BUKU ---
     $updateQuery = "UPDATE books SET 
                     book_id = ?, isbn = ?, title = ?, author = ?, publisher = ?, 
-                    synopsis = ?, publication_year = ?, book_cover = ?, updated_by = ? 
+                    synopsis = ?, publication_year = ?,book_cover = ?, book_file = ?, updated_by = ?
                     WHERE book_id = ?";
     $stmt = $connection->prepare($updateQuery);
     if (!$stmt) {
@@ -1264,17 +1366,18 @@ function updateBook($oldBookId, $data, $file)
 
     $userId = $_SESSION["user"]["user_id"];
     $stmt->bind_param(
-        "ssssssisss",
-        $data["book_id"],
-        $data["isbn"],
-        $data["title"],
-        $data["author"],
-        $data["publisher"],
-        $data["synopsis"],
-        $data["publication_year"],
-        $coverName,
-        $userId,
-        $oldBookId
+    "sssssssssss",
+    $data["book_id"],
+    $data["isbn"],
+    $data["title"],
+    $data["author"],
+    $data["publisher"],
+    $data["synopsis"],
+    $data["publication_year"],
+    $coverName,
+    $bookFileName,
+    $userId,
+    $oldBookId
     );
 
     if (!$stmt->execute()) {

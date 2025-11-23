@@ -1,18 +1,28 @@
 <?php
 require '../function.php';
 
-$videos = select('SELECT * FROM videos');
-$books = select('SELECT * FROM books LIMIT 4');
+// --- Pagination Config ---
+$perPage = 8; // jumlah data per halaman
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+$start = ($page - 1) * $perPage;
 
-// Path foto default
+// Hitung total data
+$totalBooks = count(select("SELECT * FROM books"));
+
+// Hitung total halaman
+$totalPages = ceil($totalBooks / $perPage);
+
+// Ambil data sesuai halaman
+$books = select("SELECT * FROM books LIMIT $start, $perPage");
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <title>Baind | Home</title>
+    <title>Baind | Books</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <meta content="" name="keywords">
     <meta content="" name="description">
@@ -63,8 +73,8 @@ $books = select('SELECT * FROM books LIMIT 4');
                 </button>
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto">
-                        <a href="index.php" class="nav-item nav-link active">Home</a>
-                        <a href="books.php" class="nav-item nav-link">Book</a>
+                        <a href="index.php" class="nav-item nav-link">Home</a>
+                        <a href="books.php" class="nav-item nav-link active">Book</a>
                         <a href="videos.php" class="nav-item nav-link">Video</a>
                         <?php
                         if (isset($_SESSION["log"])) {
@@ -115,56 +125,19 @@ $books = select('SELECT * FROM books LIMIT 4');
 
 
     <!-- Hero Start -->
-    <div class="container-fluid pb-5 hero-header bg-light mb-5">
+    <div class="container-fluid pb-5 bg-primary hero-header">
         <div class="container py-5">
-            <div class="row g-5 align-items-center mb-5">
-                <div class="col-lg-6">
-                    <h1 class="display-1 mb-4 animated slideInRight">We Make Your <span
-                            class="text-primary">Bahasa</span>
-                        Better</h1>
-                    <h5 class="d-inline-block border border-2 border-white py-3 px-5 mb-0 animated slideInRight">
-                        Its a pleasure to learn with you</h5>
+            <div class="row g-3 align-items-center">
+                <div class="col-lg-6 text-center text-lg-start">
+                    <h1 class="display-1 mb-0 animated slideInLeft">Books</h1>
                 </div>
-                <div class="col-lg-6">
-                    <div class="owl-carousel header-carousel animated fadeIn">
-                        <img class="img-fluid rounded-5" src="img/hero-slider-1.png" alt="">
-                        <img class="img-fluid" src="img/hero-slider-2.png" alt="">
-                        <img class="img-fluid" src="img/hero-slider-3.png" alt="">
-                    </div>
-                </div>
-            </div>
-            <div class="row g-5 animated fadeIn">
-                <div class="col-md-6 col-lg-3">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 btn-square border border-2 border-white me-3">
-                            <i class="fa fa-video text-primary"></i>
-                        </div>
-                        <h5 class="lh-base mb-0">Easy To Video Learn</h5>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 btn-square border border-2 border-white me-3">
-                            <i class="fa fa-book text-primary"></i>
-                        </div>
-                        <h5 class="lh-base mb-0">Advanced Book</h5>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 btn-square border border-2 border-white me-3">
-                            <i class="fa fa-lightbulb text-primary"></i>
-                        </div>
-                        <h5 class="lh-base mb-0">Easy To Explain</h5>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-3">
-                    <div class="d-flex align-items-center">
-                        <div class="flex-shrink-0 btn-square border border-2 border-white me-3">
-                            <i class="fa fa-thumbs-up text-primary"></i>
-                        </div>
-                        <h5 class="lh-base mb-0">Open Source</h5>
-                    </div>
+                <div class="col-lg-6 animated slideInRight">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center justify-content-lg-end mb-0">
+                            <li class="breadcrumb-item"><a class="text-primary" href="#!">Home</a></li>
+                            <li class="breadcrumb-item text-secondary active" aria-current="page">Books</li>
+                        </ol>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -174,97 +147,7 @@ $books = select('SELECT * FROM books LIMIT 4');
 
     <!-- About Start -->
     <div class="container-fluid py-5">
-        <div class="container">
-            <div class="row g-5">
-                <div class="col-lg-6">
-                    <div class="row">
-                        <div class="col-6 wow fadeIn" data-wow-delay="0.1s">
-                            <img class="img-fluid rounded-4" src="img/about-1.png" alt="">
-                        </div>
-                        <div class="col-6 wow fadeIn mt-2 rounded-3" data-wow-delay="0.3s">
-                            <img class="img-fluid h-75 rounded-3" src="img/about-2.png" alt="">
-                            <div class="h-25 d-flex align-items-center text-center bg-primary px-4">
-                                <h4 class="text-white lh-base mb-0">Easy To Video Learn</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
-                    <h1 class="mb-5"><span class="text-uppercase text-primary bg-light px-2">History</span> of Our
-                        Creation</h1>
-                    <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam
-                        amet diam et eos labore. Clita erat ipsum et lorem et sit, sed stet no labore lorem sit. Sanctus
-                        clita duo justo et tempor eirmod magna dolore erat amet</p>
-                    <p class="mb-5">Aliqu diam amet diam et eos labore. Clita erat ipsum et lorem et sit, sed stet no
-                        labore lorem sit. Sanctus clita duo justo et tempor.</p>
-                    <div class="row g-3">
-                        <div class="col-sm-6">
-                            <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>Quality Training</h6>
-                            <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>Professional Staff</h6>
-                        </div>
-                        <div class="col-sm-6">
-                            <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>24/7 Learning</h6>
-                            <h6 class="mb-0"><i class="fa fa-check text-primary me-2"></i>Open Source</h6>
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center mt-5">
-                        <a class="btn btn-primary px-4 me-2" href="#!">Read More</a>
-                        <a class="btn btn-outline-primary btn-square border-2 me-2" href="#!"><i
-                                class="fab fa-facebook-f"></i></a>
-                        <a class="btn btn-outline-primary btn-square border-2 me-2" href="#!"><i
-                                class="fab fa-twitter"></i></a>
-                        <a class="btn btn-outline-primary btn-square border-2 me-2" href="#!"><i
-                                class="fab fa-instagram"></i></a>
-                        <a class="btn btn-outline-primary btn-square border-2" href="#!"><i
-                                class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- About End -->
-
-    <!-- Project Start -->
-    <div class="container-fluid mt-5">
-        <div class="container my-5">
-            <div class="row g-0">
-                <div class="col-lg-5 wow fadeIn" data-wow-delay="0.1s">
-                    <div class="d-flex flex-column justify-content-center bg-primary h-100 p-4">
-                        <h1 class="text-white mb-5">Our Most Viewed <span
-                                class="text-uppercase text-primary bg-light px-2">Videos</span></h1>
-                        <h4 class="text-white mb-0"><span class="display-1">6</span> of our most viewed videos</h4>
-                    </div>
-                </div>
-                <div class="col-lg-7">
-                    <div class="row g-0">
-                        <?php foreach($videos as $video): ?>
-                        <div class="col-md-6 col-lg-4 wow fadeIn" data-wow-delay="0.2s">
-                            <div class="project-item position-relative overflow-hidden">
-                                <img class="img-fluid w-100" src="../thumbnail/<?= $video['thumbnail_url']; ?>" alt="">
-                                <a class="project-overlay text-decoration-none" target="_blank"
-                                    href="<?= $video['youtube_url']; ?>">
-                                    <h5 class="text-white"><?= $video['title']; ?></h5>
-                                </a>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Project End -->
-
-    <!-- Team Start -->
-    <div class=" container-fluid bg-light py-5">
         <div class="container py-5">
-            <div class="flex justify-between w-100 mb-5"
-                style="display: flex; align-content: space-between !important; justify-content: space-between;">
-                <h1 class="text-inline d-inline-block">Our Guiding <span
-                        class="text-uppercase text-primary bg-light px-2">Books</span>
-                </h1>
-                <a href="books.php" class="btn btn-primary" style="align-self: center">View All</a>
-            </div>
             <div class="row g-4">
                 <?php foreach($books as $book): ?>
                 <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
@@ -286,85 +169,39 @@ $books = select('SELECT * FROM books LIMIT 4');
                 </div>
                 <?php endforeach; ?>
             </div>
-        </div>
-    </div>
-    <!-- Team End -->
+            <!-- Pagination -->
+            <div class="container mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
 
+                        <!-- Tombol Previous -->
+                        <?php if($page > 1): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<?= $page - 1; ?>">Previous</a>
+                        </li>
+                        <?php endif; ?>
 
-    <!-- Testimonial Start -->
-    <div class="container-xxl py-5">
-        <div class="container py-5">
-            <div class="row justify-content-center">
-                <div class="col-md-12 col-lg-9">
-                    <div class="owl-carousel testimonial-carousel wow fadeIn" data-wow-delay="0.2s">
-                        <div class="testimonial-item">
-                            <div class="row g-5 align-items-center">
-                                <div class="col-md-6">
-                                    <div class="testimonial-img">
-                                        <img class="img-fluid" src="img/testimonial-1.jpg" alt="">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="testimonial-text pb-5 pb-md-0">
-                                        <h3>Easy To Learn Videos</h3>
-                                        <p>Aliqu diam amet diam et eos labore. Clita erat ipsum
-                                            et lorem et sit, sed
-                                            stet no labore lorem sit. Sanctus clita duo justo et
-                                            tempor eirmod magna
-                                            dolore erat
-                                            amet</p>
-                                        <h5 class="mb-0">Boris Johnson</h5>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="testimonial-item">
-                            <div class="row g-5 align-items-center">
-                                <div class="col-md-6">
-                                    <div class="testimonial-img">
-                                        <img class="img-fluid" src="img/testimonial-2.jpg" alt="">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="testimonial-text pb-5 pb-md-0">
-                                        <h3>Professional Teacher</h3>
-                                        <p>Clita erat ipsum et lorem et sit, sed
-                                            stet no labore lorem sit. Sanctus clita duo justo et
-                                            tempor eirmod magna
-                                            dolore erat
-                                            amet</p>
-                                        <h5 class="mb-0">Alexander Bell</h5>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="testimonial-item">
-                            <div class="row g-5 align-items-center">
-                                <div class="col-md-6">
-                                    <div class="testimonial-img">
-                                        <img class="img-fluid" src="img/testimonial-3.jpg" alt="">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="testimonial-text pb-5 pb-md-0">
-                                        <h3>Cool Books</h3>
-                                        <p>Diam amet diam et eos labore. Clita erat ipsum et
-                                            lorem et sit, sed
-                                            stet no labore lorem sit. Sanctus clita duo justo et
-                                            tempor eirmod magna
-                                            dolore erat
-                                            amet</p>
-                                        <h5 class="mb-0">Bradley Gordon</h5>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                        <!-- Nomor halaman -->
+                        <?php for($i = 1; $i <= $totalPages; $i++): ?>
+                        <li class="page-item <?= ($page == $i ? 'active' : '') ?>">
+                            <a class="page-link" href="?page=<?= $i; ?>"><?= $i; ?></a>
+                        </li>
+                        <?php endfor; ?>
+
+                        <!-- Tombol Next -->
+                        <?php if($page < $totalPages): ?>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<?= $page + 1; ?>">Next</a>
+                        </li>
+                        <?php endif; ?>
+
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
-    <!-- Testimonial End -->
+
+    <!-- About End -->
 
     <!-- Newsletter Start -->
     <div class="container-fluid bg-primary newsletter p-0">

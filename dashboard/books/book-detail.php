@@ -480,6 +480,13 @@ $photoPathDetail = !empty($photoDetail) ? "../../books_cover/" . htmlspecialchar
                                                     <i class="bi bi-trash text-white "></i>
                                                     <span class="text-white delete-btn" style="top: 9px">Delete</span>
                                                 </a>
+                                                <a href="<?= '../../books_files/' . rawurlencode($book['book_file']); ?>"
+                                                    class="btn btn-primary me-2 text-white" data-bs-toggle="tooltip"
+                                                    data-bs-placement="top" data-bs-original-title="Download Book"
+                                                    download>
+                                                    <i class="bi bi-download text-white"></i>
+                                                    <span class="text-white" style="top: 9px">Download</span>
+                                                </a>
                                                 <a href="book-edit.php?id=<?= $book['book_id']; ?>"
                                                     class="btn btn-success me-2 text-white" data-bs-toggle="tooltip"
                                                     data-bs-placement="top" data-bs-original-title="Edit Book">

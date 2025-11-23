@@ -536,6 +536,18 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                                         </div>
                                     </fieldset>
                                 </div>
+                                <div class="col-12 mb-1">
+                                    <fieldset>
+                                        <label class="mb-1" for="book_file">Book File</label>
+                                        <div class="input-group">
+                                            <input type="file" class="form-control" id="book_file"
+                                                aria-describedby="inputGroupFileAddon04" aria-label="Upload"
+                                                name="book_file" accept="image/*">
+                                            <button class="btn btn-primary z-0" type="button"
+                                                id="inputGroupFileAddon04">Upload</button>
+                                        </div>
+                                    </fieldset>
+                                </div>
                             </div>
                         </div>
                         <div class="modal-footer mx-2">
