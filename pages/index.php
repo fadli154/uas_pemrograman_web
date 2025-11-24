@@ -18,7 +18,7 @@ $books = select('SELECT * FROM books LIMIT 4');
     <meta content="" name="description">
 
     <!-- Favicon -->
-    <link href="img/favicon.ico" rel="icon">
+    <link href="img/favicon.svg" rel="icon">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -269,19 +269,23 @@ $books = select('SELECT * FROM books LIMIT 4');
                 <?php foreach($books as $book): ?>
                 <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
                     <div class="team-item position-relative overflow-hidden">
-                        <img class="img-fluid" style="max-height: 420px !important; width: 100% !important;"
-                            src="../books_cover/<?= $book['book_cover']; ?>" alt="">
-                        <div class="team-overlay">
-                            <small class="mb-2"><?= $book['title']; ?></small>
-                            <h4 class="lh-base text-light"><?= $book['author']; ?></h4>
-                            <div class="d-flex justify-content-center">
+                        <a href="detail_book.php?book_id=<?= $book['book_id'] ?>" style="z-index: 1000;">
+                            <img class="img-fluid" style="max-height: 420px !important; width: 100% !important;"
+                                src="../books_cover/<?= $book['book_cover']; ?>" alt="">
+                            <div class="team-overlay">
+                                <small class="mb-2"><?= $book['title']; ?></small>
+                                <h4 class="lh-base text-light"><?= $book['author']; ?></h4>
+                                <div class="d-flex justify-content-center">
+                                </div>
+                                <?php if (isset($_SESSION['log'])): ?>
+                                <a type="button" href="<?= '../books_files/' . rawurlencode($book['book_file']); ?>"
+                                    class="d-inline-block border border-2 border-white py-2 px-3 mb-0 text-white animated slideInRight"
+                                    target="_blank">
+                                    Download PDF <i class="fa fa-download ms-2"></i>
+                                </a>
+                                <?php endif; ?>
                             </div>
-                            <a type="button" href="<?= '../books_files/' . rawurlencode($book['book_file']); ?>"
-                                class="d-inline-block border border-2 border-white py-2 px-3 mb-0 text-white animated slideInRight"
-                                target="_blank">
-                                Download PDF <i class="fa fa-download ms-2"></i>
-                            </a>
-                        </div>
+                        </a>
                     </div>
                 </div>
                 <?php endforeach; ?>

@@ -1,19 +1,18 @@
 <?php
 require '../function.php';
 
-// --- Pagination Config ---
-$perPage = 8; // jumlah data per halaman
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$start = ($page - 1) * $perPage;
+if (!isset($_GET['book_id']) || empty($_GET['book_id'])) {
+    header("Location: books.php");
+    exit;
+}
 
-// Hitung total data
-$totalBooks = count(select("SELECT * FROM books"));
+$book_id = $_GET['book_id'];
+$book = detailBook($book_id);
 
-// Hitung total halaman
-$totalPages = ceil($totalBooks / $perPage);
-
-// Ambil data sesuai halaman
-$books = select("SELECT * FROM books LIMIT $start, $perPage");
+if (!$book) {
+    header("Location: books.php");
+    exit;
+}
 ?>
 
 
@@ -129,13 +128,15 @@ $books = select("SELECT * FROM books LIMIT $start, $perPage");
         <div class="container py-5">
             <div class="row g-3 align-items-center">
                 <div class="col-lg-6 text-center text-lg-start">
-                    <h1 class="display-1 mb-0 animated slideInLeft">Books</h1>
+                    <h1 class="display-1 mb-0 animated slideInLeft"><?= $book['title']; ?></h1>
                 </div>
                 <div class="col-lg-6 animated slideInRight">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb justify-content-center justify-content-lg-end mb-0">
                             <li class="breadcrumb-item"><a class="text-primary" href="#!">Home</a></li>
                             <li class="breadcrumb-item text-secondary active" aria-current="page">Books</li>
+                            <li class="breadcrumb-item text-secondary active" aria-current="page">Book Detail
+                            </li>
                         </ol>
                     </nav>
                 </div>
@@ -148,59 +149,22 @@ $books = select("SELECT * FROM books LIMIT $start, $perPage");
     <!-- About Start -->
     <div class="container-fluid py-5">
         <div class="container py-5">
-            <div class="row g-4">
-                <?php foreach($books as $book): ?>
-                <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
-                    <div class="team-item position-relative overflow-hidden">
-                        <a href="detail_book.php?book_id=<?= $book['book_id'] ?>" style="z-index: 1000;">
-                            <img class="img-fluid" style="max-height: 420px !important; width: 100% !important;"
-                                src="../books_cover/<?= $book['book_cover']; ?>" alt="">
-                            <div class="team-overlay">
-                                <small class="mb-2"><?= $book['title']; ?></small>
-                                <h4 class="lh-base text-light"><?= $book['author']; ?></h4>
-                                <div class="d-flex justify-content-center">
-                                </div>
-                                <?php if (isset($_SESSION['log'])): ?>
-                                <a type="button" href="<?= '../books_files/' . rawurlencode($book['book_file']); ?>"
-                                    class="d-inline-block border border-2 border-white py-2 px-3 mb-0 text-white animated slideInRight"
-                                    target="_blank">
-                                    Download PDF <i class="fa fa-download ms-2"></i>
-                                </a>
-                                <?php endif; ?>
-                            </div>
-                        </a>
-                    </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <?php if ($book['book_cover']): ?>
+                    <img class="img-fluid w-75 shadow-lg" src="../books_cover/<?= $book['book_cover']; ?>" alt="">
+                    <?php else: ?>
+                    <img class="img-fluid w-75 shadow-lg" src="../assets/compiled/jpg/book_placeholder.jpg" alt="">
+                    <?php endif; ?>
                 </div>
-                <?php endforeach; ?>
-            </div>
-            <!-- Pagination -->
-            <div class="container mt-5">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-
-                        <!-- Tombol Previous -->
-                        <?php if($page > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page - 1; ?>">Previous</a>
-                        </li>
-                        <?php endif; ?>
-
-                        <!-- Nomor halaman -->
-                        <?php for($i = 1; $i <= $totalPages; $i++): ?>
-                        <li class="page-item <?= ($page == $i ? 'active' : '') ?>">
-                            <a class="page-link" href="?page=<?= $i; ?>"><?= $i; ?></a>
-                        </li>
-                        <?php endfor; ?>
-
-                        <!-- Tombol Next -->
-                        <?php if($page < $totalPages): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page + 1; ?>">Next</a>
-                        </li>
-                        <?php endif; ?>
-
-                    </ul>
-                </nav>
+                <div class="col-lg-8">
+                    <h1 class="mb-4"><?= $book['title']; ?></h1>
+                    <p class="mb-4"><?= $book['isbn']; ?></p>
+                    <p class="mb-4"><?= $book['author']; ?></p>
+                    <p class="mb-4"><?= $book['synopsis']; ?></p>
+                    <p class="mb-4"><?= $book['publisher']; ?></p>
+                    <p class="mb-4"><?= $book['publication_year']; ?></p>
+                </div>
             </div>
         </div>
     </div>

@@ -286,13 +286,14 @@
 .team-overlay {
   position: absolute;
   padding: 30px;
-  max-height: 300px;
+  max-height: 100px !important;
   top: 0;
   left: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-end;
+  overflow: hidden;
   background: linear-gradient(rgba(255, 255, 255, 0.1) 50%, var(--bs-dark));
   z-index: 1;
 }
