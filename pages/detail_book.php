@@ -13,6 +13,29 @@ if (!$book) {
     header("Location: books.php");
     exit;
 }
+
+function getCategoryBook($book_id){
+    global $connection;
+    $query = "SELECT c.category_name 
+              FROM categories_books cb
+              JOIN categories c ON cb.category_id = c.category_id
+              WHERE cb.book_id = ?";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("s", $book_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $names = [];
+    while ($row = $result->fetch_assoc()) {
+        $names[] = $row['category_name'];
+    }
+
+    $stmt->close();
+
+    return implode(", ", $names); // string
+}
+
+
 ?>
 
 
@@ -134,7 +157,8 @@ if (!$book) {
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb justify-content-center justify-content-lg-end mb-0">
                             <li class="breadcrumb-item"><a class="text-primary" href="#!">Home</a></li>
-                            <li class="breadcrumb-item text-secondary active" aria-current="page">Books</li>
+                            <li class="breadcrumb-item text-secondary active" aria-current="page"><a
+                                    href="books.php">Books</a></li>
                             <li class="breadcrumb-item text-secondary active" aria-current="page">Book Detail
                             </li>
                         </ol>
@@ -159,11 +183,29 @@ if (!$book) {
                 </div>
                 <div class="col-lg-8">
                     <h1 class="mb-4"><?= $book['title']; ?></h1>
-                    <p class="mb-4"><?= $book['isbn']; ?></p>
-                    <p class="mb-4"><?= $book['author']; ?></p>
-                    <p class="mb-4"><?= $book['synopsis']; ?></p>
-                    <p class="mb-4"><?= $book['publisher']; ?></p>
-                    <p class="mb-4"><?= $book['publication_year']; ?></p>
+                    <p class="mb-4">
+                        <b class="me-3">ISBN: </b> <?= $book['isbn']; ?>
+                    </p>
+                    <p class="mb-4">
+                        <b class="me-3">Author: </b> <?= $book['author']; ?>
+                    </p>
+                    <p class="mb-4">
+                        <b class="me-3">Publisher: </b> <?= $book['publisher']; ?>
+                    </p>
+                    <p class="mb-4">
+                        <b class="me-3">Publication Year: </b> <?= $book['publication_year']; ?>
+                    </p>
+                    <p class="mb-4 mt-5">
+                        <?php if ($book['synopsis']): ?>
+                        <b class="me-3">Synopsis: </b> <?= $book['synopsis']; ?>
+                        <?php else: ?>
+                        <b class="me-3">Synopsis: </b> -
+                        <?php endif; ?>
+                    </p>
+                    <!-- tampilkan kategori dari function getCategoryBook -->
+                    <p class="mb-4"></p>
+                    <b class="me-3">Category: </b> <?= getCategoryBook($book['book_id']); ?>
+                    </p>
                 </div>
             </div>
         </div>

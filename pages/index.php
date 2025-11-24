@@ -64,8 +64,8 @@ $books = select('SELECT * FROM books LIMIT 4');
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <div class="navbar-nav ms-auto">
                         <a href="index.php" class="nav-item nav-link active">Home</a>
-                        <a href="books.php" class="nav-item nav-link">Book</a>
-                        <a href="videos.php" class="nav-item nav-link">Video</a>
+                        <a href="books.php" class="nav-item nav-link">Books</a>
+                        <a href="videos.php" class="nav-item nav-link">Videos</a>
                         <?php
                         if (isset($_SESSION["log"])) {
 

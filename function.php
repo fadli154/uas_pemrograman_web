@@ -102,7 +102,7 @@ function updateProfile($id, $data, $file)
     // --- UPLOAD FOTO BARU (JIKA ADA) ---
     $newPhotoUploaded = false;
     if (isset($file["photo"]) && $file["photo"]["error"] === UPLOAD_ERR_OK) {
-        $targetDir = "../../uploads/";
+        $targetDir = "../uploads/";
         if (!file_exists($targetDir)) mkdir($targetDir, 0777, true);
 
         $photoName = time() . "_" . basename($file["photo"]["name"]);

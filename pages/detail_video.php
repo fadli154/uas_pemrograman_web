@@ -1,19 +1,46 @@
 <?php
 require '../function.php';
 
-// --- Pagination Config ---
-$perPage = 8; // jumlah data per halaman
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$start = ($page - 1) * $perPage;
+if (!isset($_GET['video_id']) || empty($_GET['video_id'])) {
+    header("Location: videos.php");
+    exit;
+}
 
-// Hitung total data
-$totalVideos = count(select("SELECT * FROM videos"));
+$video_id = $_GET['video_id'];
+$video = detailVideo($video_id);
 
-// Hitung total halaman
-$totalPages = ceil($totalVideos / $perPage);
+if (!$video) {
+    header("Location: videos.php");
+    exit;
+}
 
-// Ambil data sesuai halaman
-$videos = select("SELECT * FROM videos LIMIT $start, $perPage");
+function getCategoryVideo($video_id){
+    global $connection;
+    $query = "SELECT c.category_name 
+              FROM categories_videos cb
+              JOIN categories c ON cb.category_id = c.category_id
+              WHERE cb.video_id = ?";
+    $stmt = $connection->prepare($query);
+    $stmt->bind_param("s", $video_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    $names = [];
+    while ($row = $result->fetch_assoc()) {
+        $names[] = $row['category_name'];
+    }
+
+    $stmt->close();
+
+    return implode(", ", $names); // string
+}
+
+function getYouTubeID($url) {
+    preg_match("/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^\"&?\/ ]{11})/", $url, $match);
+    return $match[1] ?? null;
+}
+
+$youtubeID = getYouTubeID($video["youtube_url"]);
 ?>
 
 
@@ -129,13 +156,16 @@ $videos = select("SELECT * FROM videos LIMIT $start, $perPage");
         <div class="container py-5">
             <div class="row g-3 align-items-center">
                 <div class="col-lg-6 text-center text-lg-start">
-                    <h1 class="display-1 mb-0 animated slideInLeft">Videos</h1>
+                    <h1 class="display-1 mb-0 animated slideInLeft"><?= $video['title']; ?></h1>
                 </div>
                 <div class="col-lg-6 animated slideInRight">
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb justify-content-center justify-content-lg-end mb-0">
                             <li class="breadcrumb-item"><a class="text-primary" href="#!">Home</a></li>
-                            <li class="breadcrumb-item text-secondary active" aria-current="page">Videos</li>
+                            <li class="breadcrumb-item text-secondary active" aria-current="page"><a
+                                    href="videos.php">Videos</a></li>
+                            <li class="breadcrumb-item text-secondary active" aria-current="page">Video Detail
+                            </li>
                         </ol>
                     </nav>
                 </div>
@@ -148,56 +178,47 @@ $videos = select("SELECT * FROM videos LIMIT $start, $perPage");
     <!-- About Start -->
     <div class="container-fluid py-5">
         <div class="container py-5">
-            <div class="row g-4">
-                <?php foreach($videos as $video): ?>
-                <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
-                    <div class="team-item position-relative overflow-hidden">
-                        <a href="detail_video.php?video_id=<?= $video['video_id'] ?>" style="z-index: 1000;">
-                            <img class="img-fluid" style="max-height: 420px !important; width: 100% !important;"
-                                src="../thumbnail/<?= $video['thumbnail_url']; ?>" alt="">
-                            <div class="team-overlay">
-                                <small class="mb-2"><?= $video['title']; ?></small>
-                                <div class="d-flex justify-content-center">
-                                </div>
-                                <a type="button" href="<?= $video['youtube_url']; ?>"
-                                    class="d-inline-block border border-2 border-white py-2 px-3 mb-0 text-white animated slideInRight"
-                                    target="_blank">
-                                    Tonton <i class="fa fa-eye ms-2"></i>
-                                </a>
-                            </div>
-                        </a>
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="preview-video-yt">
+                        <div class="preview-video-yt text-center">
+                            <?php if (!empty($youtubeID)): ?>
+                            <iframe width="100%" height="400" src="https://www.youtube.com/embed/<?= $youtubeID ?>"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                            </iframe>
+                            <?php else: ?>
+                            <p class="text-muted">Video tidak tersedia</p>
+                            <?php endif; ?>
+                        </div>
                     </div>
+                    <?php if ($video['thumbnail_url']): ?>
+                    <img class="img-fluid w-75 shadow-lg mt-4" src="../thumbnail/<?= $video['thumbnail_url']; ?>"
+                        alt="">
+                    <?php else: ?>
+                    <img class="img-fluid w-75 shadow-lg mt-4" src="../assets/compiled/jpg/video_placeholder.png"
+                        alt="">
+                    <?php endif; ?>
                 </div>
-                <?php endforeach; ?>
-            </div>
-            <!-- Pagination -->
-            <div class="container mt-5">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-
-                        <!-- Tombol Previous -->
-                        <?php if($page > 1): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page - 1; ?>">Previous</a>
-                        </li>
+                <div class="col-lg-4">
+                    <h1 class="mb-4"><?= $video['title']; ?></h1>
+                    <p class="mb-4 d-inline-block">
+                        <?php if ($video['description']): ?>
+                        <b class="me-3 d-inline">Description: </b>
+                        <span><?= htmlspecialchars($video['description'])  ?></span>
+                        <?php else: ?>
+                        <b class="me-3 d-inline">Description: </b> -
                         <?php endif; ?>
-
-                        <!-- Nomor halaman -->
-                        <?php for($i = 1; $i <= $totalPages; $i++): ?>
-                        <li class="page-item <?= ($page == $i ? 'active' : '') ?>">
-                            <a class="page-link" href="?page=<?= $i; ?>"><?= $i; ?></a>
-                        </li>
-                        <?php endfor; ?>
-
-                        <!-- Tombol Next -->
-                        <?php if($page < $totalPages): ?>
-                        <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page + 1; ?>">Next</a>
-                        </li>
-                        <?php endif; ?>
-
-                    </ul>
-                </nav>
+                    </p>
+                    <p class="mb-4">
+                        <b class="me-3">Duration: </b> <?= $video['duration']; ?>
+                    </p>
+                    <!-- tampilkan kategori dari function getCategoryVideo -->
+                    <p class="mb-4"></p>
+                    <b class="me-3">Category: </b> <?= getCategoryVideo($video['video_id']); ?>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
