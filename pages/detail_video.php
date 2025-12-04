@@ -192,31 +192,23 @@ $youtubeID = getYouTubeID($video["youtube_url"]);
                             <p class="text-muted">Video tidak tersedia</p>
                             <?php endif; ?>
                         </div>
+                        <p class="mb-4 d-inline-block">
+                            <?php if ($video['description']): ?>
+                            <b class="me-3 d-inline">Description: </b>
+                            <span><?= htmlspecialchars($video['description'])  ?></span>
+                            <?php else: ?>
+                            <b class="me-3 d-inline">Description: </b> -
+                            <?php endif; ?>
+                        </p>
                     </div>
-                    <?php if ($video['thumbnail_url']): ?>
-                    <img class="img-fluid w-75 shadow-lg mt-4" src="../thumbnail/<?= $video['thumbnail_url']; ?>"
-                        alt="">
-                    <?php else: ?>
-                    <img class="img-fluid w-75 shadow-lg mt-4" src="../assets/compiled/jpg/video_placeholder.png"
-                        alt="">
-                    <?php endif; ?>
                 </div>
                 <div class="col-lg-4">
-                    <h1 class="mb-4"><?= $video['title']; ?></h1>
-                    <p class="mb-4 d-inline-block">
-                        <?php if ($video['description']): ?>
-                        <b class="me-3 d-inline">Description: </b>
-                        <span><?= htmlspecialchars($video['description'])  ?></span>
-                        <?php else: ?>
-                        <b class="me-3 d-inline">Description: </b> -
-                        <?php endif; ?>
-                    </p>
-                    <p class="mb-4">
+                    <h1 class="mb-4 text-uppercase"><?= $video['title']; ?></h1>
+                    <p class="mb-2">
                         <b class="me-3">Duration: </b> <?= $video['duration']; ?>
                     </p>
                     <!-- tampilkan kategori dari function getCategoryVideo -->
-                    <p class="mb-4"></p>
-                    <b class="me-3">Category: </b> <?= getCategoryVideo($video['video_id']); ?>
+                    <b class="me-3 mt-0">Category: </b> <?= getCategoryVideo($video['video_id']); ?>
                     </p>
                 </div>
             </div>

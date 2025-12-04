@@ -1,20 +1,54 @@
 <?php
 require '../function.php';
 
-// --- Pagination Config ---
-$perPage = 8; // jumlah data per halaman
+// --- Ambil Parameter Search & Filter ---
+$search     = isset($_GET['search']) ? $_GET['search'] : '';
+$categoryId = isset($_GET['category']) ? $_GET['category'] : '';
+
+// --- Pagination ---
+$perPage = 8;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start = ($page - 1) * $perPage;
 
-// Hitung total data
-$totalVideos = count(select("SELECT * FROM videos"));
+// Base query
+$query = "FROM videos v";
+
+// Join jika ada filter kategori
+if ($categoryId !== "") {
+    $query .= " 
+    JOIN categories_videos cv ON cv.video_id = v.video_id 
+    JOIN categories c ON c.category_id = cv.category_id";
+}
+
+// WHERE
+$where = [];
+
+if ($search !== "") {
+    $s = trim($search);
+    $where[] = "(v.title LIKE '%$s%' OR v.description LIKE '%$s%')";
+}
+
+if ($categoryId !== "") {
+    $where[] = "c.category_id = '$categoryId'";
+}
+
+if (!empty($where)) {
+    $query .= " WHERE " . implode(" AND ", $where);
+}
+
+// Hitung total video
+$totalVideos = count(select("SELECT v.video_id $query"));
 
 // Hitung total halaman
 $totalPages = ceil($totalVideos / $perPage);
 
-// Ambil data sesuai halaman
-$videos = select("SELECT * FROM videos LIMIT $start, $perPage");
+// Ambil data video sesuai filter
+$videos = select("SELECT v.* $query LIMIT $start, $perPage");
+
+// Ambil semua kategori untuk dropdown
+$categories = select("SELECT * FROM categories");
 ?>
+
 
 
 <!DOCTYPE html>
@@ -148,6 +182,35 @@ $videos = select("SELECT * FROM videos LIMIT $start, $perPage");
     <!-- About Start -->
     <div class="container-fluid py-5">
         <div class="container py-5">
+            <!-- Search & Filter Video -->
+            <form class="row mb-5" method="GET">
+
+                <!-- Search -->
+                <div class="col-md-6 mb-2">
+                    <input type="text" name="search" class="form-control" placeholder="Cari video..."
+                        value="<?= htmlspecialchars($search); ?>">
+                </div>
+
+                <!-- Filter Category -->
+                <div class="col-md-4 mb-2">
+                    <select class="form-select" name="category">
+                        <option value="">Semua Kategori</option>
+                        <?php foreach($categories as $cat): ?>
+                        <option value="<?= $cat['category_id']; ?>"
+                            <?= ($categoryId == $cat['category_id'] ? 'selected' : '') ?>>
+                            <?= $cat['category_name']; ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <!-- Submit -->
+                <div class="col-md-2 mb-2">
+                    <button class="btn btn-primary w-100">Filter</button>
+                </div>
+
+            </form>
+
             <div class="row g-4">
                 <?php foreach($videos as $video): ?>
                 <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.7s">
@@ -175,30 +238,40 @@ $videos = select("SELECT * FROM videos LIMIT $start, $perPage");
                 <nav aria-label="Page navigation">
                     <ul class="pagination justify-content-center">
 
-                        <!-- Tombol Previous -->
+                        <!-- Previous -->
                         <?php if($page > 1): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page - 1; ?>">Previous</a>
+                            <a class="page-link"
+                                href="?page=<?= $page - 1; ?>&search=<?= urlencode($search); ?>&category=<?= $categoryId; ?>">
+                                Previous
+                            </a>
                         </li>
                         <?php endif; ?>
 
-                        <!-- Nomor halaman -->
+                        <!-- Page Numbers -->
                         <?php for($i = 1; $i <= $totalPages; $i++): ?>
                         <li class="page-item <?= ($page == $i ? 'active' : '') ?>">
-                            <a class="page-link" href="?page=<?= $i; ?>"><?= $i; ?></a>
+                            <a class="page-link"
+                                href="?page=<?= $i; ?>&search=<?= urlencode($search); ?>&category=<?= $categoryId; ?>">
+                                <?= $i; ?>
+                            </a>
                         </li>
                         <?php endfor; ?>
 
-                        <!-- Tombol Next -->
+                        <!-- Next -->
                         <?php if($page < $totalPages): ?>
                         <li class="page-item">
-                            <a class="page-link" href="?page=<?= $page + 1; ?>">Next</a>
+                            <a class="page-link"
+                                href="?page=<?= $page + 1; ?>&search=<?= urlencode($search); ?>&category=<?= $categoryId; ?>">
+                                Next
+                            </a>
                         </li>
                         <?php endif; ?>
 
                     </ul>
                 </nav>
             </div>
+
         </div>
     </div>
 
