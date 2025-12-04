@@ -206,6 +206,13 @@ function getCategoryBook($book_id){
                     <p class="mb-4"></p>
                     <b class="me-3">Category: </b> <?= getCategoryBook($book['book_id']); ?>
                     </p>
+                    <?php if (isset($_SESSION['log'])): ?>
+                    <a type="button" href="<?= '../books_files/' . rawurlencode($book['book_file']); ?>"
+                        class="d-inline-block mt-2 border border-2 border-success py-2 px-3 mb-0 text-success animated slideInRight"
+                        target="_blank">
+                        Download PDF <i class="fa fa-download ms-2"></i>
+                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

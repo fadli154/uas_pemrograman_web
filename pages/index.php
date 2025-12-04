@@ -264,7 +264,7 @@ $books = select('SELECT * FROM books LIMIT 4');
                         class="text-uppercase text-primary bg-light px-2">Books</span>
                 </h1>
                 <a href="books.php" class="btn btn-primary rounded-pill" style="align-self: center">View All <i
-                        class="bi bi-eye ms-1"></i></a>
+                        class="bi bi-arrow-right ms-1"></i></a>
             </div>
             <div class="row g-4">
                 <?php foreach($books as $book): ?>

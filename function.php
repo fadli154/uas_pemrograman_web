@@ -1047,30 +1047,30 @@ function insertBook($data, $file)
     |--------------------------------------------------------------------------
     */
     $query = "INSERT INTO books 
-              (book_id, isbn, title, author, publisher, synopsis, publication_year, book_cover, book_file, created_by, updated_by)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          (book_id, isbn, title, author, publisher, synopsis, publication_year, book_cover, book_file, created_by, updated_by, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
 
-    $stmt = $connection->prepare($query);
+$stmt = $connection->prepare($query);
 
-    if (!$stmt) {
-        $_SESSION["error"] = "Gagal menyiapkan query insert buku: " . $connection->error;
-        return false;
-    }
+if (!$stmt) {
+    $_SESSION["error"] = "Gagal menyiapkan query insert buku: " . $connection->error;
+    return false;
+}
 
-    $stmt->bind_param(
-        "ssssssissss",
-        $data["book_id"],
-        $data["isbn"],
-        $data["title"],
-        $data["author"],
-        $data["publisher"],
-        $data["synopsis"],
-        $data["publication_year"],
-        $coverName,
-        $bookFileName, 
-        $_SESSION["user"]["user_id"],
-        $_SESSION["user"]["user_id"]
-    );
+$stmt->bind_param(
+    "ssssssissss",
+    $data["book_id"],
+    $data["isbn"],
+    $data["title"],
+    $data["author"],
+    $data["publisher"],
+    $data["synopsis"],
+    $data["publication_year"],
+    $coverName,
+    $bookFileName, 
+    $_SESSION["user"]["user_id"],
+    $_SESSION["user"]["user_id"]
+);
 
     if (!$stmt->execute()) {
         $_SESSION["error"] = "Gagal menyimpan buku (" . $stmt->error . ")";

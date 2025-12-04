@@ -13,6 +13,53 @@ $defaultPhoto = "../assets/compiled/jpg/1.jpg";
 
 $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defaultPhoto;
 
+$books_count  = select("SELECT COUNT(*) AS total FROM books")[0]['total'];
+$users_count  = select("SELECT COUNT(*) AS total FROM users")[0]['total'];
+$videos_count = select("SELECT COUNT(*) AS total FROM videos")[0]['total'];
+$roles_count  = select("SELECT COUNT(*) AS total FROM roles")[0]['total'];
+
+$chartData = select("
+    SELECT 
+        DATE_FORMAT(created_at, '%Y-%m') AS bulan,
+        COUNT(*) AS total
+    FROM books
+    GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+    ORDER BY bulan ASC
+");
+
+// siapkan data untuk chart
+$categories = []; // contoh: ["2025-01", "2025-02", ...]
+$totals = [];
+
+foreach ($chartData as $row) {
+    // konversi ke format lebih cantik, misal Jan 2025
+    $formatBulan = date("M Y", strtotime($row['bulan'] . "-01"));
+    $categories[] = $formatBulan;
+    $totals[] = $row['total'];
+}
+
+$categories_json = json_encode($categories);
+$totals_json = json_encode($totals);
+
+// ambil jumlah user per role
+$rolesChart = select("
+    SELECT r.role_name AS role, COUNT(u.user_id) AS total
+    FROM roles r
+    LEFT JOIN users u ON u.role_id = r.role_id
+    GROUP BY r.role_id
+");
+
+$roleLabels = [];
+$roleTotals = [];
+
+foreach ($rolesChart as $r) {
+    $roleLabels[] = $r['role'];
+    $roleTotals[] = $r['total'];
+}
+
+$roleLabels_json = json_encode($roleLabels);
+$roleTotals_json = json_encode($roleTotals);
+
 ?>
 
 <!DOCTYPE html>
@@ -25,6 +72,7 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
     <link rel="shortcut icon" href="../assets/compiled/svg/favicon.svg" type="image/x-icon" />
     <link rel="stylesheet" href="../assets/compiled/css/app.css" />
     <link rel="stylesheet" href="../assets/compiled/css/app-dark.css" />
+    <link rel="stylesheet" crossorigin="" href="../assets/compiled/css/iconly.css">
 </head>
 
 <body>
@@ -239,31 +287,126 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
                             </div>
                         </div>
                     </div>
-                    <section class="section">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 class="card-title"></h4>
+                </div>
+                <div class="page-content">
+                    <div class="row">
+                        <div class="col-12 col-lg-9">
+                            <div class="row">
+                                <div class="col-6 col-lg-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body px-4 py-4-5">
+                                            <div class="row">
+                                                <div
+                                                    class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
+                                                    <div class="stats-icon purple mb-2">
+                                                        <i class="iconly-boldProfile"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                                                    <h6 class="text-muted font-semibold">Users</h6>
+                                                    <h6 class="font-extrabold mb-0"><?= $users_count ?></h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-lg-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body px-4 py-4-5">
+                                            <div class="row">
+                                                <div
+                                                    class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
+                                                    <div class="stats-icon blue mb-2">
+                                                        <i class="iconly-boldBookmark"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                                                    <h6 class="text-muted font-semibold">Books</h6>
+                                                    <h6 class="font-extrabold mb-0"><?= $books_count ?></h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-lg-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body px-4 py-4-5">
+                                            <div class="row">
+                                                <div
+                                                    class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
+                                                    <div class="stats-icon green mb-2">
+                                                        <i class="iconly-boldVideo"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                                                    <h6 class="text-muted font-semibold">Videos</h6>
+                                                    <h6 class="font-extrabold mb-0"><?= $videos_count ?></h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-lg-3 col-md-6">
+                                    <div class="card">
+                                        <div class="card-body px-4 py-4-5">
+                                            <div class="row">
+                                                <div
+                                                    class="col-md-4 col-lg-12 col-xl-12 col-xxl-5 d-flex justify-content-start ">
+                                                    <div class="stats-icon red mb-2">
+                                                        <i class="iconly-boldSetting"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-8 col-lg-12 col-xl-12 col-xxl-7">
+                                                    <h6 class="text-muted font-semibold">Role</h6>
+                                                    <h6 class="font-extrabold mb-0"><?= $roles_count ?></h6>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. In
-                                    mollis tincidunt tempus. Duis vitae facilisis enim, at
-                                    rutrum lacus. Nam at nisl ut ex egestas placerat sodales id
-                                    quam. Aenean sit amet nibh quis lacus pellentesque venenatis
-                                    vitae at justo. Orci varius natoque penatibus et magnis dis
-                                    parturient montes, nascetur ridiculus mus. Suspendisse
-                                    venenatis tincidunt odio ut rutrum. Maecenas ut urna
-                                    venenatis, dapibus tortor sed, ultrices justo. Phasellus
-                                    scelerisque, nibh quis gravida venenatis, nibh mi lacinia
-                                    est, et porta purus nisi eget nibh. Fusce pretium vestibulum
-                                    sagittis. Donec sodales velit cursus convallis sollicitudin.
-                                    Nunc vel scelerisque elit, eget facilisis tellus. Donec id
-                                    molestie ipsum. Nunc tincidunt tellus sed felis vulputate
-                                    euismod.
-                                </p>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Data Books</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div id="chart-profile-visit" style="min-height: 315px;"></div>
+                                </div>
                             </div>
                         </div>
-                    </section>
+                        <div class="col-12 col-lg-3">
+                            <div class="card">
+                                <div class="card-body py-4 px-4">
+                                    <div class="d-flex align-items-center">
+                                        <?php if ($photo) { ?>
+                                        <div class="avatar avatar-xl">
+                                            <img src="<?= $photoPath ?>"
+                                                style="width: 100%; height: 100%; object-fit: cover;" alt="Avatar">
+                                        </div>
+                                        <?php } else { ?>
+                                        <div class="avatar avatar-xl">
+                                            <img src="<?= $defaultPhoto ?>" alt="User Photo">
+                                        </div>
+                                        <?php } ?>
+                                        <div class="ms-3 name">
+                                            <h5 class="font-bold text-capitalize"><?= $name ?></h5>
+                                            <h6 class="text-muted mb-0 text-capitalize"><?= $role ?></h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h4>Users by Role</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div id="roles-donut-chart" style="min-height: 300px;"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
             <footer>
@@ -325,6 +468,87 @@ $photoPath = (!empty($photo)) ? "../uploads/" . htmlspecialchars($photo) : $defa
         });
     });
     </script>
+
+    <!-- ApexCharts CDN -->
+    <script src="../assets/extensions/apexcharts/apexcharts.min.js"></script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var optionsBooksMonth = {
+            annotations: {
+                position: "back"
+            },
+            dataLabels: {
+                enabled: false
+            },
+            chart: {
+                type: "area",
+                height: 300,
+            },
+            stroke: {
+                curve: "smooth",
+                width: 3
+            },
+            fill: {
+                type: "gradient",
+                gradient: {
+                    shadeIntensity: 0.5,
+                    opacityFrom: 0.7,
+                    opacityTo: 0.3,
+                    stops: [0, 90, 100],
+                },
+            },
+            series: [{
+                name: "Books per Month",
+                data: <?= $totals_json ?>,
+            }],
+            xaxis: {
+                categories: <?= $categories_json ?>,
+                title: {
+                    text: "Month"
+                }
+            },
+        };
+
+        var chartBooksMonth = new ApexCharts(
+            document.querySelector("#chart-profile-visit"),
+            optionsBooksMonth
+        );
+
+        chartBooksMonth.render();
+    });
+    </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        var optionsDonutRoles = {
+            chart: {
+                type: 'pie',
+                height: 300
+            },
+            labels: <?= $roleLabels_json ?>,
+            series: <?= $roleTotals_json ?>,
+            legend: {
+                position: 'bottom'
+            },
+            dataLabels: {
+                enabled: true
+            }
+        };
+
+
+        var donutChart = new ApexCharts(
+            document.querySelector("#roles-donut-chart"),
+            optionsDonutRoles
+        );
+
+        donutChart.render();
+
+    });
+    </script>
+
+
 </body>
 
 </html>
