@@ -275,6 +275,11 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                             style="top:-32px; right: 0px; height: 40px;">
                             <i class="bi bi-plus-circle-dotted"></i>
                         </button>
+                        <button type="button" class="btn btn-warning rounded-top-pill position-absolute"
+                            data-bs-toggle="modal" data-bs-target="#modalImportUser" data-bs-placement="top"
+                            data-bs-original-title="Import Users" style="top:-32px; right: 50px; height: 40px;">
+                            <i class="bi bi-upload"></i>
+                        </button>
                         <div class="card">
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -546,6 +551,34 @@ $photoPath = (!empty($photo)) ? "../../uploads/" . htmlspecialchars($photo) : $d
                 </div>
             </div>
         </div>
+
+        <!-- Modal Import Users -->
+        <div class="modal fade" id="modalImportUser" tabindex="-1" aria-labelledby="modalImportUserLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalImportUserLabel">Import Users via Excel</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <form action="users-import.php" method="POST" enctype="multipart/form-data">
+                        <div class="modal-body">
+                            <label for="file" class="form-label">Pilih File Excel (.xlsx / .xls)</label>
+                            <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" name="import" class="btn btn-success">Import</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
     </div>
     </div>
 

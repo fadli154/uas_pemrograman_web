@@ -73,6 +73,18 @@ $roleTotals_json = json_encode($roleTotals);
     <link rel="stylesheet" href="../assets/compiled/css/app.css" />
     <link rel="stylesheet" href="../assets/compiled/css/app-dark.css" />
     <link rel="stylesheet" crossorigin="" href="../assets/compiled/css/iconly.css">
+    <style>
+    #roles-donut-chart {
+        width: 100%;
+        height: 300px;
+        /* atau 350–400px supaya proporsional */
+    }
+
+    .chart-container {
+        flex: 1;
+        min-height: 300px;
+    }
+    </style>
 </head>
 
 <body>
@@ -524,7 +536,7 @@ $roleTotals_json = json_encode($roleTotals);
 
         var optionsDonutRoles = {
             chart: {
-                type: 'pie',
+                type: 'radialBar',
                 height: 300
             },
             labels: <?= $roleLabels_json ?>,
