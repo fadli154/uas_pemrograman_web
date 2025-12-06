@@ -108,10 +108,6 @@ if (isset($_SESSION["log"])) {
                         <button class="btn btn-primary btn-block btn-lg shadow-lg mt-3" type="submit"
                             name="submit_login">Log in</button>
                     </form>
-                    <div class="text-center mt-3 text-md fs-8">
-                        <p class="text-gray-600">Don't have an account? <a href="register.php" class="font-bold">Sign
-                                up</a>.</p>
-                    </div>
                 </div>
             </div>
             <div class="col-lg-7 d-none d-lg-block">
