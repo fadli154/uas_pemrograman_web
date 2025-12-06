@@ -1,5 +1,4 @@
 <?php
-session_start();
 require '../../function.php'; 
 require __DIR__ . '/../../vendor/autoload.php';
 
