@@ -163,7 +163,7 @@ $books = select('SELECT * FROM books LIMIT 4');
                         <div class="flex-shrink-0 btn-square border border-2 border-white me-3">
                             <i class="fa fa-thumbs-up text-primary"></i>
                         </div>
-                        <h5 class="lh-base mb-0">Open Sourc</h5>
+                        <h5 class="lh-base mb-0">Open Source</h5>
                     </div>
                 </div>
             </div>
@@ -192,11 +192,12 @@ $books = select('SELECT * FROM books LIMIT 4');
                 <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
                     <h1 class="mb-5"><span class="text-uppercase text-primary bg-light px-2">History</span> of Our
                         Creation</h1>
-                    <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum et tempor sit. Aliqu diam
-                        amet diam et eos labore. Clita erat ipsum et lorem et sit, sed stet no labore lorem sit. Sanctus
-                        clita duo justo et tempor eirmod magna dolore erat amet</p>
-                    <p class="mb-5">Aliqu diam amet diam et eos labore. Clita erat ipsum et lorem et sit, sed stet no
-                        labore lorem sit. Sanctus clita duo justo et tempor.</p>
+                    <p class="mb-4">Platform ini didirikan atas keyakinan bahwa pendidikan Bahasa Indonesia haruslah modern, fleksibel, dan dapat diakses oleh semua orang. 
+                        Kami memulai perjalanan pada tahun 2025 dengan visi untuk menjembatani kesenjangan antara kurikulum tradisional dan kebutuhan belajar digital. 
+                        Proses kreasi kami melibatkan kolaborasi antara pendidik berpengalaman dan pengembang teknologi untuk memastikan materi yang kami sajikan efektif dan menyenangkan.</p>
+                    <p class="mb-5">Hingga saat ini, komitmen kami tetap teguh: menyediakan sumber belajar berkualitas tinggi yang mudah diintegrasikan ke dalam rutinitas harian Anda. 
+                        Kami terus berinovasi dalam metode pengajaran video dan modul interaktif, 
+                        sehingga setiap pembelajar dapat menguasai Bahasa Indonesia dengan percaya diri, sesuai dengan kecepatan belajar mereka sendiri.</p>
                     <div class="row g-3">
                         <div class="col-sm-6">
                             <h6 class="mb-3"><i class="fa fa-check text-primary me-2"></i>Quality Training</h6>
@@ -312,12 +313,9 @@ $books = select('SELECT * FROM books LIMIT 4');
                                 <div class="col-md-6">
                                     <div class="testimonial-text pb-5 pb-md-0">
                                         <h3>Easy To Learn Videos</h3>
-                                        <p>Aliqu diam amet diam et eos labore. Clita erat ipsum
-                                            et lorem et sit, sed
-                                            stet no labore lorem sit. Sanctus clita duo justo et
-                                            tempor eirmod magna
-                                            dolore erat
-                                            amet</p>
+                                        <p>Saya sangat senang dengan format pembelajaran video di sini! Materi disajikan dengan visual yang menarik dan penjelasan yang sangat ringkas, 
+                                            sehingga mudah sekali untuk saya pahami meskipun saya belajar sambil bekerja. 
+                                            Ini adalah cara yang menyenangkan untuk menguasai Bahasa Indonesia</p>
                                         <h5 class="mb-0">Boris Johnson</h5>
                                     </div>
                                 </div>
@@ -333,11 +331,8 @@ $books = select('SELECT * FROM books LIMIT 4');
                                 <div class="col-md-6">
                                     <div class="testimonial-text pb-5 pb-md-0">
                                         <h3>Professional Teacher</h3>
-                                        <p>Clita erat ipsum et lorem et sit, sed
-                                            stet no labore lorem sit. Sanctus clita duo justo et
-                                            tempor eirmod magna
-                                            dolore erat
-                                            amet</p>
+                                        <p>adalah seorang ahli Linguistik Terapan dengan fokus khusus pada metode pengajaran Bahasa Indonesia sebagai bahasa kedua. 
+                                            Lulusan Univesitas Indonesia ini memiliki pengalaman lebih dari 10 tahun dalam merancang kurikulum daring yang efektif.</p>
                                         <h5 class="mb-0">Alexander Bell</h5>
                                     </div>
                                 </div>
@@ -353,12 +348,9 @@ $books = select('SELECT * FROM books LIMIT 4');
                                 <div class="col-md-6">
                                     <div class="testimonial-text pb-5 pb-md-0">
                                         <h3>Cool Books</h3>
-                                        <p>Diam amet diam et eos labore. Clita erat ipsum et
-                                            lorem et sit, sed
-                                            stet no labore lorem sit. Sanctus clita duo justo et
-                                            tempor eirmod magna
-                                            dolore erat
-                                            amet</p>
+                                        <p>Metode video di platform ini benar-benar revolusioner! 
+                                            Saya yang awalnya merasa kesulitan belajar Bahasa Indonesia kini bisa memahami materi dengan sangat cepat dan efektif. 
+                                            Videonya ringkas, jelas, dan selalu menyenangkan untuk ditonton.</p>
                                         <h5 class="mb-0">Bradley Gordon</h5>
                                     </div>
                                 </div>
@@ -389,7 +381,7 @@ $books = select('SELECT * FROM books LIMIT 4');
                             <button type="button" class="btn shadow-none position-absolute top-0 end-0 mt-2 me-2"><i
                                     class="fa fa-paper-plane text-primary fs-4"></i></button>
                         </div>
-                        <p class="mb-0">Diam sed sed dolor stet amet eirmod</p>
+                        <p class="mb-0">Dapatkan pembaruan terkini, tips eksklusif, dan informasi penting seputar proyek kami langsung ke kotak masuk Anda.</p>
                     </div>
                 </div>
             </div>
@@ -406,17 +398,14 @@ $books = select('SELECT * FROM books LIMIT 4');
                     <a href="index.php" class="d-inline-block mb-3">
                         <h1 class="text-white">Baind</h1>
                     </a>
-                    <p class="mb-0">Tempor erat elitr rebum at clita. Diam dolor diam ipsum et
-                        tempor sit. Aliqu diam
-                        amet diam et eos labore. Clita erat ipsum et lorem et sit, sed stet no
-                        labore lorem sit. Sanctus
-                        clita duo justo et tempor</p>
+                    <p class="mb-0">Baind adalah platform digital yang inovatif, dikembangkan sebagai bagian dari Ujian Akhir Semester. 
+                        Kami berfokus untuk memberikan solusi yang efisien dalam bidang pengelolaan inventaris dan data . </p>
                 </div>
                 <div class="col-md-6 col-lg-3 wow fadeIn" data-wow-delay="0.3s">
                     <h5 class="text-white mb-4">Get In Touch</h5>
-                    <p><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
-                    <p><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
-                    <p><i class="fa fa-envelope me-3"></i>info@example.com</p>
+                    <p><i class="fa fa-map-marker-alt me-3"></i>123 Street, Banten, Indonesia</p>
+                    <p><i class="fa fa-phone-alt me-3"></i>081234567891</p>
+                    <p><i class="fa fa-envelope me-3"></i>Baind@gmail.com</p>
                     <div class="d-flex pt-2">
                         <a class="btn btn-outline-primary btn-square border-2 me-2" href="#!"><i
                                 class="fab fa-twitter"></i></a>
