@@ -163,7 +163,7 @@ $books = select('SELECT * FROM books LIMIT 4');
                         <div class="flex-shrink-0 btn-square border border-2 border-white me-3">
                             <i class="fa fa-thumbs-up text-primary"></i>
                         </div>
-                        <h5 class="lh-base mb-0">Open Source</h5>
+                        <h5 class="lh-base mb-0">Open Sourc</h5>
                     </div>
                 </div>
             </div>
